@@ -1,0 +1,67 @@
+﻿@*Model*@
+@model IEnumerable<ImportStore>
+
+@{
+    ViewData["Title"] = "Import Store";
+}
+
+@*View*@
+<div class="row">
+    <div class="col-md-8">
+        <h2>Phiếu nhập kho</h2>
+    </div>
+    <div class="col-md-4 text-end">
+        <a class="btn btn-success" asp-controller="ImportStore" asp-action="Create">
+            <i class="bi bi-plus-circle"></i> Thêm mới
+        </a>
+    </div>
+    <div class="col-md-12">
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th>@Html.DisplayNameFor(m => m.Id)</th>
+                    <th>@Html.DisplayNameFor(m => m.ImporterName)</th>
+                    <th>@Html.DisplayNameFor(m => m.ImportDate)</th>
+                    <th>@Html.DisplayNameFor(m => m.Product.ProductName)</th>
+                    <th>@Html.DisplayNameFor(m => m.Product.Price)</th>
+                    <th>@Html.DisplayNameFor(m => m.Quantity)</th>
+                    <th>@Html.DisplayNameFor(m => m.Total)</th>
+                    <th class="text-end">Thao tác</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model)
+                {
+                    <tr>
+                        <td class="align-middle">
+                            @Html.DisplayFor(modelItem => item.Id)
+                        </td>
+                        <td class="align-middle">
+                            @Html.DisplayFor(modelItem => item.ImporterName)
+                        </td>
+                        <td class="align-middle">
+                            @Html.DisplayFor(modelItem => item.ImportDate, "{dd/MM/yyyy}")
+                        </td>
+                        <td class="align-middle">
+                            @Html.DisplayFor(modelItem => item.Product.ProductName)
+                        </td> 
+                        <td class="align-middle">
+                            @Html.DisplayFor(modelItem => item.Product.Price)
+                        </td>
+                        <td class="align-middle">
+                            @Html.DisplayFor(modelItem => item.Quantity)
+                        </td>
+                        <td class="align-middle">
+                            @Html.DisplayFor(modelItem => item.Total)
+                        </td>
+                        <td class="align-middle text-end">
+                            <a class="btn btn-outline-info" asp-action="Details" asp-route-id="@item.Id"><i class="bi bi-eye"></i> Chi tiết</a>
+                            <a class="btn btn-primary" asp-action="Edit" asp-route-id="@item.Id"><i class="bi bi-pencil-square"></i> Sửa</a>
+                            <a class="btn btn-danger" asp-action="Delete" asp-route-id="@item.Id"><i class="bi bi-trash"></i> Xóa</a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

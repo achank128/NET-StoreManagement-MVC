@@ -1,0 +1,49 @@
+﻿@model ExportStore
+
+@{
+    ViewData["Title"] = "Add Export Store";
+}
+
+<div class="row text">
+    <div class="col-md-8 offset-2">
+        <h2>Thêm Phiếu xuất kho</h2>
+        <div class="row">
+            <div>
+                <form asp-action="Create">
+                    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                    <span class="text-danger">@ViewData["error"]</span>
+
+                    <div class="form-group mb-2">
+                        <label asp-for="ExporterName" class="control-label"></label>
+                        <input asp-for="ExporterName" class="form-control" />
+                        <span asp-validation-for="ExporterName" class="text-danger"></span>
+                    </div>
+                    <div class="form-group mb-2">
+                        <label asp-for="ExporterDate" class="control-label"></label>
+                        <input asp-for="ExporterDate" class="form-control" type="date" />
+                        <span asp-validation-for="ExporterDate" class="text-danger"></span>
+                    </div>
+                    <div class="form-group mb-2">
+                        <label asp-for="ProductId" class="control-label"></label>
+                        <select asp-for="ProductId" class="form-control" asp-items="ViewBag.Products"></select>
+                        <span asp-validation-for="ProductId" class="text-danger"></span>
+                    </div>
+                    <div class="form-group mb-4">
+                        <label asp-for="Quantity" class="control-label"></label>
+                        <input asp-for="Quantity" class="form-control" type="number" />
+                        <span asp-validation-for="Quantity" class="text-danger"></span>
+                    </div>
+                    @*<div class="form-group mb-4">
+                        <label asp-for="Total" class="control-label"></label>
+                        <input asp-for="Total" class="form-control" type="number" readonly/>
+                        <span asp-validation-for="Total" class="text-danger"></span>
+                    </div>*@
+                    <div class="form-group d-flex justify-content-between">
+                        <a class="btn btn-outline-secondary" asp-action="Index">Quay lại</a>
+                        <input type="submit" value="Lưu lại" class="btn btn-success float-right" />
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
