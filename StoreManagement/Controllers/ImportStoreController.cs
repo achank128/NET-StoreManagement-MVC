@@ -2,26 +2,33 @@
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using StoreManagement.Models;
+using StoreManagement.Repositories.ImportStoreRepository;
+using StoreManagement.Repositories.ProductRepository;
 
 namespace StoreManagement.Controllers
 {
     public class ImportStoreController : Controller
     {
-        private readonly StoreManagementContext _context;
+        private readonly IImportStoreRepository _importStoreRepository;
+        private readonly IProductRepository _productRepository;
 
-        public ImportStoreController(StoreManagementContext context)
+        public ImportStoreController(
+            IImportStoreRepository importStoreRepository,
+            IProductRepository productRepository
+            )
         {
-            _context = context;
+            _importStoreRepository = importStoreRepository;
+            _productRepository = productRepository;
         }
         public IActionResult Index()
         {
-            var importStores = _context.ImportStores.Include(s => s.Product).ToList().OrderByDescending(s => s.ImportDate);
+            var importStores = _importStoreRepository.GetQueryable().Include(s => s.Product).ToList().OrderByDescending(s => s.ImportDate);
             return View(importStores);
         }
 
         public async Task<IActionResult> Create()
         {
-            ViewBag.Products = new SelectList(await _context.Products.ToListAsync(), "Id", "ProductName");
+            ViewBag.Products = new SelectList(_productRepository.GetAll().ToList(), "Id", "ProductName");
             return View();
         }
 
@@ -32,37 +39,37 @@ namespace StoreManagement.Controllers
             {
                 return View(importStore);
             }
-            importStore.Id = Guid.NewGuid();
 
-            var product = await _context.Products.SingleOrDefaultAsync(x => x.Id == importStore.ProductId);
+            var product = _productRepository.GetById(importStore.ProductId);
             product.Number += importStore.Quantity;
-            _context.Update(product);
+            _productRepository.Update(product);
 
+            importStore.Id = Guid.NewGuid();
             importStore.Total = product.Price * importStore.Quantity;
-            _context.ImportStores.Add(importStore);
-            await _context.SaveChangesAsync();
+            _importStoreRepository.Add(importStore);
 
+            _importStoreRepository.Save();
             return RedirectToAction(nameof(Index));
         }
 
         public IActionResult Details(Guid id)
         {
-            var importStore = _context.ImportStores.Include(s => s.Product).SingleOrDefault(x => x.Id == id);
+            var importStore = _importStoreRepository.GetQueryable().Include(s => s.Product).SingleOrDefault(s => s.Id == id);
             if (importStore == null) return View("NotFound");
             return View(importStore);
         }
 
         public async Task<IActionResult> Edit(Guid id)
         {
-            var importStore = _context.ImportStores.Include(s => s.Product).SingleOrDefault(x => x.Id == id);
+            var importStore = _importStoreRepository.GetQueryable().Include(s => s.Product).SingleOrDefault(s => s.Id == id);
             if (importStore == null) return View("NotFound");
             return View(importStore);
         }
         [HttpPost]
         public async Task<IActionResult> Edit(Guid id, [Bind("Id,ImporterName,ImportDate,ProductId,Quantity,Total")] ImportStore importStoreUpdate)
         {
-            var importStore = _context.ImportStores.Include(s => s.Product).SingleOrDefault(x => x.Id == id);
-            var product = await _context.Products.SingleOrDefaultAsync(x => x.Id == importStore.ProductId);
+            var importStore = _importStoreRepository.GetById(id);
+            var product = _productRepository.GetById(importStore.ProductId);
 
             if (importStore == null) return View("NotFound");
             
@@ -78,44 +85,45 @@ namespace StoreManagement.Controllers
                 ViewData["error"] = "Số lượng nhập quá giới hạn";
                 return View(importStore);
             }
-
-            _context.Products.Update(product);
+            _productRepository.Update(product);
 
             //Update Store
             importStore.ImporterName = importStoreUpdate.ImporterName;
             importStore.ImportDate = importStoreUpdate.ImportDate;
             importStore.Quantity = importStoreUpdate.Quantity;
             importStore.Total = product.Price * importStoreUpdate.Quantity;
-            _context.ImportStores.Update(importStore);
+            _importStoreRepository.Update(importStore);
 
-            await _context.SaveChangesAsync();
+            _importStoreRepository.Save();
             return RedirectToAction(nameof(Index));
         }
 
 
         public async Task<IActionResult> Delete(Guid id)
         {
-            var importStore = await _context.ImportStores.SingleOrDefaultAsync(x => x.Id == id);
+            var importStore = _importStoreRepository.GetById(id);
             if (importStore == null) return View("NotFound");
             return View(importStore);
         }
         [HttpPost, ActionName("Delete")]
         public async Task<IActionResult> DeleteConfirmed(Guid id)
         {
-            var importStore = await _context.ImportStores.SingleOrDefaultAsync(x => x.Id == id);
+            var importStore = _importStoreRepository.GetById(id);
+            var product = _productRepository.GetById(importStore.ProductId);
+
             if (importStore == null) return View("NotFound");
 
-            var product = await _context.Products.SingleOrDefaultAsync(x => x.Id == importStore.ProductId);
             product.Number -= importStore.Quantity;
             if (product.Number < 0)
             {
                 ViewData["error"] = "Số lượng nhập quá giới hạn";
                 return View(importStore);
             }
-            _context.Products.Update(product);
+            _productRepository.Update(product);
 
-            _context.ImportStores.Remove(importStore);
-            await _context.SaveChangesAsync();
+            _importStoreRepository.Delete(importStore);
+            _importStoreRepository.Save();
+
             return RedirectToAction(nameof(Index));
         }
     }

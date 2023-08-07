@@ -1,20 +1,31 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using StoreManagement.Models;
+using StoreManagement.Repositories.ExportStoreRepository;
+using StoreManagement.Repositories.ImportStoreRepository;
+using StoreManagement.Repositories.ProductRepository;
 
 namespace StoreManagement.Controllers
 {
     public class ProductController : Controller
     {
-        private readonly StoreManagementContext _context;
+        private readonly IProductRepository _productRepository;
+        private readonly IImportStoreRepository _importStoreRepository;
+        private readonly IExportStoreRepository _exportStoreRepository;
 
-        public ProductController(StoreManagementContext context)
+        public ProductController(
+            IProductRepository productRepository, 
+            IImportStoreRepository importStoreRepository,
+            IExportStoreRepository exportStoreRepository
+            )
         {
-            _context = context;
+            _productRepository = productRepository;
+            _importStoreRepository = importStoreRepository;
+            _exportStoreRepository = exportStoreRepository;
         }
         public IActionResult Index()
         {
-            var products = _context.Products.ToList();
+            var products = _productRepository.GetAll().ToList();
             return View(products);
         }
 
@@ -31,15 +42,14 @@ namespace StoreManagement.Controllers
                 return View(product);
             }
             product.Id = Guid.NewGuid();
-            _context.Products.Add(product);
-           await _context.SaveChangesAsync();
-
+            _productRepository.Add(product);
+            _productRepository.Save();
             return RedirectToAction(nameof(Index));
         }
 
         public async Task<IActionResult> Details(Guid id)
         {
-            var product = await _context.Products.SingleOrDefaultAsync(x => x.Id == id);
+            var product = _productRepository.GetById<Guid>(id);
             if (product == null)
             {
                 return View("NotFound");
@@ -49,7 +59,7 @@ namespace StoreManagement.Controllers
 
         public async Task<IActionResult> Edit(Guid id)
         {
-            var product = await _context.Products.SingleOrDefaultAsync(x => x.Id == id);
+            var product = _productRepository.GetById<Guid>(id);
             if (product == null)
             {
                 return View("NotFound");
@@ -64,14 +74,14 @@ namespace StoreManagement.Controllers
             {
                 return View(product);
             }
-            _context.Products.Update(product);
-            await _context.SaveChangesAsync();
+            _productRepository.Update(product);
+            _productRepository.Save();
             return RedirectToAction(nameof(Index));
         }
 
         public async Task<IActionResult> Delete(Guid id)
         {
-            var product = await _context.Products.SingleOrDefaultAsync(x => x.Id == id);
+            var product = _productRepository.GetById<Guid>(id);
             if (product == null)
             {
                 return View("NotFound");
@@ -81,17 +91,17 @@ namespace StoreManagement.Controllers
         [HttpPost, ActionName("Delete")]
         public async Task<IActionResult> DeleteConfirmed(Guid id)
         {
-            var product = await _context.Products.SingleOrDefaultAsync(x => x.Id == id);
+            var product = _productRepository.GetById<Guid>(id);
             if (product == null) return View("NotFound");
 
-            var exportStore = await _context.ExportStores.Where(x => x.ProductId == product.Id).ToListAsync();
-            _context.ExportStores.RemoveRange(exportStore);
+            var exportStore = await _exportStoreRepository.GetBy(x => x.ProductId == product.Id).ToListAsync();
+            _exportStoreRepository.DeleteRange(exportStore);
 
-            var importStore = await _context.ImportStores.Where(x => x.ProductId == product.Id).ToListAsync();
-            _context.ImportStores.RemoveRange(importStore);
+            var importStore = await _importStoreRepository.GetBy(x => x.ProductId == product.Id).ToListAsync();
+            _importStoreRepository.DeleteRange(importStore);
 
-            _context.Products.Remove(product);
-            await _context.SaveChangesAsync();
+            _productRepository.Delete(product);
+            _productRepository.Save();
             return RedirectToAction(nameof(Index));
         }
     }

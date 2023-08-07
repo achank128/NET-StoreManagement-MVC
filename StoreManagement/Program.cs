@@ -1,5 +1,9 @@
 using Microsoft.EntityFrameworkCore;
 using StoreManagement.Models;
+using StoreManagement.Repositories.ExportStoreRepository;
+using StoreManagement.Repositories.ImportStoreRepository;
+using StoreManagement.Repositories.ProductRepository;
+using StoreManagement.Repositories.RepositoryBase;
 using System;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -11,6 +15,13 @@ builder.Services.AddDbContext<StoreManagementContext>(option =>
     option.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"))
 );
 
+#region Repositories
+builder.Services.AddScoped(typeof(IRepositoryBase<>), typeof(RepositoryBase<>));
+builder.Services.AddScoped<IProductRepository, ProductRepository>();
+builder.Services.AddScoped<IExportStoreRepository, ExportStoreRepository>();
+builder.Services.AddScoped<IImportStoreRepository, ImportStoreRepository>();
+
+#endregion
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
