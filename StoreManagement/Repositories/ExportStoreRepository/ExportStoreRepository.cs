@@ -5,9 +5,9 @@ namespace StoreManagement.Repositories.ExportStoreRepository
 {
     public class ExportStoreRepository : RepositoryBase<ExportStore>, IExportStoreRepository
     {
-        private readonly StoreManagementContext _context;
+        private readonly StoreManagementDbContext _context;
 
-        public ExportStoreRepository(StoreManagementContext context) : base(context)
+        public ExportStoreRepository(StoreManagementDbContext context) : base(context)
         {
             _context = context;
         }

@@ -13,34 +13,21 @@ public partial class ImportStore
     [Column("ID")]
     public Guid Id { get; set; }
 
-
-    [Display(Name = "Người nhập")]
-    [Required(ErrorMessage = "Tên người nhập là bắt buộc")]
     [StringLength(100)]
-    public string? ImporterName { get; set; }
+    public string ImporterName { get; set; } = null!;
 
+    [StringLength(100)]
+    public string Supplier { get; set; } = null!;
 
-    [Display(Name = "Ngày nhập")]
-    [Required(ErrorMessage = "Ngày nhập là bắt buộc")]
     [Column(TypeName = "datetime")]
     public DateTime ImportDate { get; set; }
 
-
-    [Display(Name = "Sản phẩm")]
-    [Required(ErrorMessage = "Sản phẩm là bắt buộc")]
-    public Guid ProductId { get; set; }
-
-
-    [Display(Name = "Số lượng")]
-    [Required(ErrorMessage = "Số lượng là bắt buộc")]
-    public int? Quantity { get; set; }
-
-
-    [Display(Name = "Tổng tiền")]
     [Column(TypeName = "money")]
-    public float? Total { get; set; }
+    public decimal Total { get; set; }
 
-    [ForeignKey("ProductId")]
-    [InverseProperty("ImportStores")]
-    public virtual Product? Product { get; set; } = null!;
+    [Column(TypeName = "datetime")]
+    public DateTime CreatedDate { get; set; }
+
+    [InverseProperty("ImportStore")]
+    public virtual ICollection<ImportStoreDetail> ImportStoreDetails { get; set; } = new List<ImportStoreDetail>();
 }

@@ -13,34 +13,21 @@ public partial class ExportStore
     [Column("ID")]
     public Guid Id { get; set; }
 
-
-    [Display(Name = "Người xuất")]
-    [Required(ErrorMessage = "Tên người xuất là bắt buộc")]
     [StringLength(100)]
-    public string? ExporterName { get; set; }
+    public string ExporterName { get; set; } = null!;
 
+    [StringLength(100)]
+    public string Customer { get; set; } = null!;
 
-    [Display(Name = "Ngày xuất")]
-    [Required(ErrorMessage = "Ngày xuất là bắt buộc")]
     [Column(TypeName = "datetime")]
-    public DateTime ExporterDate { get; set; }
+    public DateTime ExportDate { get; set; }
 
-
-    [Display(Name = "Sản phẩm")]
-    [Required(ErrorMessage = "Sản phẩm là bắt buộc")]
-    public Guid ProductId { get; set; }
-
-
-    [Display(Name = "Số lượng")]
-    [Required(ErrorMessage = "Số lượng là bắt buộc")]
-    public int? Quantity { get; set; }
-
-
-    [Display(Name = "Tổng tiền")]
     [Column(TypeName = "money")]
-    public float? Total { get; set; }
+    public decimal Total { get; set; }
 
-    [ForeignKey("ProductId")]
-    [InverseProperty("ExportStores")]
-    public virtual Product? Product { get; set; } = null!;
+    [Column(TypeName = "datetime")]
+    public DateTime CreatedDate { get; set; }
+
+    [InverseProperty("ExportStore")]
+    public virtual ICollection<ExportStoreDetail> ExportStoreDetails { get; set; } = new List<ExportStoreDetail>();
 }

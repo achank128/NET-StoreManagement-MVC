@@ -19,10 +19,12 @@
         <table class="table table-bordered">
             <thead>
                 <tr>
-                    <th>@Html.DisplayNameFor(m => m.Id)</th>
+                    <th>@Html.DisplayNameFor(m => m.ProductCode)</th>
                     <th>@Html.DisplayNameFor(m => m.ProductName)</th>
                     <th>@Html.DisplayNameFor(m => m.Manufacturer)</th>
+                    <th>@Html.DisplayNameFor(m => m.CategoryId)</th>
                     <th>@Html.DisplayNameFor(m => m.Description)</th>
+                    <th>@Html.DisplayNameFor(m => m.Unit)</th>
                     <th>@Html.DisplayNameFor(m => m.Price)</th>
                     <th>@Html.DisplayNameFor(m => m.Number)</th>
                     <th class="text-end">Thao tác</th>
@@ -33,7 +35,7 @@
                 {
                     <tr>
                         <td class="align-middle">
-                            @Html.DisplayFor(modelItem => item.Id)
+                            @Html.DisplayFor(modelItem => item.ProductCode)
                         </td>
                         <td class="align-middle">
                             @Html.DisplayFor(modelItem => item.ProductName)
@@ -42,8 +44,14 @@
                             @Html.DisplayFor(modelItem => item.Manufacturer)
                         </td> 
                         <td class="align-middle">
+                            @Html.DisplayFor(modelItem => item.Category.CategoryName)
+                        </td>
+                        <td class="align-middle">
                             @Html.DisplayFor(modelItem => item.Description)
-                        </td> 
+                        </td>
+                        <td class="align-middle">
+                            @Html.DisplayFor(modelItem => item.Unit)
+                        </td>
                         <td class="align-middle">
                             @Html.DisplayFor(modelItem => item.Price)
                         </td>

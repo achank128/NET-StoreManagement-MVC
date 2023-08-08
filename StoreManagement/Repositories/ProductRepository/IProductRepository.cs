@@ -5,6 +5,6 @@ namespace StoreManagement.Repositories.ProductRepository
 {
     public interface IProductRepository : IRepositoryBase<Product>
     {
-
+        Task<List<Product>> GetAllProducts();
     }
 }

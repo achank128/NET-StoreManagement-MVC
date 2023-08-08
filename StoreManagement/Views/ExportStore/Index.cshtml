@@ -21,10 +21,9 @@
                 <tr>
                     <th>@Html.DisplayNameFor(m => m.Id)</th>
                     <th>@Html.DisplayNameFor(m => m.ExporterName)</th>
-                    <th>@Html.DisplayNameFor(m => m.ExporterDate)</th>
-                    <th>@Html.DisplayNameFor(m => m.Product.ProductName)</th>
-                    <th>@Html.DisplayNameFor(m => m.Product.Price)</th>
-                    <th>@Html.DisplayNameFor(m => m.Quantity)</th>
+                    <th>@Html.DisplayNameFor(m => m.Customer)</th>
+                    <th>@Html.DisplayNameFor(m => m.ExportDate)</th>
+                    <th>@Html.DisplayNameFor(m => m.CreatedDate)</th>
                     <th>@Html.DisplayNameFor(m => m.Total)</th>
                     <th class="text-end">Thao tác</th>
                 </tr>
@@ -39,17 +38,14 @@
                         <td class="align-middle">
                             @Html.DisplayFor(modelItem => item.ExporterName)
                         </td>
-                        <td class="align-middle">
-                            @Html.DisplayFor(modelItem => item.ExporterDate, "{dd/MM/yyyy}")
+                         <td class="align-middle">
+                            @Html.DisplayFor(modelItem => item.Customer)
                         </td>
                         <td class="align-middle">
-                            @Html.DisplayFor(modelItem => item.Product.ProductName)
+                            @Html.DisplayFor(modelItem => item.ExportDate, "{dd/MM/yyyy}")
                         </td>
                         <td class="align-middle">
-                            @Html.DisplayFor(modelItem => item.Product.Price)
-                        </td>
-                        <td class="align-middle">
-                            @Html.DisplayFor(modelItem => item.Quantity)
+                            @Html.DisplayFor(modelItem => item.CreatedDate, "{dd/MM/yyyy}")
                         </td>
                         <td class="align-middle">
                             @Html.DisplayFor(modelItem => item.Total)
