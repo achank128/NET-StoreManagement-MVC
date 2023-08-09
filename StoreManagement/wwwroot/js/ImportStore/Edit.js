@@ -8,8 +8,8 @@
         <tr class="product-item">
             <td>
                 <select class="Product form-select">${result.data.map((p) => {
-                    return `<option value="${p.id}">${p.productName}</option>`
-                }).join('')
+            return `<option value="${p.id}">${p.productName}</option>`
+        }).join('')
             }</select>
             </td>
             <td><input type="number" class="ProductPrice form-control" readonly/></td>
@@ -22,13 +22,18 @@
         $("#add-product-item").click((e) => {
             e.preventDefault();
             $("#product-items").append(newProductItemHtml);
-            setProductItem(result)
+            setProductItem(result);
         })
+        setProductItem(result);
     });
 });
 
 function setProductItem(result) {
     $('.product-item').each((i, e) => {
+        var productId = $(e).find('.Product :selected').val();
+        var productPrice = result.data.find(p => p.id == productId).price
+        $(e).find('.ProductPrice').val(productPrice);
+
         $(e).find('.Product').on('change', () => {
             var productId = $(e).find('.Product :selected').val();
             var productPrice = result.data.find(p => p.id == productId).price
@@ -38,6 +43,19 @@ function setProductItem(result) {
             $(e).remove();
         })
     })
+}
+
+
+function caculateTotal() {
+    var total = 0;
+    $('.product-item').each((i, e) => {
+        var item = {
+            quantity: $(e).find('.Quantity').val(),
+            price: $(e).find('.Price').val(),
+        }
+        total += Number(item.quantity) * Number(item.price);
+    });
+    $("#Total").val(total)
 }
 
 

@@ -1,11 +1,11 @@
-﻿@model X.PagedList.IPagedList<Product>
-@using X.PagedList.Mvc.Core
+﻿@using X.PagedList.Mvc.Core
 @using X.PagedList.Web.Common;
+@model X.PagedList.IPagedList<Product>
 @{
     ViewData["Title"] = "Products";
+    var dummy = Model.FirstOrDefault();
 }
 
-@*View*@
 <div class="row">
     <div class="col-md-8">
         <h2>Danh sách sản phẩm</h2>
@@ -23,12 +23,14 @@
             </div>
         </form>
     </div>
+    <div class="col-md-8 text-end">
+        <a class="btn" asp-action="Index">
+            <i class="bi bi-arrow-clockwise"></i>
+        </a>
+    </div>
     <div class="col-md-12">
         <table class="table table-bordered">
             <thead>
-                @{
-                    var dummy = Model.FirstOrDefault();
-                }
                 <tr>
                     <th>@Html.DisplayNameFor(m => dummy.ProductCode)</th>
                     <th>@Html.DisplayNameFor(m => dummy.ProductName)</th>

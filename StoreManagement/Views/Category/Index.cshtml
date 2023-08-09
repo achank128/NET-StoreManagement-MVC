@@ -1,20 +1,17 @@
-﻿@using X.PagedList.Mvc.Core;
+﻿@using X.PagedList.Mvc.Core
 @using X.PagedList.Web.Common;
-@*Model*@
-@model X.PagedList.IPagedList<ImportStore>
-
+@model X.PagedList.IPagedList<Category>
 @{
-    ViewData["Title"] = "Import Store";
+    ViewData["Title"] = "Categories";
     var dummy = Model.FirstOrDefault();
 }
 
-@*View*@
 <div class="row">
     <div class="col-md-8">
-        <h2>Phiếu nhập kho</h2>
+        <h2>Danh sách Danh mục</h2>
     </div>
     <div class="col-md-4 text-end">
-        <a class="btn btn-success" asp-controller="ImportStore" asp-action="Create">
+        <a class="btn btn-success" asp-controller="Product" asp-action="Create">
             <i class="bi bi-plus-circle"></i> Thêm mới
         </a>
     </div>
@@ -36,11 +33,8 @@
             <thead>
                 <tr>
                     <th>@Html.DisplayNameFor(m => dummy.Id)</th>
-                    <th>@Html.DisplayNameFor(m => dummy.ImporterName)</th>
-                    <th>@Html.DisplayNameFor(m => dummy.Supplier)</th>
-                    <th>@Html.DisplayNameFor(m => dummy.ImportDate)</th>
-                    <th>@Html.DisplayNameFor(m => dummy.CreatedDate)</th>
-                    <th>@Html.DisplayNameFor(m => dummy.Total)</th>
+                    <th>@Html.DisplayNameFor(m => dummy.CategoryName)</th>
+                    <th>@Html.DisplayNameFor(m => dummy.Description)</th>
                     <th class="text-end">Thao tác</th>
                 </tr>
             </thead>
@@ -52,19 +46,10 @@
                             @Html.DisplayFor(modelItem => item.Id)
                         </td>
                         <td class="align-middle">
-                            @Html.DisplayFor(modelItem => item.ImporterName)
+                            @Html.DisplayFor(modelItem => item.CategoryName)
                         </td>
                         <td class="align-middle">
-                            @Html.DisplayFor(modelItem => item.Supplier)
-                        </td> 
-                        <td class="align-middle">
-                            @Html.DisplayFor(modelItem => item.ImportDate, "{dd/MM/yyyy}")
-                        </td>
-                        <td class="align-middle">
-                            @Html.DisplayFor(modelItem => item.CreatedDate, "{dd/MM/yyyy}")
-                        </td>
-                        <td class="align-middle">
-                            @Html.DisplayFor(modelItem => item.Total)
+                            @Html.DisplayFor(modelItem => item.Description)
                         </td>
                         <td class="align-middle text-end">
                             <a class="btn btn-outline-info" asp-action="Details" asp-route-id="@item.Id"><i class="bi bi-eye"></i> Chi tiết</a>

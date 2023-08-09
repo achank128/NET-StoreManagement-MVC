@@ -32,6 +32,7 @@
                         <thead>
                             <tr>
                                 <th>Sản phẩm</th>
+                                <th>Đơn giá</th>
                                 <th>Số lượng</th>
                                 <th>Giá bán</th>
                             </tr>
@@ -43,6 +44,7 @@
                                     <td>
                                         <input asp-for="@item.Product.ProductName" class="form-control" readonly />
                                     </td>
+                                    <td><input asp-for="@item.Product.Price" class="form-control" readonly /></td>
                                     <td><input asp-for="@item.Quantity" class="form-control" readonly /></td>
                                     <td><input asp-for="@item.ExportPrice" class="form-control" readonly /></td>
                                 </tr>

@@ -1,11 +1,12 @@
-﻿@*Model*@
-@model IEnumerable<ExportStore>
+﻿@using X.PagedList.Mvc.Core;
+@using X.PagedList.Web.Common;
+@model X.PagedList.IPagedList<ExportStore>
 
 @{
     ViewData["Title"] = "Export Store";
+    var dummy = Model.FirstOrDefault();
 }
 
-@*View*@
 <div class="row">
     <div class="col-md-8">
         <h2>Phiếu xuất kho</h2>
@@ -15,16 +16,29 @@
             <i class="bi bi-plus-circle"></i> Thêm mới
         </a>
     </div>
+    <div class="col-md-4 mb-3">
+        <form asp-action="Index" method="get">
+            <div class="input-group">
+                <input type="text" class="form-control" name="SearchString" value="@ViewData["CurrentFilter"]" />
+                <input type="submit" value="Tìm kiếm" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+    <div class="col-md-8 text-end">
+        <a class="btn" asp-action="Index">
+            <i class="bi bi-arrow-clockwise"></i>
+        </a>
+    </div>
     <div class="col-md-12">
         <table class="table table-bordered">
             <thead>
                 <tr>
-                    <th>@Html.DisplayNameFor(m => m.Id)</th>
-                    <th>@Html.DisplayNameFor(m => m.ExporterName)</th>
-                    <th>@Html.DisplayNameFor(m => m.Customer)</th>
-                    <th>@Html.DisplayNameFor(m => m.ExportDate)</th>
-                    <th>@Html.DisplayNameFor(m => m.CreatedDate)</th>
-                    <th>@Html.DisplayNameFor(m => m.Total)</th>
+                    <th>@Html.DisplayNameFor(m => dummy.Id)</th>
+                    <th>@Html.DisplayNameFor(m => dummy.ExporterName)</th>
+                    <th>@Html.DisplayNameFor(m => dummy.Customer)</th>
+                    <th>@Html.DisplayNameFor(m => dummy.ExportDate)</th>
+                    <th>@Html.DisplayNameFor(m => dummy.CreatedDate)</th>
+                    <th>@Html.DisplayNameFor(m => dummy.Total)</th>
                     <th class="text-end">Thao tác</th>
                 </tr>
             </thead>
@@ -38,7 +52,7 @@
                         <td class="align-middle">
                             @Html.DisplayFor(modelItem => item.ExporterName)
                         </td>
-                         <td class="align-middle">
+                        <td class="align-middle">
                             @Html.DisplayFor(modelItem => item.Customer)
                         </td>
                         <td class="align-middle">
@@ -59,5 +73,18 @@
                 }
             </tbody>
         </table>
+
+        @Html.PagedListPager(Model, page => Url.Action("index", new { page = page }), new PagedListRenderOptions()
+        {
+        ActiveLiElementClass = "active",
+        PageClasses = new[]{ "page-link"},
+        LiElementClasses=new[] { "page-item" },
+        UlElementClasses = new[] { "pagination", "mt-3" },
+        LinkToNextPageFormat = ">",
+        LinkToPreviousPageFormat = "<",
+        MaximumPageNumbersToDisplay = 5,
+        DisplayLinkToPreviousPage = PagedListDisplayMode.Always,
+        DisplayLinkToNextPage = PagedListDisplayMode.Always
+        })
     </div>
 </div>

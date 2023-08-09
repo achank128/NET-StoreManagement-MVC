@@ -7,6 +7,7 @@ using StoreManagement.Repositories.ExportStoreRepository;
 using StoreManagement.Repositories.ImportStoreRepository;
 using StoreManagement.Repositories.ProductRepository;
 using System.Reflection.Metadata;
+using X.PagedList;
 
 namespace StoreManagement.Controllers
 {
@@ -23,12 +24,24 @@ namespace StoreManagement.Controllers
             _exportStoreRepository = exportStoreRepository;
             _productRepository = productRepository;
         }
-        public IActionResult Index()
+        public IActionResult Index(int? page, string searchString)
         {
-            var exportStores = _exportStoreRepository.GetQueryable()
-                .ToList()
-                .OrderByDescending(s => s.CreatedDate);
-            return View(exportStores);
+            ViewData["CurrentFilter"] = searchString;
+
+            if (page == null) page = 1;
+            int pageSize = 3;
+            int pageNumber = (page ?? 1);
+
+            IQueryable<ExportStore> exportStores = _exportStoreRepository.GetQueryable();
+            if (!String.IsNullOrEmpty(searchString))
+            {
+                exportStores = exportStores.Where(s =>
+                s.ExporterName.Contains(searchString)
+                || s.Customer.Contains(searchString)
+                );
+            }
+            exportStores = exportStores.OrderByDescending(s => s.CreatedDate);
+            return View(exportStores.ToPagedList(pageNumber, pageSize));
         }
 
         public async Task<IActionResult> Create()
@@ -59,10 +72,6 @@ namespace StoreManagement.Controllers
                     Quantity = item.Quantity,
                     ExportPrice = item.Price,
                 });
-
-                var product = _productRepository.GetById(item.ProductId);
-                product.Number -= item.Quantity;
-                _productRepository.Update(product);
             }
 
             await _exportStoreRepository.CreateExportStore(exportStore, exportStoreDetails);

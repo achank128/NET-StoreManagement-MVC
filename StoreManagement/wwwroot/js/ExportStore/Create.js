@@ -1,6 +1,5 @@
-﻿var newProductItemHtml = "";
-
-$(document).ready(function () {
+﻿$(document).ready(function () {
+    var newProductItemHtml = "";
     $.ajax({
         url: '/Product/GetAll',
         type: 'GET',
@@ -8,25 +7,43 @@ $(document).ready(function () {
         newProductItemHtml = `
         <tr class="product-item">
             <td>
-                <select class="Product form-select">${
-                    result.data.map((p) => {
-                        return `<option value="${p.id}">${p.productName}</option>`
-                    }).join('') 
-                }</select>
+                <select class="Product form-select">${result.data.map((p) => {
+            return `<option value="${p.id}">${p.productName}</option>`
+        }).join('')
+            }</select>
             </td>
+            <td><input type="number" class="ProductPrice form-control" readonly/></td>
             <td><input type="number" class="Quantity form-control" /></td>
             <td><input type="number" class="Price form-control" /></td>
             <td class="text-center align-middle">
                 <button class="btn btn-outline-danger btn-sm"><i class="bi bi-x"></i></button>
             </td>
         </tr>`
-        $("#product-items").append(newProductItemHtml);
-        $("#add-product-item").click(function (e) {
+        $("#add-product-item").click((e) => {
             e.preventDefault();
             $("#product-items").append(newProductItemHtml);
-        });
+            setProductItem(result);
+        })
+        setProductItem(result);
     });
 });
+
+function setProductItem(result) {
+    $('.product-item').each((i, e) => {
+        var productId = $(e).find('.Product :selected').val();
+        var productPrice = result.data.find(p => p.id == productId).price
+        $(e).find('.ProductPrice').val(productPrice);
+
+        $(e).find('.Product').on('change', () => {
+            var productId = $(e).find('.Product :selected').val();
+            var productPrice = result.data.find(p => p.id == productId).price
+            $(e).find('.ProductPrice').val(productPrice);
+        })
+        $(e).find('.btn').on('click', () => {
+            $(e).remove();
+        })
+    })
+}
 
 
 $('#save').click(function (e) {

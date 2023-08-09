@@ -36,7 +36,7 @@ public partial class ExportStore
     public float Total { get; set; }
 
 
-    [DisplayName("Ngày tạo phiếu")]
+    [DisplayName("Ngày cập nhật")]
     [Column(TypeName = "datetime")]
     public DateTime CreatedDate { get; set; }
 

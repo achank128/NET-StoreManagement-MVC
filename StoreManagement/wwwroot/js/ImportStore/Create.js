@@ -24,7 +24,15 @@
             $("#product-items").append(newProductItemHtml);
             setProductItem(result)
         })
+        setProductItem(result)
     });
+    $('body').on('change', '.Price', (e) => {
+        console.log(e)
+    });
+
+    $('body #table').on('change', '.Quantity', (e) => {
+        console.log(e)
+    })
 });
 
 function setProductItem(result) {

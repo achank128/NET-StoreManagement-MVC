@@ -5,7 +5,7 @@ using StoreManagement.Models;
 using StoreManagement.Models.Request;
 using StoreManagement.Repositories.ImportStoreRepository;
 using StoreManagement.Repositories.ProductRepository;
-
+using X.PagedList;
 
 namespace StoreManagement.Controllers
 {
@@ -22,12 +22,24 @@ namespace StoreManagement.Controllers
             _importStoreRepository = importStoreRepository;
             _productRepository = productRepository;
         }
-        public IActionResult Index()
+        public IActionResult Index(int? page, string searchString)
         {
-            var importStores = _importStoreRepository.GetQueryable()
-                .ToList()
-                .OrderByDescending(s => s.CreatedDate);
-            return View(importStores);
+            ViewData["CurrentFilter"] = searchString;
+
+            if (page == null) page = 1;
+            int pageSize = 3;
+            int pageNumber = (page ?? 1);
+
+            IQueryable<ImportStore> importStores = _importStoreRepository.GetQueryable();
+            if (!String.IsNullOrEmpty(searchString))
+            {
+                importStores = importStores.Where(s =>
+                s.ImporterName.Contains(searchString)
+                || s.Supplier.Contains(searchString)
+                );
+            }
+            importStores = importStores.OrderByDescending(s => s.CreatedDate);
+            return View(importStores.ToPagedList(pageNumber, pageSize));
         }
 
         public async Task<IActionResult> Create()
@@ -58,10 +70,6 @@ namespace StoreManagement.Controllers
                     Quantity = item.Quantity,
                     ImportPrice = item.Price,
                 });
-
-                var product = _productRepository.GetById(item.ProductId);
-                product.Number += item.Quantity;
-                _productRepository.Update(product);
             }
 
             await _importStoreRepository.CreateImportStore(importStore, importStoreDetails);
