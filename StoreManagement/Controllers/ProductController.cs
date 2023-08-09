@@ -112,5 +112,12 @@ namespace StoreManagement.Controllers
             _productRepository.Save();
             return RedirectToAction(nameof(Index));
         }
+
+
+        [HttpGet]
+        public async Task<IActionResult> GetAll()
+        {
+            return Json(new { data = _productRepository.GetAll().ToList() });
+        }
     }
 }

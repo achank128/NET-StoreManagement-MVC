@@ -46,7 +46,7 @@ public partial class Product
 
     [DisplayName("Đơn giá")]
     [Column(TypeName = "money")]
-    public decimal? Price { get; set; }
+    public float? Price { get; set; }
 
 
     [DisplayName("Số lượng tồn")]

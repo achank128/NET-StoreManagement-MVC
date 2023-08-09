@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using StoreManagement.Models;
+using StoreManagement.Models.Request;
 using StoreManagement.Repositories.ExportStoreRepository;
 using StoreManagement.Repositories.ImportStoreRepository;
 using StoreManagement.Repositories.ProductRepository;
@@ -32,106 +33,116 @@ namespace StoreManagement.Controllers
 
         public async Task<IActionResult> Create()
         {
-            ViewBag.Products = new SelectList(_productRepository.GetAll().ToList(), "Id", "ProductName");
             return View();
         }
 
-        //[HttpPost]
-        //public async Task<IActionResult> Create([Bind("ExporterName,ExporterDate,ProductId,Quantity,Total")] ExportStore exportStore)
-        //{
-        //    if (!ModelState.IsValid)
-        //    {
-        //        return View(exportStore);
-        //    }
+        [HttpPost]
+        public async Task<IActionResult> CreateExportStore([FromBody] ExportStoreRequest exportStoreRequest)
+        {
+            ExportStore exportStore = new ExportStore();
+            exportStore.Id = Guid.NewGuid();
+            exportStore.ExporterName = exportStoreRequest.ExporterName;
+            exportStore.Customer = exportStoreRequest.Customer;
+            exportStore.ExportDate = exportStoreRequest.ExportDate;
+            exportStore.CreatedDate = DateTime.Now;
+            exportStore.Total = exportStoreRequest.Total;
 
-        //    var product = _productRepository.GetById(exportStore.ProductId);
-        //    product.Number -= exportStore.Quantity;
-        //    if(product.Number < 0)
-        //    {
-        //        ViewData["error"] = "Số lượng xuất quá giới hạn";
-        //        return View(exportStore);
-        //    }
-        //    _productRepository.Update(product);
+            List<ExportStoreDetail> exportStoreDetails = new List<ExportStoreDetail>();
 
+            foreach (ProductItem item in exportStoreRequest.ListProducts)
+            {
+                exportStoreDetails.Add(new ExportStoreDetail
+                {
+                    Id = Guid.NewGuid(),
+                    ExportStoreId = exportStore.Id,
+                    ProductId = item.ProductId,
+                    Quantity = item.Quantity,
+                    ExportPrice = item.Price,
+                });
 
-        //    exportStore.Id = Guid.NewGuid();
-        //    exportStore.Total = product.Price * exportStore.Quantity;
-        //    _exportStoreRepository.Add(exportStore);
+                var product = _productRepository.GetById(item.ProductId);
+                product.Number -= item.Quantity;
+                _productRepository.Update(product);
+            }
 
-        //    _exportStoreRepository.Save();
-        //    return RedirectToAction(nameof(Index));
-        //}
+            await _exportStoreRepository.CreateExportStore(exportStore, exportStoreDetails);
+            return Json(new { data = exportStore });
+        }
 
         public IActionResult Details(Guid id)
         {
-            var exportStore = _exportStoreRepository.GetQueryable().SingleOrDefault(s => s.Id == id);
+            var exportStore = _exportStoreRepository.GetQueryable()
+                .Include(s => s.ExportStoreDetails).ThenInclude(s => s.Product)
+                .SingleOrDefault(s => s.Id == id);
             if (exportStore == null) return View("NotFound");
 
             return View(exportStore);
         }
 
 
-        //public async Task<IActionResult> Edit(Guid id)
-        //{
-        //    var exportStore = _exportStoreRepository.GetQueryable().Include(s => s.Product).SingleOrDefault(s => s.Id == id);
-        //    if (exportStore == null) return View("NotFound");
-        //    return View(exportStore);
-        //}
-        //[HttpPost]
-        //public async Task<IActionResult> Edit(Guid id, [Bind("Id,ExporterName,ExporterDate,ProductId,Quantity,Total")] ExportStore exportStoreUpdate)
-        //{
-        //    var exportStore = _exportStoreRepository.GetById(id);
-        //    var product = _productRepository.GetById(exportStore.ProductId);
+        public async Task<IActionResult> Edit(Guid id)
+        {
+            var exportStore = _exportStoreRepository.GetQueryable()
+               .Include(s => s.ExportStoreDetails).ThenInclude(s => s.Product)
+               .SingleOrDefault(s => s.Id == id);
 
-        //    if (exportStore == null) return View("NotFound");
-
-        //    if (!ModelState.IsValid)
-        //    {
-        //        return View(exportStore);
-        //    }
-
-        //    //Update Product
-        //    product.Number += exportStore.Quantity;
-        //    product.Number -= exportStoreUpdate.Quantity;
-        //    if (product.Number < 0)
-        //    {
-        //        ViewData["error"] = "Số lượng xuất quá giới hạn";
-        //        return View(exportStore);
-        //    }
-        //    _productRepository.Update(product);
-
-        //    //Update Store
-        //    exportStore.ExporterName = exportStoreUpdate.ExporterName;
-        //    exportStore.ExporterDate = exportStoreUpdate.ExporterDate;
-        //    exportStore.Quantity = exportStoreUpdate.Quantity;
-        //    exportStore.Total = product.Price * exportStoreUpdate.Quantity;
-        //    _exportStoreRepository.Update(exportStore);
-
-        //    _exportStoreRepository.Save();
-        //    return RedirectToAction(nameof(Index));
-        //}
+            ViewBag.ProductsList = new SelectList(_productRepository.GetAll().ToList(), "Id", "ProductName");
+            if (exportStore == null) return View("NotFound");
+            return View(exportStore);
+        }
 
 
-        //public async Task<IActionResult> Delete(Guid id)
-        //{
-        //    var importStore = _exportStoreRepository.GetById(id);
-        //    if (importStore == null) return View("NotFound");
-        //    return View(importStore);
-        //}
-        //[HttpPost, ActionName("Delete")]
-        //public async Task<IActionResult> DeleteConfirmed(Guid id)
-        //{
-        //    var exportStore = _exportStoreRepository.GetById(id);
-        //    if (exportStore == null) return View("NotFound");
+        [HttpPost]
+        public async Task<IActionResult> EditExportStore([FromBody] ExportStoreRequest exportStoreRequest)
+        {
+            ExportStore exportStore = new ExportStore();
+            exportStore.Id = (Guid)exportStoreRequest.Id;
+            exportStore.ExporterName = exportStoreRequest.ExporterName;
+            exportStore.Customer = exportStoreRequest.Customer;
+            exportStore.ExportDate = exportStoreRequest.ExportDate;
+            exportStore.CreatedDate = DateTime.Now;
+            exportStore.Total = exportStoreRequest.Total;
 
-        //    var product = _productRepository.GetById(exportStore.ProductId);
-        //    product.Number += exportStore.Quantity;
-        //    _productRepository.Update(product);
+            List<ExportStoreDetail> exportStoreDetails = new List<ExportStoreDetail>();
 
-        //    _exportStoreRepository.Delete(exportStore);
+            foreach (ProductItem item in exportStoreRequest.ListProducts)
+            {
+                exportStoreDetails.Add(new ExportStoreDetail
+                {
+                    Id = (Guid)(item.Id == null ? Guid.NewGuid() : item.Id),
+                    ExportStoreId = exportStore.Id,
+                    ProductId = item.ProductId,
+                    Quantity = item.Quantity,
+                    ExportPrice = item.Price,
+                });
+            }
 
-        //    _exportStoreRepository.Save();
-        //    return RedirectToAction(nameof(Index));
-        //}
+            await _exportStoreRepository.UpdateExportStore(exportStore, exportStoreDetails);
+
+            return Json(new { data = exportStore, exportStoreDetails });
+        }
+
+
+        public async Task<IActionResult> Delete(Guid id)
+        {
+            var exportStore = _exportStoreRepository.GetById(id);
+            if (exportStore == null) return View("NotFound");
+            return View(exportStore);
+        }
+        [HttpPost, ActionName("Delete")]
+        public async Task<IActionResult> DeleteConfirmed(Guid id)
+        {
+            var exportStore = _exportStoreRepository.GetById(id);
+            if (exportStore == null) return View("NotFound");
+
+            //var product = _productRepository.GetById(exportStore.ProductId);
+            //product.Number += exportStore.Quantity;
+            //_productRepository.Update(product);
+
+            _exportStoreRepository.DeleteExportStore(exportStore);
+
+            _exportStoreRepository.Save();
+            return RedirectToAction(nameof(Index));
+        }
     }
 }
