@@ -11,8 +11,8 @@
         <h2>Danh sách Danh mục</h2>
     </div>
     <div class="col-md-4 text-end">
-        <a class="btn btn-success" asp-controller="Product" asp-action="Create">
-            <i class="bi bi-plus-circle"></i> Thêm mới
+        <a class="btn" asp-action="Index">
+            <i class="bi bi-arrow-clockwise"></i>
         </a>
     </div>
     <div class="col-md-4 mb-3">
@@ -24,10 +24,11 @@
         </form>
     </div>
     <div class="col-md-8 text-end">
-        <a class="btn" asp-action="Index">
-            <i class="bi bi-arrow-clockwise"></i>
+        <a class="btn btn-success" asp-controller="Product" asp-action="Create">
+            <i class="bi bi-plus-circle"></i> Thêm mới
         </a>
     </div>
+    
     <div class="col-md-12">
         <table class="table table-bordered">
             <thead>
