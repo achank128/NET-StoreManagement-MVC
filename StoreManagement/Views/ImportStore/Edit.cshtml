@@ -35,8 +35,9 @@
                             <thead>
                                 <tr>
                                     <th>Sản phẩm</th>
+                                    <th>Đơn giá</th>
                                     <th>Số lượng</th>
-                                    <th>Giá bán</th>
+                                    <th>Giá Nhập</th>
                                     <th class="text-center">
                                         <button id="add-product-item" class="btn btn-success">
                                             <i class="bi bi-plus-square"></i> Thêm
@@ -50,8 +51,13 @@
                                     <tr class="product-item">
                                         <td>
                                             <input id="ProductItemId" asp-for="@item.Id" type="hidden" />
-                                            <select id="Product" asp-for="@item.ProductId" class="form-control" asp-items="ViewBag.ProductsList"></select>
+                                            <select id="Product"
+                                                asp-for="@item.ProductId"
+                                                class="form-control"
+                                                asp-items="ViewBag.ProductsList">
+                                            </select>
                                         </td>
+                                        <td><input id="ProductPrice" type="number" asp-for="@item.Product.Price" class="form-control" readonly /></td>
                                         <td><input id="Quantity" type="number" asp-for="@item.Quantity" class="form-control" /></td>
                                         <td><input id="Price" type="number" asp-for="@item.ImportPrice" class="form-control" /></td>
                                         <td class="text-center align-middle">
@@ -76,6 +82,12 @@
         </div>
     </div>
 </div>
+
+<script>
+    function () {
+
+    }
+</script>
 
 @section Scripts{
     <script src="~/js/ImportStore/Edit.js"></script>

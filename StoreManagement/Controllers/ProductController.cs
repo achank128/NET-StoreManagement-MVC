@@ -3,9 +3,9 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using StoreManagement.Models;
 using StoreManagement.Repositories.CategoryRepository;
-using StoreManagement.Repositories.ExportStoreRepository;
-using StoreManagement.Repositories.ImportStoreRepository;
 using StoreManagement.Repositories.ProductRepository;
+using StoreManagement.Repositories.RepositoryBase;
+using X.PagedList;
 
 namespace StoreManagement.Controllers
 {
@@ -13,25 +13,42 @@ namespace StoreManagement.Controllers
     {
         private readonly ICategoryRepository _categoryRepository;
         private readonly IProductRepository _productRepository;
-        private readonly IImportStoreRepository _importStoreRepository;
-        private readonly IExportStoreRepository _exportStoreRepository;
+        private readonly IRepositoryBase<ImportStoreDetail> _importStoreDetailRepository;
+        private readonly IRepositoryBase<ExportStoreDetail> _exportStoreDetailRepository;
 
         public ProductController(
             ICategoryRepository categoryRepository,
-            IProductRepository productRepository, 
-            IImportStoreRepository importStoreRepository,
-            IExportStoreRepository exportStoreRepository
+            IProductRepository productRepository,
+            IRepositoryBase<ImportStoreDetail> importStoreDetailRepository,
+            IRepositoryBase<ExportStoreDetail> exportStoreDetailRepository
             )
         {
             _categoryRepository = categoryRepository;
             _productRepository = productRepository;
-            _importStoreRepository = importStoreRepository;
-            _exportStoreRepository = exportStoreRepository;
+            _importStoreDetailRepository = importStoreDetailRepository;
+            _exportStoreDetailRepository = exportStoreDetailRepository;
         }
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(int? page, string searchString)
         {
-            var products = await _productRepository.GetAllProducts();
-            return View(products);
+            ViewData["CurrentFilter"] = searchString;
+
+            if (page == null) page = 1;
+            int pageSize = 3;
+            int pageNumber = (page ?? 1);
+
+            IQueryable<Product> products = _productRepository.GetQueryable().Include(p => p.Category);
+
+            if (!String.IsNullOrEmpty(searchString))
+            {
+                products = products.Where(s => 
+                s.ProductName.Contains(searchString)
+                || s.ProductCode.Contains(searchString)
+                || s.Manufacturer.Contains(searchString)
+                || s.Category.CategoryName.Contains(searchString)
+                );
+            }
+
+            return View(products.ToPagedList(pageNumber, pageSize));
         }
 
         public IActionResult Create()
@@ -102,11 +119,11 @@ namespace StoreManagement.Controllers
             var product = _productRepository.GetById<Guid>(id);
             if (product == null) return View("NotFound");
 
-            //var exportStore = await _exportStoreRepository.GetBy(x => x.ProductId == product.Id).ToListAsync();
-            //_exportStoreRepository.DeleteRange(exportStore);
+            var exportStore = await _exportStoreDetailRepository.GetBy(x => x.ProductId == product.Id).ToListAsync();
+            _exportStoreDetailRepository.DeleteRange(exportStore);
 
-            //var importStore = await _importStoreRepository.GetBy(x => x.ProductId == product.Id).ToListAsync();
-            //_importStoreRepository.DeleteRange(importStore);
+            var importStore = await _importStoreDetailRepository.GetBy(x => x.ProductId == product.Id).ToListAsync();
+            _importStoreDetailRepository.DeleteRange(importStore);
 
             _productRepository.Delete(product);
             _productRepository.Save();

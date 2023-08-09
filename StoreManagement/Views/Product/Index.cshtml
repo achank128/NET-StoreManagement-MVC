@@ -1,6 +1,6 @@
-﻿@*Model*@
-@model IEnumerable<Product>
-
+﻿@model X.PagedList.IPagedList<Product>
+@using X.PagedList.Mvc.Core
+@using X.PagedList.Web.Common;
 @{
     ViewData["Title"] = "Products";
 }
@@ -15,18 +15,29 @@
             <i class="bi bi-plus-circle"></i> Thêm mới
         </a>
     </div>
+    <div class="col-md-4 mb-3">
+        <form asp-action="Index" method="get">
+            <div class="input-group">
+                <input type="text" class="form-control" name="SearchString" value="@ViewData["CurrentFilter"]" />
+                <input type="submit" value="Tìm kiếm" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
     <div class="col-md-12">
         <table class="table table-bordered">
             <thead>
+                @{
+                    var dummy = Model.FirstOrDefault();
+                }
                 <tr>
-                    <th>@Html.DisplayNameFor(m => m.ProductCode)</th>
-                    <th>@Html.DisplayNameFor(m => m.ProductName)</th>
-                    <th>@Html.DisplayNameFor(m => m.Manufacturer)</th>
-                    <th>@Html.DisplayNameFor(m => m.CategoryId)</th>
-                    <th>@Html.DisplayNameFor(m => m.Description)</th>
-                    <th>@Html.DisplayNameFor(m => m.Unit)</th>
-                    <th>@Html.DisplayNameFor(m => m.Price)</th>
-                    <th>@Html.DisplayNameFor(m => m.Number)</th>
+                    <th>@Html.DisplayNameFor(m => dummy.ProductCode)</th>
+                    <th>@Html.DisplayNameFor(m => dummy.ProductName)</th>
+                    <th>@Html.DisplayNameFor(m => dummy.Manufacturer)</th>
+                    <th>@Html.DisplayNameFor(m => dummy.CategoryId)</th>
+                    <th>@Html.DisplayNameFor(m => dummy.Description)</th>
+                    <th>@Html.DisplayNameFor(m => dummy.Unit)</th>
+                    <th>@Html.DisplayNameFor(m => dummy.Price)</th>
+                    <th>@Html.DisplayNameFor(m => dummy.Number)</th>
                     <th class="text-end">Thao tác</th>
                 </tr>
             </thead>
@@ -67,5 +78,18 @@
                 }
             </tbody>
         </table>
+
+        @Html.PagedListPager(Model, page => Url.Action("index", new { page = page }), new PagedListRenderOptions()
+        {
+        ActiveLiElementClass = "active",
+        PageClasses = new[]{ "page-link"},
+        LiElementClasses=new[] { "page-item" },
+        UlElementClasses = new[] { "pagination", "mt-3" },
+        LinkToNextPageFormat = ">",
+        LinkToPreviousPageFormat = "<",
+        MaximumPageNumbersToDisplay = 5,
+        DisplayLinkToPreviousPage = PagedListDisplayMode.Always,
+        DisplayLinkToNextPage = PagedListDisplayMode.Always
+        })
     </div>
 </div>

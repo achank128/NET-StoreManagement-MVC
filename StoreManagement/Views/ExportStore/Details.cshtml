@@ -41,10 +41,10 @@
                             {
                                 <tr class="product-item">
                                     <td>
-                                        <input asp-for="@item.Product.ProductName" class="form-control" />
+                                        <input asp-for="@item.Product.ProductName" class="form-control" readonly />
                                     </td>
-                                    <td><input asp-for="@item.Quantity"  class="form-control" /></td>
-                                    <td><input asp-for="@item.ExportPrice"  class="form-control" /></td>
+                                    <td><input asp-for="@item.Quantity" class="form-control" readonly /></td>
+                                    <td><input asp-for="@item.ExportPrice" class="form-control" readonly /></td>
                                 </tr>
                             }
                         </tbody>
