@@ -1,4 +1,4 @@
-﻿var newProductItemHtml = "";
+﻿var newProductItemHtml = ""
 
 $(document).ready(function () {
     $.ajax({
@@ -8,23 +8,22 @@ $(document).ready(function () {
         newProductItemHtml = `
         <tr class="product-item">
             <td>
-                <select class="Product form-select">${
+                <select id="Product" class="form-select">${
                     result.data.map((p) => {
                         return `<option value="${p.id}">${p.productName}</option>`
                     }).join('') 
                 }</select>
             </td>
-            <td><input type="number" class="Quantity form-control" /></td>
-            <td><input type="number" class="Price form-control" /></td>
+            <td><input id="Quantity" type="number" class="form-control" /></td>
+            <td><input id="Price" type="number" class="form-control" /></td>
             <td class="text-center align-middle">
                 <button class="btn btn-outline-danger btn-sm"><i class="bi bi-x"></i></button>
             </td>
         </tr>`
-        $("#product-items").append(newProductItemHtml);
         $("#add-product-item").click(function (e) {
             e.preventDefault();
             $("#product-items").append(newProductItemHtml);
-        });
+        })
     });
 });
 
@@ -32,25 +31,28 @@ $(document).ready(function () {
 $('#save').click(function (e) {
     e.preventDefault();
     var data = {
-        exporterName: $("#ExporterName").val(),
-        customer: $("#Customer").val(),
-        exportDate: $("#ExportDate").val(),
+        id: $("#ImportStoreId").val(),
+        importerName: $("#ImporterName").val(),
+        supplier: $("#Supplier").val(),
+        importDate: $("#ImportDate").val(),
         total: 0,
         listProducts: []
     };
 
     $('.product-item').each((i, e) => {
         var item = {
-            productId: $(e).find('.Product :selected').val(),
-            quantity: $(e).find('.Quantity').val(),
-            price: $(e).find('.Price').val(),
+            id: $(e).find('#ProductItemId')?.val(),
+            productId: $(e).find('#Product :selected').val(),
+            quantity: $(e).find('#Quantity').val(),
+            price: $(e).find('#Price').val(),
         }
         data.total += Number(item.quantity) * Number(item.price);
         data.listProducts.push(item);
     })
 
+
     $.ajax({
-        url: '/ExportStore/CreateExportStore',
+        url: '/ImportStore/EditImportStore',
         type: 'POST',
         dataType: 'json',
         data: JSON.stringify(data),
@@ -58,7 +60,7 @@ $('#save').click(function (e) {
             'Accept': 'application/json',
             'Content-Type': 'application/json'
         },
-    }).done(function () {
-        location.replace("/ExportStore")
+    }).done(function (result) {
+        location.replace("/ImportStore")
     });
 });

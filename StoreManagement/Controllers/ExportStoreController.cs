@@ -90,8 +90,6 @@ namespace StoreManagement.Controllers
             if (exportStore == null) return View("NotFound");
             return View(exportStore);
         }
-
-
         [HttpPost]
         public async Task<IActionResult> EditExportStore([FromBody] ExportStoreRequest exportStoreRequest)
         {
@@ -134,10 +132,6 @@ namespace StoreManagement.Controllers
         {
             var exportStore = _exportStoreRepository.GetById(id);
             if (exportStore == null) return View("NotFound");
-
-            //var product = _productRepository.GetById(exportStore.ProductId);
-            //product.Number += exportStore.Quantity;
-            //_productRepository.Update(product);
 
             _exportStoreRepository.DeleteExportStore(exportStore);
 

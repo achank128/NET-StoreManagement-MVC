@@ -21,10 +21,9 @@
                 <tr>
                     <th>@Html.DisplayNameFor(m => m.Id)</th>
                     <th>@Html.DisplayNameFor(m => m.ImporterName)</th>
+                    <th>@Html.DisplayNameFor(m => m.Supplier)</th>
                     <th>@Html.DisplayNameFor(m => m.ImportDate)</th>
-                   @* <th>@Html.DisplayNameFor(m => m.Product.ProductName)</th>
-                    <th>@Html.DisplayNameFor(m => m.Product.Price)</th>
-                    <th>@Html.DisplayNameFor(m => m.Quantity)</th>*@
+                    <th>@Html.DisplayNameFor(m => m.CreatedDate)</th>
                     <th>@Html.DisplayNameFor(m => m.Total)</th>
                     <th class="text-end">Thao tác</th>
                 </tr>
@@ -40,17 +39,14 @@
                             @Html.DisplayFor(modelItem => item.ImporterName)
                         </td>
                         <td class="align-middle">
-                            @Html.DisplayFor(modelItem => item.ImportDate, "{dd/MM/yyyy}")
-                        </td>
-                        @*<td class="align-middle">
-                            @Html.DisplayFor(modelItem => item.Product.ProductName)
+                            @Html.DisplayFor(modelItem => item.Supplier)
                         </td> 
                         <td class="align-middle">
-                            @Html.DisplayFor(modelItem => item.Product.Price)
+                            @Html.DisplayFor(modelItem => item.ImportDate, "{dd/MM/yyyy}")
                         </td>
                         <td class="align-middle">
-                            @Html.DisplayFor(modelItem => item.Quantity)
-                        </td>*@
+                            @Html.DisplayFor(modelItem => item.CreatedDate, "{dd/MM/yyyy}")
+                        </td>
                         <td class="align-middle">
                             @Html.DisplayFor(modelItem => item.Total)
                         </td>

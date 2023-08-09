@@ -32,9 +32,9 @@ $(document).ready(function () {
 $('#save').click(function (e) {
     e.preventDefault();
     var data = {
-        exporterName: $("#ExporterName").val(),
-        customer: $("#Customer").val(),
-        exportDate: $("#ExportDate").val(),
+        importerName: $("#ImporterName").val(),
+        supplier: $("#Supplier").val(),
+        importDate: $("#ImportDate").val(),
         total: 0,
         listProducts: []
     };
@@ -50,7 +50,7 @@ $('#save').click(function (e) {
     })
 
     $.ajax({
-        url: '/ExportStore/CreateExportStore',
+        url: '/ImportStore/CreateImportStore',
         type: 'POST',
         dataType: 'json',
         data: JSON.stringify(data),
@@ -58,7 +58,7 @@ $('#save').click(function (e) {
             'Accept': 'application/json',
             'Content-Type': 'application/json'
         },
-    }).done(function () {
-        location.replace("/ExportStore")
+    }).done(function (result) {
+        location.replace("/ImportStore")
     });
 });

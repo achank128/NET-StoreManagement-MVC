@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using StoreManagement.Models;
+using StoreManagement.Models.Request;
 using StoreManagement.Repositories.ImportStoreRepository;
 using StoreManagement.Repositories.ProductRepository;
 
@@ -29,105 +30,110 @@ namespace StoreManagement.Controllers
             return View(importStores);
         }
 
-        //public async Task<IActionResult> Create()
-        //{
-        //    ViewBag.Products = new SelectList(_productRepository.GetAll().ToList(), "Id", "ProductName");
-        //    return View();
-        //}
+        public async Task<IActionResult> Create()
+        {
+            return View();
+        }
 
-        //[HttpPost]
-        //public async Task<IActionResult> Create([Bind("ImporterName,ImportDate,ProductId,Quantity,Total")] ImportStore importStore)
-        //{
-        //    if (!ModelState.IsValid)
-        //    {
-        //        return View(importStore);
-        //    }
+        [HttpPost]
+        public async Task<IActionResult> CreateImportStore([FromBody] ImportStoreRequest importStoreRequest)
+        {
+            ImportStore importStore = new ImportStore();
+            importStore.Id = Guid.NewGuid();
+            importStore.ImporterName = importStoreRequest.ImporterName;
+            importStore.Supplier = importStoreRequest.Supplier;
+            importStore.ImportDate = importStoreRequest.ImportDate;
+            importStore.CreatedDate = DateTime.Now;
+            importStore.Total = importStoreRequest.Total;
 
-        //    var product = _productRepository.GetById(importStore.ProductId);
-        //    product.Number += importStore.Quantity;
-        //    _productRepository.Update(product);
+            List<ImportStoreDetail> importStoreDetails = new List<ImportStoreDetail>();
 
-        //    importStore.Id = Guid.NewGuid();
-        //    importStore.Total = product.Price * importStore.Quantity;
-        //    _importStoreRepository.Add(importStore);
+            foreach (ProductItem item in importStoreRequest.ListProducts)
+            {
+                importStoreDetails.Add(new ImportStoreDetail
+                {
+                    Id = Guid.NewGuid(),
+                    ImportStoreId = importStore.Id,
+                    ProductId = item.ProductId,
+                    Quantity = item.Quantity,
+                    ImportPrice = item.Price,
+                });
 
-        //    _importStoreRepository.Save();
-        //    return RedirectToAction(nameof(Index));
-        //}
+                var product = _productRepository.GetById(item.ProductId);
+                product.Number += item.Quantity;
+                _productRepository.Update(product);
+            }
 
-        //public IActionResult Details(Guid id)
-        //{
-        //    var importStore = _importStoreRepository.GetQueryable().Include(s => s.Product).SingleOrDefault(s => s.Id == id);
-        //    if (importStore == null) return View("NotFound");
-        //    return View(importStore);
-        //}
+            await _importStoreRepository.CreateImportStore(importStore, importStoreDetails);
+            return Json(new { importStore });
+        }
 
-        //public async Task<IActionResult> Edit(Guid id)
-        //{
-        //    var importStore = _importStoreRepository.GetQueryable().Include(s => s.Product).SingleOrDefault(s => s.Id == id);
-        //    if (importStore == null) return View("NotFound");
-        //    return View(importStore);
-        //}
-        //[HttpPost]
-        //public async Task<IActionResult> Edit(Guid id, [Bind("Id,ImporterName,ImportDate,ProductId,Quantity,Total")] ImportStore importStoreUpdate)
-        //{
-        //    var importStore = _importStoreRepository.GetById(id);
-        //    var product = _productRepository.GetById(importStore.ProductId);
+        public IActionResult Details(Guid id)
+        {
+            var importStore = _importStoreRepository.GetQueryable()
+                .Include(s => s.ImportStoreDetails).ThenInclude(s => s.Product)
+                .SingleOrDefault(s => s.Id == id);
+            if (importStore == null) return View("NotFound");
+            return View(importStore);
+        }
 
-        //    if (importStore == null) return View("NotFound");
+        public async Task<IActionResult> Edit(Guid id)
+        {
+            var exportStore = _importStoreRepository.GetQueryable()
+               .Include(s => s.ImportStoreDetails).ThenInclude(s => s.Product)
+               .SingleOrDefault(s => s.Id == id);
 
-        //    if (!ModelState.IsValid)
-        //    {
-        //        return View(importStore);
-        //    }
-        //    //Update Product
-        //    product.Number -= importStore.Quantity;
-        //    product.Number += importStoreUpdate.Quantity;
-        //    if (product.Number < 0)
-        //    {
-        //        ViewData["error"] = "Số lượng nhập quá giới hạn";
-        //        return View(importStore);
-        //    }
-        //    _productRepository.Update(product);
+            ViewBag.ProductsList = new SelectList(_productRepository.GetAll().ToList(), "Id", "ProductName");
+            if (exportStore == null) return View("NotFound");
+            return View(exportStore);
+        }
+        [HttpPost]
+        public async Task<IActionResult> EditImportStore([FromBody] ImportStoreRequest importStoreRequest)
+        {
+            ImportStore importStore = new ImportStore();
+            importStore.Id = (Guid)importStoreRequest.Id;
+            importStore.ImporterName = importStoreRequest.ImporterName;
+            importStore.Supplier = importStoreRequest.Supplier;
+            importStore.ImportDate = importStoreRequest.ImportDate;
+            importStore.CreatedDate = DateTime.Now;
+            importStore.Total = importStoreRequest.Total;
 
-        //    //Update Store
-        //    importStore.ImporterName = importStoreUpdate.ImporterName;
-        //    importStore.ImportDate = importStoreUpdate.ImportDate;
-        //    importStore.Quantity = importStoreUpdate.Quantity;
-        //    importStore.Total = product.Price * importStoreUpdate.Quantity;
-        //    _importStoreRepository.Update(importStore);
+            List<ImportStoreDetail> importStoreDetails = new List<ImportStoreDetail>();
 
-        //    _importStoreRepository.Save();
-        //    return RedirectToAction(nameof(Index));
-        //}
+            foreach (ProductItem item in importStoreRequest.ListProducts)
+            {
+                importStoreDetails.Add(new ImportStoreDetail
+                {
+                    Id = (Guid)(item.Id == null ? Guid.NewGuid() : item.Id),
+                    ImportStoreId = importStore.Id,
+                    ProductId = item.ProductId,
+                    Quantity = item.Quantity,
+                    ImportPrice = item.Price,
+                });
+            }
+
+            await _importStoreRepository.UpdateImportStore(importStore, importStoreDetails);
+
+            return Json(new { importStore, importStoreDetails });
+        }
 
 
-        //public async Task<IActionResult> Delete(Guid id)
-        //{
-        //    var importStore = _importStoreRepository.GetById(id);
-        //    if (importStore == null) return View("NotFound");
-        //    return View(importStore);
-        //}
-        //[HttpPost, ActionName("Delete")]
-        //public async Task<IActionResult> DeleteConfirmed(Guid id)
-        //{
-        //    var importStore = _importStoreRepository.GetById(id);
-        //    var product = _productRepository.GetById(importStore.ProductId);
+        public async Task<IActionResult> Delete(Guid id)
+        {
+            var importStore = _importStoreRepository.GetById(id);
+            if (importStore == null) return View("NotFound");
+            return View(importStore);
+        }
+        [HttpPost, ActionName("Delete")]
+        public async Task<IActionResult> DeleteConfirmed(Guid id)
+        {
+            var importStore = _importStoreRepository.GetById(id);
+            if (importStore == null) return View("NotFound");
 
-        //    if (importStore == null) return View("NotFound");
+            _importStoreRepository.DeleteImportStore(importStore);
 
-        //    product.Number -= importStore.Quantity;
-        //    if (product.Number < 0)
-        //    {
-        //        ViewData["error"] = "Số lượng nhập quá giới hạn";
-        //        return View(importStore);
-        //    }
-        //    _productRepository.Update(product);
-
-        //    _importStoreRepository.Delete(importStore);
-        //    _importStoreRepository.Save();
-
-        //    return RedirectToAction(nameof(Index));
-        //}
+            _importStoreRepository.Save();
+            return RedirectToAction(nameof(Index));
+        }
     }
 }

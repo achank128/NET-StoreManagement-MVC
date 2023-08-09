@@ -14,21 +14,21 @@
 
                 <div class="form-group mb-2">
                     <label asp-for="ExporterName" class="control-label"></label>
-                    <input id="ExporterName" class="form-control" />
+                    <input id="ExporterName" asp-for="ExporterName" class="form-control" />
                     <span asp-validation-for="ExporterName" class="text-danger"></span>
                 </div>
                 <div class="form-group mb-2">
                     <label asp-for="Customer" class="control-label"></label>
-                    <input id="Customer" class="form-control" />
+                    <input id="Customer" asp-for="Customer" class="form-control" />
                     <span asp-validation-for="Customer" class="text-danger"></span>
                 </div>
                 <div class="form-group mb-2">
                     <label asp-for="ExportDate" class="control-label"></label>
-                    <input id="ExportDate" class="form-control" type="date" />
+                    <input id="ExportDate" asp-for="ExportDate" class="form-control" type="date" />
                     <span asp-validation-for="ExportDate" class="text-danger"></span>
                 </div>
                 <div class="mb-2">
-                    <p>Chi tiết phiếu nhập kho:</p>
+                    <p class="mb-0">Chi tiết phiếu xuất kho:</p>
                     <table id="table" class="table table-bordered">
                         <thead>
                             <tr>
@@ -48,7 +48,7 @@
                 </div>
                 <div class="form-group mb-4">
                     <label asp-for="Total" class="control-label"></label>
-                    <input id="Total" class="form-control" type="number" readonly />
+                    <input id="Total" asp-for="Total" class="form-control" type="number" readonly />
                     <span asp-validation-for="Total" class="text-danger"></span>
                 </div>
 
