@@ -11,23 +11,23 @@
         </div>
         <div class="row">
             <div>
-                <form asp-action="Create">
+                <form asp-action="Create" class="needs-validation" novalidate>
                     <div asp-validation-summary="ModelOnly" class="text-danger"></div>
                     <span class="text-danger">@ViewData["error"]</span>
 
                     <div class="form-group mb-2">
                         <label asp-for="ImporterName" class="control-label"></label>
-                        <input id="ImporterName" asp-for="ImporterName" class="form-control" />
+                        <input id="ImporterName" asp-for="ImporterName" class="form-control" required/>
                         <span asp-validation-for="ImporterName" class="text-danger"></span>
                     </div>
                     <div class="form-group mb-2">
                         <label asp-for="Supplier" class="control-label"></label>
-                        <input id="Supplier" asp-for="Supplier" class="form-control" />
+                        <input id="Supplier" asp-for="Supplier" class="form-control" required />
                         <span asp-validation-for="Supplier" class="text-danger"></span>
                     </div>
                     <div class="form-group mb-2">
                         <label asp-for="ImportDate" class="control-label"></label>
-                        <input id="ImportDate" asp-for="ImportDate" class="form-control" type="date" />
+                        <input id="ImportDate" asp-for="ImportDate" class="form-control" type="date" required />
                         <span asp-validation-for="ImportDate" class="text-danger"></span>
                     </div>
                     <div class="mb-2">

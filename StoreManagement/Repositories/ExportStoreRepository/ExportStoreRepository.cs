@@ -1,4 +1,5 @@
-﻿using StoreManagement.Models;
+﻿using AspNetCoreHero.ToastNotification.Abstractions;
+using StoreManagement.Models;
 using StoreManagement.Models.Request;
 using StoreManagement.Repositories.RepositoryBase;
 
@@ -7,10 +8,12 @@ namespace StoreManagement.Repositories.ExportStoreRepository
     public class ExportStoreRepository : RepositoryBase<ExportStore>, IExportStoreRepository
     {
         private readonly StoreManagementDbContext _context;
+        private readonly INotyfService _notyf;
 
-        public ExportStoreRepository(StoreManagementDbContext context) : base(context)
+        public ExportStoreRepository(StoreManagementDbContext context, INotyfService notyf) : base(context)
         {
             _context = context;
+            _notyf = notyf;
         }
 
         public async Task<bool> CreateExportStore(ExportStore exportStore, List<ExportStoreDetail> exportStoreDetails)
@@ -21,6 +24,11 @@ namespace StoreManagement.Repositories.ExportStoreRepository
             {
                 var product = _context.Products.Find(item.ProductId);
                 product.Number -= item.Quantity;
+                if (product.Number < 0)
+                {
+                    _notyf.Error("Không thể thêm! Số lượng sản phẩm: " + product.ProductName + " đạt giới hạn.");
+                    return false;
+                }
                 _context.Products.Update(product);
             }
             _context.ExportStoreDetails.AddRange(exportStoreDetails);
@@ -62,10 +70,14 @@ namespace StoreManagement.Repositories.ExportStoreRepository
             {
                 var product = _context.Products.Find(item.ProductId);
                 product.Number -= item.Quantity;
+                if (product.Number < 0)
+                {
+                    _notyf.Error("Không thể cập nhật! Số lượng sản phẩm: " + product.ProductName + " đạt giới hạn.");
+                    return false;
+                }
                 _context.Products.Update(product);
             }
             _context.ExportStoreDetails.AddRange(exportStoreDetails);
-
 
             var isSave = this.Save();
             return isSave;

@@ -1,4 +1,5 @@
 ﻿$(document).ready(function () {
+    //Get product item
     var newProductItemHtml = "";
     $.ajax({
         url: '/Product/GetAll',
@@ -7,14 +8,14 @@
         newProductItemHtml = `
         <tr class="product-item">
             <td>
-                <select class="Product form-select">${result.data.map((p) => {
+                <select class="Product form-select" required>${result.data.map((p) => {
             return `<option value="${p.id}">${p.productName}</option>`
         }).join('')
             }</select>
             </td>
             <td><input type="number" class="ProductPrice form-control" readonly/></td>
-            <td><input type="number" class="Quantity form-control" /></td>
-            <td><input type="number" class="Price form-control" /></td>
+            <td><input type="number" class="Quantity form-control" min="0" required/></td>
+            <td><input type="number" class="Price form-control" min="0" required/></td>
             <td class="text-center align-middle">
                 <button class="btn btn-outline-danger btn-sm"><i class="bi bi-x"></i></button>
             </td>
@@ -27,6 +28,8 @@
         setProductItem(result)
     });
 
+
+    //Caculate total
     $('#table').on('change', '.Price', (e) => {
         caculateTotal()
     });
@@ -34,6 +37,22 @@
     $('#table').on('change', '.Quantity', (e) => {
         caculateTotal()
     })
+
+
+    //Save
+    $('.needs-validation').each((i, form) => {
+        form.addEventListener('submit', event => {
+            event.preventDefault()
+            if (!form.checkValidity()) {
+                event.stopPropagation()
+                notyf.error('Vui lòng nhập đầy đủ thông tin.');
+            } else {
+                handleSave()
+            }
+            form.classList.add('was-validated')
+        }, false)
+    })
+
 });
 
 function setProductItem(result) {
@@ -65,8 +84,7 @@ function caculateTotal() {
     $("#Total").val(total)
 }
 
-$('#save').click(function (e) {
-    e.preventDefault();
+function handleSave() {
     var data = {
         importerName: $("#ImporterName").val(),
         supplier: $("#Supplier").val(),
@@ -94,7 +112,10 @@ $('#save').click(function (e) {
             'Accept': 'application/json',
             'Content-Type': 'application/json'
         },
+        error: (e) => {
+            notyf.error('Lưu dữ liệu không thành công');
+        },
     }).done(function (result) {
         location.replace("/ImportStore")
-    });
-});
+    })
+}

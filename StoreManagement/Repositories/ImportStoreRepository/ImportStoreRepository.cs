@@ -1,4 +1,5 @@
-﻿using StoreManagement.Models;
+﻿using AspNetCoreHero.ToastNotification.Abstractions;
+using StoreManagement.Models;
 using StoreManagement.Repositories.RepositoryBase;
 
 namespace StoreManagement.Repositories.ImportStoreRepository
@@ -6,10 +7,12 @@ namespace StoreManagement.Repositories.ImportStoreRepository
     public class ImportStoreRepository : RepositoryBase<ImportStore>, IImportStoreRepository
     {
         private readonly StoreManagementDbContext _context;
+        private readonly INotyfService _notyf;
 
-        public ImportStoreRepository(StoreManagementDbContext context) : base(context)
+        public ImportStoreRepository(StoreManagementDbContext context, INotyfService notyf) : base(context)
         {
             _context = context;
+            _notyf = notyf;
         }
 
         public async Task<bool> CreateImportStore(ImportStore importStore, List<ImportStoreDetail> importStoreDetails)
@@ -35,6 +38,11 @@ namespace StoreManagement.Repositories.ImportStoreRepository
             {
                 var product = _context.Products.Find(item.ProductId);
                 product.Number -= item.Quantity;
+                if(product.Number < 0)
+                {
+                    _notyf.Error("Không thể xóa! Số lượng sản phẩm: " + product.ProductName + " đạt giới hạn.");
+                    return false;
+                }
                 _context.Products.Update(product);
             }
             _context.ImportStoreDetails.RemoveRange(importStoreDetails);
@@ -61,6 +69,11 @@ namespace StoreManagement.Repositories.ImportStoreRepository
             {
                 var product = _context.Products.Find(item.ProductId);
                 product.Number += item.Quantity;
+                if (product.Number < 0)
+                {
+                    _notyf.Error("Không thể cập nhật! Số lượng sản phẩm: " + product.ProductName + " đạt giới hạn.");
+                    return false;
+                }
                 _context.Products.Update(product);
             }
             _context.ImportStoreDetails.AddRange(importStoreDetails);

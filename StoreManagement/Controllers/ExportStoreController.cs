@@ -75,8 +75,8 @@ namespace StoreManagement.Controllers
                 });
             }
 
-            await _exportStoreRepository.CreateExportStore(exportStore, exportStoreDetails);
-            return Json(new { data = exportStore });
+            var isSuccess = await _exportStoreRepository.CreateExportStore(exportStore, exportStoreDetails);
+            return Json(new { isSuccess });
         }
 
         public IActionResult Details(Guid id)
@@ -125,9 +125,9 @@ namespace StoreManagement.Controllers
                 });
             }
 
-            await _exportStoreRepository.UpdateExportStore(exportStore, exportStoreDetails);
+            var isSuccess = await _exportStoreRepository.UpdateExportStore(exportStore, exportStoreDetails);
 
-            return Json(new { data = exportStore, exportStoreDetails });
+            return Json(new { isSuccess });
         }
 
 

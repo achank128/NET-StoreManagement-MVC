@@ -15,22 +15,26 @@ public partial class Product
 
 
     [DisplayName("Mã sản phẩm")]
+    [Required(ErrorMessage = "Mã sản phẩm là bắt buộc")]
     [StringLength(20)]
     [Unicode(false)]
     public string ProductCode { get; set; } = null!;
 
 
     [DisplayName("Tên sản phẩm")]
+    [Required(ErrorMessage = "Tên sản phẩm là bắt buộc")]
     [StringLength(100)]
     public string ProductName { get; set; } = null!;
 
 
     [DisplayName("Nhà xản xuất")]
+    [Required(ErrorMessage = "Nhà xản xuất là bắt buộc")]
     [StringLength(100)]
     public string Manufacturer { get; set; } = null!;
 
 
     [DisplayName("Danh mục")]
+    [Required(ErrorMessage = "Danh mục là bắt buộc")]
     public Guid CategoryId { get; set; }
 
 
@@ -40,16 +44,19 @@ public partial class Product
 
 
     [DisplayName("Đơn vị tính")]
+    [Required(ErrorMessage = "Đơn vị tính là bắt buộc")]
     [StringLength(50)]
     public string? Unit { get; set; }
 
 
     [DisplayName("Đơn giá")]
+    [Required(ErrorMessage = "Đơn giá là bắt buộc")]
     [Column(TypeName = "money")]
     public float? Price { get; set; }
 
 
     [DisplayName("Số lượng tồn")]
+    [Required(ErrorMessage = "Số lượng tồn là bắt buộc")]
     public int? Number { get; set; }
 
     [Column(TypeName = "datetime")]

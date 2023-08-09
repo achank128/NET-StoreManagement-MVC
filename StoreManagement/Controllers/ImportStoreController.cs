@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using AspNetCoreHero.ToastNotification.Abstractions;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using StoreManagement.Models;
@@ -13,14 +14,17 @@ namespace StoreManagement.Controllers
     {
         private readonly IImportStoreRepository _importStoreRepository;
         private readonly IProductRepository _productRepository;
+        private readonly INotyfService _notyf;
 
         public ImportStoreController(
             IImportStoreRepository importStoreRepository,
-            IProductRepository productRepository
+            IProductRepository productRepository,
+            INotyfService notyf
             )
         {
             _importStoreRepository = importStoreRepository;
             _productRepository = productRepository;
+            _notyf = notyf;
         }
         public IActionResult Index(int? page, string searchString)
         {
@@ -72,8 +76,9 @@ namespace StoreManagement.Controllers
                 });
             }
 
-            await _importStoreRepository.CreateImportStore(importStore, importStoreDetails);
-            return Json(new { importStore });
+            var isSuccess = await _importStoreRepository.CreateImportStore(importStore, importStoreDetails);
+
+            return Json(new { isSuccess });
         }
 
         public IActionResult Details(Guid id)
@@ -119,10 +124,8 @@ namespace StoreManagement.Controllers
                     ImportPrice = item.Price,
                 });
             }
-
-            await _importStoreRepository.UpdateImportStore(importStore, importStoreDetails);
-
-            return Json(new { importStore, importStoreDetails });
+            var isSuccess = await _importStoreRepository.UpdateImportStore(importStore, importStoreDetails);
+            return Json(new { isSuccess });
         }
 
 
@@ -137,10 +140,7 @@ namespace StoreManagement.Controllers
         {
             var importStore = _importStoreRepository.GetById(id);
             if (importStore == null) return View("NotFound");
-
             _importStoreRepository.DeleteImportStore(importStore);
-
-            _importStoreRepository.Save();
             return RedirectToAction(nameof(Index));
         }
     }
