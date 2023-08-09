@@ -26,6 +26,14 @@
         })
         setProductItem(result);
     });
+
+    $('#table').on('change', '.Price', (e) => {
+        caculateTotal()
+    });
+
+    $('#table').on('change', '.Quantity', (e) => {
+        caculateTotal()
+    })
 });
 
 function setProductItem(result) {
@@ -43,6 +51,18 @@ function setProductItem(result) {
             $(e).remove();
         })
     })
+}
+
+function caculateTotal() {
+    var total = 0;
+    $('.product-item').each((i, e) => {
+        var item = {
+            quantity: $(e).find('.Quantity').val(),
+            price: $(e).find('.Price').val(),
+        }
+        total += Number(item.quantity) * Number(item.price);
+    });
+    $("#Total").val(total)
 }
 
 

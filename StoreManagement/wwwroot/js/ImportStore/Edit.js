@@ -26,6 +26,14 @@
         })
         setProductItem(result);
     });
+
+    $('#table').on('change', '.Price', (e) => {
+        caculateTotal()
+    });
+
+    $('#table').on('change', '.Quantity', (e) => {
+        caculateTotal()
+    })
 });
 
 function setProductItem(result) {

@@ -1,12 +1,11 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using AspNetCoreHero.ToastNotification.Abstractions;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using StoreManagement.Models;
 using StoreManagement.Models.Request;
 using StoreManagement.Repositories.ExportStoreRepository;
-using StoreManagement.Repositories.ImportStoreRepository;
 using StoreManagement.Repositories.ProductRepository;
-using System.Reflection.Metadata;
 using X.PagedList;
 
 namespace StoreManagement.Controllers
@@ -15,14 +14,16 @@ namespace StoreManagement.Controllers
     {
         private readonly IExportStoreRepository _exportStoreRepository;
         private readonly IProductRepository _productRepository;
-
+        private readonly INotyfService _notyf;
         public ExportStoreController(
             IExportStoreRepository exportStoreRepository,
-            IProductRepository productRepository
+            IProductRepository productRepository,
+            INotyfService notyf
             )
         {
             _exportStoreRepository = exportStoreRepository;
             _productRepository = productRepository;
+            _notyf = _notyf;
         }
         public IActionResult Index(int? page, string searchString)
         {
