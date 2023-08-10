@@ -1,6 +1,5 @@
 ﻿using AspNetCoreHero.ToastNotification.Abstractions;
 using StoreManagement.Models;
-using StoreManagement.Models.Request;
 using StoreManagement.Repositories.RepositoryBase;
 
 namespace StoreManagement.Repositories.ExportStoreRepository
