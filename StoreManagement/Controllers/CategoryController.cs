@@ -39,33 +39,42 @@ namespace StoreManagement.Controllers
             return Json(new { data = _categoryRepository.GetAll().ToList() });
         }
 
-        public IActionResult Create()
-        {
-            return View();
-        }
-
         [HttpPost]
         public async Task<IActionResult> Create(Category category)
         {
-            if (!ModelState.IsValid)
-            {
-                return View(category);
-            }
-            category.Id = Guid.NewGuid();  
+            category.Id = Guid.NewGuid();
             _categoryRepository.Add(category);
-            _categoryRepository.Save();
-            return RedirectToAction(nameof(Index));
+            return Json(new { isSuccess = _categoryRepository.Save() });
         }
 
         [HttpPost]
-        public async Task<IActionResult> Delete(string id)
+        public async Task<IActionResult> Edit(Category category)
         {
-            var category = _categoryRepository.GetById<Guid>(Guid.Parse(id));
-            if (category == null) return View("NotFound");
-            category.Id = Guid.NewGuid();
+            var categoryUpdate = _categoryRepository.GetById<Guid>(category.Id);
+            if (categoryUpdate == null) return NotFound();
+
+            categoryUpdate.CategoryName = category.CategoryName;
+            categoryUpdate.Description = category.Description;
+            _categoryRepository.Update(categoryUpdate);
+            return Json(new { isSuccess = _categoryRepository.Save() });
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Delete([FromRoute] Guid id)
+        {
+            var category = _categoryRepository.GetById<Guid>(id);
+            if (category == null) return NotFound();
             _categoryRepository.Delete(category);
-            _categoryRepository.Save();
-            return RedirectToAction(nameof(Index));
+            return Json(new { isSuccess = _categoryRepository.Save() });
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Details([FromRoute] Guid id)
+        {
+            var category = _categoryRepository.GetById<Guid>(id);
+            if (category == null) return NotFound();
+            return Json(new { data = category });
+
         }
     }
 }

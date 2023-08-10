@@ -40,7 +40,7 @@ namespace StoreManagement.Controllers
 
             if (!String.IsNullOrEmpty(searchString))
             {
-                products = products.Where(s => 
+                products = products.Where(s =>
                 s.ProductName.Contains(searchString)
                 || s.ProductCode.Contains(searchString)
                 || s.Manufacturer.Contains(searchString)
@@ -48,93 +48,61 @@ namespace StoreManagement.Controllers
                 );
             }
 
+            ViewBag.CategoriesList = new SelectList(_categoryRepository.GetAll().ToList(), "Id", "CategoryName");
             return View(products.ToPagedList(pageNumber, pageSize));
         }
 
-        public IActionResult Create()
-        {
-            ViewBag.CategoriesList = new SelectList(_categoryRepository.GetAll().ToList(), "Id", "CategoryName");
-            return View();
-        }
-
         [HttpPost]
-        public async Task<IActionResult> Create( Product product)
+        public async Task<IActionResult> Create(Product product)
         {
-            if (!ModelState.IsValid)
-            {
-                return View(product);
-            }
             product.Id = Guid.NewGuid();
+            product.Status = true;
             _productRepository.Add(product);
-            _productRepository.Save();
-            return RedirectToAction(nameof(Index));
+            return Json(new { isSuccess = _productRepository.Save() });
         }
 
         public async Task<IActionResult> Details(Guid id)
         {
-            ViewBag.CategoriesList = new SelectList(_categoryRepository.GetAll().ToList(), "Id", "CategoryName");
             var product = _productRepository.GetById<Guid>(id);
-            if (product == null)
-            {
-                return View("NotFound");
-            }
-            return View(product);
-        }
-
-        public async Task<IActionResult> Edit(Guid id)
-        {
-            ViewBag.CategoriesList = new SelectList(_categoryRepository.GetAll().ToList(), "Id", "CategoryName");
-            var product = _productRepository.GetById<Guid>(id);
-            if (product == null)
-            {
-                return View("NotFound");
-            }
-            return View(product);
+            if (product == null) return NotFound();
+            return Ok(new { data = product });
         }
 
         [HttpPost]
-        public async Task<IActionResult> Edit(Guid id, Product product)
+        public async Task<IActionResult> Edit(Product product)
         {
-            if (!ModelState.IsValid)
-            {
-                return View(product);
-            }
-            _productRepository.Update(product);
-            _productRepository.Save();
-            return RedirectToAction(nameof(Index));
+            var productUpdate = _productRepository.GetById<Guid>(product.Id);
+            if (product == null) return NotFound();
+
+            productUpdate.ProductCode = product.ProductCode;
+            productUpdate.ProductName = product.ProductName;
+            productUpdate.Manufacturer = product.Manufacturer;
+            productUpdate.CategoryId = product.CategoryId;
+            productUpdate.Description = product.Description;
+            productUpdate.Unit = product.Unit;
+            productUpdate.Price = product.Price;
+            productUpdate.Number = product.Number;
+            _productRepository.Update(productUpdate);
+            return Ok(new { isSuccess = _productRepository.Save() });
         }
 
+        [HttpPost]
         public async Task<IActionResult> Delete(Guid id)
         {
             var product = _productRepository.GetById<Guid>(id);
-            if (product == null)
-            {
-                return View("NotFound");
-            }
-            return View(product);
-        }
-        [HttpPost, ActionName("Delete")]
-        public async Task<IActionResult> DeleteConfirmed(Guid id)
-        {
-            var product = _productRepository.GetById<Guid>(id);
-            if (product == null) return View("NotFound");
+            if (product == null) return NotFound();
+            product.Status = !product.Status;
+            _productRepository.Update(product);
+            return Ok(new { isSuccess = _productRepository.Save() });
 
-            var exportStore = await _exportStoreDetailRepository.GetBy(x => x.ProductId == product.Id).ToListAsync();
-            _exportStoreDetailRepository.DeleteRange(exportStore);
-
-            var importStore = await _importStoreDetailRepository.GetBy(x => x.ProductId == product.Id).ToListAsync();
-            _importStoreDetailRepository.DeleteRange(importStore);
-
-            _productRepository.Delete(product);
-            _productRepository.Save();
-            return RedirectToAction(nameof(Index));
         }
 
 
         [HttpGet]
-        public async Task<IActionResult> GetAll()
+        public async Task<IActionResult> GetData()
         {
-            return Json(new { data = _productRepository.GetAll().ToList() });
+            var products = _productRepository.GetQueryable().Include(s => s.Category).ToList();
+            return Json(new { data = products });
         }
     }
 }

@@ -24,20 +24,21 @@
         </form>
     </div>
     <div class="col-md-8 text-end">
-        <button class="btn btn-success" data-bs-toggle="offcanvas" data-bs-target="#offcanvasExample">
+        <button class="btn btn-success" data-bs-toggle="offcanvas" data-bs-target="#offcanvasForm" onclick="openAddForm()">
             <i class="bi bi-plus-circle"></i> Thêm mới
         </button>
     </div>
 
-    <div class="offcanvas offcanvas-end" id="offcanvasExample" aria-labelledby="offcanvasExampleLabel" style="max-width: 800px;">
+    <div class="offcanvas offcanvas-end" id="offcanvasForm" aria-labelledby="offcanvasFormLabel" style="max-width: 800px;">
         <div class="offcanvas-header">
-            <h5 class="offcanvas-title text-primary" id="offcanvasExampleLabel">Thêm mới</h5>
+            <h5 class="offcanvas-title text-primary" id="offcanvasFormLabel">Thêm mới</h5>
             <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
         </div>
         <div class="offcanvas-body">
             <form id="form">
                 <div class="form-group mb-3">
                     <label class="control-label">Tên danh mục</label>
+                    <input id="CategoryId" type="hidden" />
                     <input id="CategoryName" class="form-control" />
                 </div>
                 <div class="form-group mb-3">
@@ -45,23 +46,45 @@
                     <input id="Description" class="form-control" />
                 </div>
                 <div class="form-group">
-                    <button class="btn btn-success" data-bs-dismiss="offcanvas">Thêm</button>
+                    <button id="btnSubmit" class="btn btn-primary" data-bs-dismiss="offcanvas">Thêm</button>
                 </div>
             </form>
         </div>
     </div>
 
     <div class="col-md-12">
-        <table id="Category-Table" class="table table-bordered" style="width: 100%">
-            <thead>
-                <tr>
-                    <th>ID</th>
-                    <th>CategoryName</th>
-                    <th>Description</th>
-                    <th class="text-end">Thao tác</th>
-                </tr>
-            </thead>
-        </table>
+        <div class="table-responsive">
+            <table id="Category-Table" class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th>Mã danh mục</th>
+                        <th>Tên danh mục</th>
+                        <th>Mô tả</th>
+                        <th class="text-end">Thao tác</th>
+                    </tr>
+                </thead>
+            </table>
+        </div>
+    </div>
+
+    <div class="modal fade" id="deleteModal" tabindex="-1" role="dialog" aria-labelledby="deleteModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="deleteModalLabel">Xác nhận xóa</h5>
+                    <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    Bạn có chắc chắn muốn xóa?
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Quay lại</button>
+                    <button type="button" class="btn btn-danger" onclick="handleDelete()">Xác nhận</button>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
 
@@ -69,6 +92,8 @@
     <script>
 
         var Popup, dataTable;
+        var isEdit = false;
+        var deleteItemId = "";
 
         $(document).ready(function () {
             dataTable = $("#Category-Table").DataTable({
@@ -77,22 +102,17 @@
                     "type": "GET",
                     "datatype": "json"
                 },
-                "columnDefs": [{
-                    "targets": [0],
-                    "visible": false,
-                    "searchable": false
-                }],
                 "columns": [
                     { "data": "id" },
                     { "data": "categoryName" },
                     { "data": "description" },
                     {
-                        "render": function (data, row) {
+                        "render": function (data, type, row, meta) {
                             return `
-                                        <a class="btn btn-outline-info"><i class="bi bi-eye"></i></a>
-                                        <a class="btn btn-primary"><i class="bi bi-pencil-square"></i></a>
-                                        <a class="btn btn-danger" onclick="handleDelete(${data})"><i class="bi bi-trash"></i></a>
-                                    `
+                                                <a class="btn btn-outline-info" data-bs-toggle="offcanvas" data-bs-target="#offcanvasForm" onclick="openDetailForm('${row.id}')"><i class="bi bi-eye"></i></a>
+                                                <a class="btn btn-primary" data-bs-toggle="offcanvas" data-bs-target="#offcanvasForm" onclick="openEditForm('${row.id}')"><i class="bi bi-pencil-square"></i></a>
+                                                <a class="btn btn-danger" onclick="openDeleteModal('${row.id}')" ><i class="bi bi-trash"></i></a>
+                                            `
                         },
                         "class": "text-end"
                     },
@@ -104,41 +124,94 @@
             });
         });
 
-
-
         $('#form').on('submit', (e) => {
             e.preventDefault();
-            hanleAdd();
+            hanleSave();
         })
 
-        function hanleAdd() {
+        function openAddForm() {
+            isEdit = false;
+            $('#btnSubmit').show().text("Thêm")
+            $('#CategoryId').val("");
+            $('#CategoryName').val("").prop("disabled", false);
+            $('#Description').val("").prop("disabled", false);
+        }
+
+        function openEditForm(id) {
+            isEdit = true;
+            $('#btnSubmit').show();
+            $('#btnSubmit').text("Cập nhật");
+            $('#CategoryName').prop("disabled", false);
+            $('#Description').prop("disabled", false);
+            getDetailValue(id)
+        }
+
+        function openDetailForm(id) {
+            $('#btnSubmit').hide();
+            $('#CategoryName').prop("disabled", true);
+            $('#Description').prop("disabled", true);
+            getDetailValue(id)
+        }
+
+        function openDeleteModal(id) {
+            $('#deleteModal').modal("show");
+            deleteItemId = id;
+        }
+
+        function getDetailValue(id) {
+            $.ajax({
+                type: "POST",
+                url: '@Url.Action("Details","Category")/' + id,
+                success: function (data) {
+                    $('#offcanvasFormLabel').text("Chi tiết");
+                    $('#CategoryId').val(data.data.id);
+                    $('#CategoryName').val(data.data.categoryName);
+                    $('#Description').val(data.data.description);
+                }
+            });
+        }
+
+        function hanleSave() {
             var data = {
+                Id: $('#CategoryId').val(),
                 CategoryName: $('#CategoryName').val(),
                 Description: $('#Description').val(),
             };
-
-            $.post("/Category/Create", { category: data }, () => { location.replace('/Category') });
+            if (isEdit) {
+                $.post("/Category/Edit", { category: data }, (data) => {
+                    if (data.isSuccess) {
+                        notyf.success('Cập nhật dữ liệu thành công.');
+                        dataTable.ajax.reload();
+                    } else {
+                        notyf.error('Có lỗi xảy ra.');
+                    }
+                });
+            } else {
+                $.post("/Category/Create", { category: data }, (data) => {
+                    if (data.isSuccess) {
+                        notyf.success('Thêm dữ liệu thành công.');
+                        dataTable.ajax.reload();
+                    } else {
+                        notyf.error('Có lỗi xảy ra.');
+                    }
+                });
+            }
         }
 
-        function handleDelete(id) {
-            console.log(id)
-            if (confirm('Are you sure to Delete this record ?')) {
-
-                //$.ajax({
-                //    type: "POST",
-                //    url: '@Url.Action("Delete","Category")/' + id,
-                //    success: function (data) {
-                //        if (data.success) {
-                //            dataTable.ajax.reload();
-                //            $.notify(data.message, {
-                //                globalPosition: "top center",
-                //                className: "success"
-                //            })
-
-                //        }
-                //    }
-                //});
-            }
+        function handleDelete() {
+            $.ajax({
+                type: "POST",
+                url: '@Url.Action("Delete","Category")/' + deleteItemId,
+                success: function (data) {
+                    if (data.isSuccess) {
+                        dataTable.ajax.reload();
+                        notyf.success('Xóa dữ liệu thành công.');
+                        $('#deleteModal').modal("hide");
+                    } else {
+                        notyf.error('Có lỗi xảy ra.');
+                    }
+                }
+            });
         }
 
     </script>

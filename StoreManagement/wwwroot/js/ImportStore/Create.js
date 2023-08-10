@@ -2,7 +2,7 @@
     //Get product item
     var newProductItemHtml = "";
     $.ajax({
-        url: '/Product/GetAll',
+        url: '/Product/GetData',
         type: 'GET',
     }).done(function (result) {
         newProductItemHtml = `

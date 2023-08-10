@@ -3,7 +3,6 @@
 @model X.PagedList.IPagedList<Product>
 @{
     ViewData["Title"] = "Products";
-    var dummy = Model.FirstOrDefault();
 }
 
 <div class="row">
@@ -24,74 +23,267 @@
         </form>
     </div>
     <div class="col-md-8 text-end">
-        <a class="btn btn-success" asp-action="Create">
+        <a class="btn btn-success" onclick="openAddForm()">
             <i class="bi bi-plus-circle"></i> Thêm mới
         </a>
     </div>
+    <div class="offcanvas offcanvas-end" id="offcanvasForm" aria-labelledby="offcanvasFormLabel" style="width: 800px;">
+        <div class="offcanvas-header">
+            <h5 class="offcanvas-title text-primary" id="offcanvasFormLabel">Thêm mới</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+        </div>
+        <div class="offcanvas-body">
+            <form id="form" class="row" novalidate>
+                <div class="col-md-6 mb-2">
+                    <label class="control-label">Mã sản phẩm</label>
+                    <input id="ProductId" class="form-control" type="hidden" />
+                    <input id="ProductCode" name="ProductCode" class="form-control"  required/>
+                </div>
+                <div class="col-md-12 mb-2">
+                    <label class="control-label">Tên sản phẩm</label>
+                    <input id="ProductName" name="ProductName" class="form-control" required />
+                </div>
+                <div class="col-md-6 mb-2">
+                    <label class="control-label">Nhà sản xuất</label>
+                    <input id="Manufacturer" name="Manufacturer" class="form-control" required/>
+                </div>
+                <div class="col-md-6 mb-2">
+                    <label class="control-label">Danh mục</label>
+                    <select id="CategoryId" class="form-control" asp-items="ViewBag.CategoriesList" required></select>
+                </div>
+                <div class="col-md-12 mb-2">
+                    <label class="control-label">Mô tả</label>
+                    <textarea id="Description" class="form-control"></textarea>
+                </div>
+                <div class="col-md-6 mb-2">
+                    <label class="control-label">Đơn vị tính</label>
+                    <input id="Unit" class="form-control" required />
+                </div>
+                <div class="col-md-6 mb-2">
+                    <label class="control-label">Đơn giá</label>
+                    <input id="Price" class="form-control" type="number" min="0" required />
+                </div>
+                <div class="col-md-12 mb-4">
+                    <label class="control-label">Số lượng tồn</label>
+                    <input id="Number" class="form-control" type="number" min="0" required />
+                </div>
+                <div class="form-group">
+                    <button id="btnSubmit" class="btn btn-primary">Thêm</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <div class="col-md-12">
-        <table class="table table-bordered">
+        <table id="Product-Table" class="table table-bordered" style="width: 100%">
             <thead>
                 <tr>
-                    <th>@Html.DisplayNameFor(m => dummy.ProductCode)</th>
-                    <th>@Html.DisplayNameFor(m => dummy.ProductName)</th>
-                    <th>@Html.DisplayNameFor(m => dummy.Manufacturer)</th>
-                    <th>@Html.DisplayNameFor(m => dummy.CategoryId)</th>
-                    <th>@Html.DisplayNameFor(m => dummy.Description)</th>
-                    <th>@Html.DisplayNameFor(m => dummy.Unit)</th>
-                    <th>@Html.DisplayNameFor(m => dummy.Price)</th>
-                    <th>@Html.DisplayNameFor(m => dummy.Number)</th>
+                    <th>Mã sản phẩm</th>
+                    <th>Tên sản phẩm</th>
+                    <th>Nhà sản xuất</th>
+                    <th>Danh mục</th>
+                    <th>Mô tả</th>
+                    <th>Đơn vị tính</th>
+                    <th>Đơn giá</th>
+                    <th>Số lượng tồn</th>
+                    <th>Trạng thái</th>
                     <th class="text-end">Thao tác</th>
                 </tr>
             </thead>
-            <tbody>
-                @foreach (var item in Model)
-                {
-                    <tr>
-                        <td class="align-middle">
-                            @Html.DisplayFor(modelItem => item.ProductCode)
-                        </td>
-                        <td class="align-middle">
-                            @Html.DisplayFor(modelItem => item.ProductName)
-                        </td>
-                        <td class="align-middle">
-                            @Html.DisplayFor(modelItem => item.Manufacturer)
-                        </td> 
-                        <td class="align-middle">
-                            @Html.DisplayFor(modelItem => item.Category.CategoryName)
-                        </td>
-                        <td class="align-middle">
-                            @Html.DisplayFor(modelItem => item.Description)
-                        </td>
-                        <td class="align-middle">
-                            @Html.DisplayFor(modelItem => item.Unit)
-                        </td>
-                        <td class="align-middle">
-                            @Html.DisplayFor(modelItem => item.Price)
-                        </td>
-                         <td class="align-middle">
-                            @Html.DisplayFor(modelItem => item.Number)
-                        </td>
-                        <td class="align-middle text-end">
-                            <a class="btn btn-outline-info" asp-action="Details" asp-route-id="@item.Id"><i class="bi bi-eye"></i></a>
-                            <a class="btn btn-primary" asp-action="Edit" asp-route-id="@item.Id"><i class="bi bi-pencil-square"></i></a>
-                            <a class="btn btn-danger" asp-action="Delete" asp-route-id="@item.Id"><i class="bi bi-trash"></i></a>
-                        </td>
-                    </tr>
-                }
-            </tbody>
         </table>
+    </div>
 
-        @Html.PagedListPager(Model, page => Url.Action("index", new { page = page }), new PagedListRenderOptions()
-        {
-        ActiveLiElementClass = "active",
-        PageClasses = new[]{ "page-link"},
-        LiElementClasses=new[] { "page-item" },
-        UlElementClasses = new[] { "pagination", "mt-3" },
-        LinkToNextPageFormat = ">",
-        LinkToPreviousPageFormat = "<",
-        MaximumPageNumbersToDisplay = 5,
-        DisplayLinkToPreviousPage = PagedListDisplayMode.Always,
-        DisplayLinkToNextPage = PagedListDisplayMode.Always
-        })
+    <div class="modal fade" id="deleteModal" tabindex="-1" role="dialog" aria-labelledby="deleteModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="deleteModalLabel">Xác nhận xóa</h5>
+                    <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    Bạn có chắc chắn muốn xóa?
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Quay lại</button>
+                    <button type="button" class="btn btn-danger" onclick="handleDelete()">Xác nhận</button>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
+
+@section Scripts {
+    <script>
+
+        var dataTable;
+        var isEdit = false;
+        var deleteItemId = "";
+        var form = $('#form')[0];
+        var offcanvasForm = new bootstrap.Offcanvas($('#offcanvasForm'));
+
+        $(document).ready(function () {
+            dataTable = $("#Product-Table").DataTable({
+                "ajax": {
+                    "url": "/Product/GetData",
+                    "type": "GET",
+                    "datatype": "json"
+                },
+                "columns": [
+                    { "data": "productCode" },
+                    { "data": "productName" },
+                    { "data": "manufacturer" },
+                    { "data": "category.categoryName" },
+                    { "data": "description" },
+                    { "data": "unit" },
+                    { "data": "price" },
+                    { "data": "number" },
+                    { "data": "status", "render": (data) => data ? 'Sẵn sàng' : 'Đã xóa' },
+                    {
+                        "render": (data, type, row, meta) => {
+                            return `<a class="btn btn-outline-info" onclick="openDetailForm('${row.id}')"><i class="bi bi-eye"></i></a>
+                                            <a class="btn btn-primary" onclick="openEditForm('${row.id}')"><i class="bi bi-pencil-square"></i></a>
+                                            <a class="btn btn-danger" onclick="openDeleteModal('${row.id}')" ><i class="bi bi-trash"></i></a>`
+                        },
+                        "class": "text-end"
+                    },
+                ],
+                "responsive": true,
+                "language": {
+                    "emptyTable": "No data found"
+                },
+            });
+        });
+
+        form.addEventListener('submit', event => {
+            event.preventDefault()
+            if (!form.checkValidity()) {
+                event.stopPropagation()
+                notyf.error('Vui lòng nhập đầy đủ thông tin.');
+            } else {
+                handleSave()
+            }
+            form.classList.add('was-validated')
+        }, false)
+
+        function openAddForm() {
+            isEdit = false;
+            resetForm()
+            $('#btnSubmit').show().text("Thêm")
+            disableValueForm(false);
+            offcanvasForm.show();
+        }
+
+        function openEditForm(id) {
+            isEdit = true;
+            $('#btnSubmit').show().text("Cập nhật");
+            disableValueForm(false);
+            getDetailValue(id)
+            offcanvasForm.show();
+        }
+
+        function openDetailForm(id) {
+            $('#btnSubmit').hide();
+            disableValueForm(true);
+            getDetailValue(id)
+            offcanvasForm.show();
+        }
+
+        function resetForm() {
+            $('#form')[0].reset();
+            var elems = document.querySelectorAll(".text-danger");
+            elems.forEach(itm => {
+                document.getElementById(itm.id).innerHTML = ''
+            })
+        }
+
+        function disableValueForm(disabled) {
+            $('#ProductCode').prop("disabled", disabled);
+            $('#ProductName').prop("disabled", disabled);
+            $('#Manufacturer').prop("disabled", disabled);
+            $('#CategoryId').prop("disabled", disabled);
+            $('#Description').prop("disabled", disabled);
+            $('#Unit').prop("disabled", disabled);
+            $('#Price').prop("disabled", disabled);
+            $('#Number').prop("disabled", disabled);
+        }
+
+        function openDeleteModal(id) {
+            $('#deleteModal').modal("show");
+            deleteItemId = id;
+        }
+
+        function getDetailValue(id) {
+            $.ajax({
+                type: "POST",
+                url: '@Url.Action("Details","Product")/' + id,
+                success: function (data) {
+                    $('#offcanvasFormLabel').text("Chi tiết");
+                    $('#ProductId').val(data.data.id);
+                    $('#ProductCode').val(data.data.productCode);
+                    $('#ProductName').val(data.data.productName);
+                    $('#Manufacturer').val(data.data.manufacturer);
+                    $('#CategoryId').val(data.data.categoryId);
+                    $('#Description').val(data.data.description);
+                    $('#Unit').val(data.data.unit);
+                    $('#Price').val(data.data.price);
+                    $('#Number').val(data.data.number);
+                }
+            });
+        }
+
+        function handleSave() {
+            var data = {
+                Id: $('#ProductId').val(),
+                ProductName: $('#ProductName').val(),
+                ProductCode: $('#ProductCode').val(),
+                Manufacturer: $('#Manufacturer').val(),
+                CategoryId: $('#CategoryId').val(),
+                Description: $('#Description').val(),
+                Unit: $('#Unit').val(),
+                Price: $('#Price').val(),
+                Number: $('#Number').val(),
+            };
+
+            if (isEdit) {
+                $.post("/Product/Edit", { product: data }, (data) => {
+                    if (data.isSuccess) {
+                        notyf.success('Cập nhật dữ liệu thành công.');
+                        dataTable.ajax.reload();
+                        offcanvasForm.hide();
+                    } else {
+                        notyf.error('Có lỗi xảy ra.');
+                    }
+                });
+            } else {
+                $.post("/Product/Create", { product: data }, (data) => {
+                    if (data.isSuccess) {
+                        notyf.success('Thêm dữ liệu thành công.');
+                        dataTable.ajax.reload();
+                        offcanvasForm.hide();
+                    } else {
+                        notyf.error('Có lỗi xảy ra.');
+                    }
+                });
+            }
+        }
+
+        function handleDelete() {
+            $.ajax({
+                type: "POST",
+                url: '@Url.Action("Delete","Product")/' + deleteItemId,
+                success: function (data) {
+                    if (data.isSuccess) {
+                        dataTable.ajax.reload();
+                        notyf.success('Xóa dữ liệu thành công.');
+                        $('#deleteModal').modal("hide");
+                    } else {
+                        notyf.error('Có lỗi xảy ra.');
+                    }
+                }
+            });
+        }
+
+    </script>
+}
