@@ -4,7 +4,6 @@ using Microsoft.EntityFrameworkCore;
 using StoreManagement.Models;
 using StoreManagement.Repositories.CategoryRepository;
 using StoreManagement.Repositories.ProductRepository;
-using StoreManagement.Repositories.RepositoryBase;
 using X.PagedList;
 
 namespace StoreManagement.Controllers
@@ -13,43 +12,25 @@ namespace StoreManagement.Controllers
     {
         private readonly ICategoryRepository _categoryRepository;
         private readonly IProductRepository _productRepository;
-        private readonly IRepositoryBase<ImportStoreDetail> _importStoreDetailRepository;
-        private readonly IRepositoryBase<ExportStoreDetail> _exportStoreDetailRepository;
 
         public ProductController(
             ICategoryRepository categoryRepository,
-            IProductRepository productRepository,
-            IRepositoryBase<ImportStoreDetail> importStoreDetailRepository,
-            IRepositoryBase<ExportStoreDetail> exportStoreDetailRepository
+            IProductRepository productRepository
             )
         {
             _categoryRepository = categoryRepository;
             _productRepository = productRepository;
-            _importStoreDetailRepository = importStoreDetailRepository;
-            _exportStoreDetailRepository = exportStoreDetailRepository;
         }
-        public async Task<IActionResult> Index(int? page, string searchString)
+        public async Task<IActionResult> Index()
         {
-            ViewData["CurrentFilter"] = searchString;
+            return View();
+        }
 
-            if (page == null) page = 1;
-            int pageSize = 3;
-            int pageNumber = (page ?? 1);
-
-            IQueryable<Product> products = _productRepository.GetQueryable().Include(p => p.Category);
-
-            if (!String.IsNullOrEmpty(searchString))
-            {
-                products = products.Where(s =>
-                s.ProductName.Contains(searchString)
-                || s.ProductCode.Contains(searchString)
-                || s.Manufacturer.Contains(searchString)
-                || s.Category.CategoryName.Contains(searchString)
-                );
-            }
-
-            ViewBag.CategoriesList = new SelectList(_categoryRepository.GetAll().ToList(), "Id", "CategoryName");
-            return View(products.ToPagedList(pageNumber, pageSize));
+        [HttpGet]
+        public async Task<IActionResult> GetData()
+        {
+            var products = _productRepository.GetQueryable().Include(s => s.Category).ToList();
+            return Ok(new { data = products });
         }
 
         [HttpPost]
@@ -61,6 +42,7 @@ namespace StoreManagement.Controllers
             return Json(new { isSuccess = _productRepository.Save() });
         }
 
+        [HttpGet]
         public async Task<IActionResult> Details(Guid id)
         {
             var product = _productRepository.GetById<Guid>(id);
@@ -91,18 +73,13 @@ namespace StoreManagement.Controllers
         {
             var product = _productRepository.GetById<Guid>(id);
             if (product == null) return NotFound();
-            product.Status = !product.Status;
+            product.Status = false;
             _productRepository.Update(product);
             return Ok(new { isSuccess = _productRepository.Save() });
 
         }
 
 
-        [HttpGet]
-        public async Task<IActionResult> GetData()
-        {
-            var products = _productRepository.GetQueryable().Include(s => s.Category).ToList();
-            return Json(new { data = products });
-        }
+       
     }
 }

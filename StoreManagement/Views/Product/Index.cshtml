@@ -1,6 +1,5 @@
 ﻿@using X.PagedList.Mvc.Core
 @using X.PagedList.Web.Common;
-@model X.PagedList.IPagedList<Product>
 @{
     ViewData["Title"] = "Products";
 }
@@ -23,9 +22,9 @@
         </form>
     </div>
     <div class="col-md-8 text-end">
-        <a class="btn btn-success" onclick="openAddForm()">
+        <button class="btn btn-success" onclick="openAddForm()">
             <i class="bi bi-plus-circle"></i> Thêm mới
-        </a>
+        </button>
     </div>
     <div class="offcanvas offcanvas-end" id="offcanvasForm" aria-labelledby="offcanvasFormLabel" style="width: 800px;">
         <div class="offcanvas-header">
@@ -37,7 +36,7 @@
                 <div class="col-md-6 mb-2">
                     <label class="control-label">Mã sản phẩm</label>
                     <input id="ProductId" class="form-control" type="hidden" />
-                    <input id="ProductCode" name="ProductCode" class="form-control"  required/>
+                    <input id="ProductCode" name="ProductCode" class="form-control" required />
                 </div>
                 <div class="col-md-12 mb-2">
                     <label class="control-label">Tên sản phẩm</label>
@@ -216,7 +215,7 @@
 
         function getDetailValue(id) {
             $.ajax({
-                type: "POST",
+                type: "GET",
                 url: '@Url.Action("Details","Product")/' + id,
                 success: function (data) {
                     $('#offcanvasFormLabel').text("Chi tiết");

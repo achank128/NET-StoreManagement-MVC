@@ -1,9 +1,7 @@
 ﻿@using X.PagedList.Mvc.Core;
 @using X.PagedList.Web.Common;
-@model X.PagedList.IPagedList<ImportStore>
 @{
     ViewData["Title"] = "Import Store";
-    var dummy = Model.FirstOrDefault();
 }
 
 <div class="row">
@@ -24,66 +22,390 @@
         </form>
     </div>
     <div class="col-md-8 text-end">
-        <a class="btn btn-success" asp-action="Create">
+        <a class="btn btn-success" onclick="openAddForm()">
             <i class="bi bi-plus-circle"></i> Thêm mới
         </a>
     </div>
+
+    <div class="offcanvas offcanvas-end" id="offcanvasForm" aria-labelledby="offcanvasFormLabel" style="width: 800px;">
+        <div class="offcanvas-header">
+            <h5 class="offcanvas-title text-primary" id="offcanvasFormLabel">Thêm mới</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+        </div>
+        <div class="offcanvas-body">
+            <form id="form" class="row" novalidate>
+                <div class="col-md-12 mb-2">
+                    <label class="control-label">Người nhập</label>
+                    <input id="ImportStoreId" name="ImportStoreId" type="hidden" />
+                    <input id="ImporterName" name="ImporterName" class="form-control" required />
+                </div>
+                <div class="col-md-12 mb-2">
+                    <label class="control-label">Nhà cung cấp</label>
+                    <input id="Supplier" name="Supplier" class="form-control" required />
+                </div>
+                <div class="col-md-6 mb-2">
+                    <label class="control-label">Ngày nhập</label>
+                    <input id="ImportDate" name="ImportDate" class="form-control" type="date" required />
+                </div>
+                <div class="col-md-12 my-4">
+                    <p class="mb-0">Chi tiết phiếu nhập kho:</p>
+                    <table id="ProductItem-Table" class="table table-bordered">
+                        <thead>
+                            <tr>
+                                <th>Sản phẩm</th>
+                                <th>Đơn giá</th>
+                                <th>Số lượng</th>
+                                <th>Giá Nhập</th>
+                                <th class="text-center">
+                                    <button id="add-product-item" class="btn btn-success">
+                                        <i class="bi bi-plus-square"></i> Thêm
+                                    </button>
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody id="product-items">
+                        </tbody>
+                    </table>
+                </div>
+                <div class="col-md-6 mb-4">
+                    <label class="control-label">Tổng tiền</label>
+                    <input id="Total" class="form-control" type="number" readonly />
+                </div>
+                <div class="form-group">
+                    <button id="btnSubmit" class="btn btn-primary">Thêm</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <div class="col-md-12">
-        <table class="table table-bordered">
+        <table id="ImportStore-Table" class="table table-bordered" style="width: 100%">
             <thead>
                 <tr>
-                    <th>@Html.DisplayNameFor(m => dummy.Id)</th>
-                    <th>@Html.DisplayNameFor(m => dummy.ImporterName)</th>
-                    <th>@Html.DisplayNameFor(m => dummy.Supplier)</th>
-                    <th>@Html.DisplayNameFor(m => dummy.ImportDate)</th>
-                    <th>@Html.DisplayNameFor(m => dummy.CreatedDate)</th>
-                    <th>@Html.DisplayNameFor(m => dummy.Total)</th>
+                    <th>Mã nhập</th>
+                    <th>Người nhập</th>
+                    <th>Nhà cung cấp</th>
+                    <th>Ngày nhập</th>
+                    <th>Ngày cập nhật</th>
+                    <th>Tổng tiền</th>
                     <th class="text-end">Thao tác</th>
                 </tr>
             </thead>
-            <tbody>
-                @foreach (var item in Model)
-                {
-                    <tr>
-                        <td class="align-middle">
-                            @Html.DisplayFor(modelItem => item.Id)
-                        </td>
-                        <td class="align-middle">
-                            @Html.DisplayFor(modelItem => item.ImporterName)
-                        </td>
-                        <td class="align-middle">
-                            @Html.DisplayFor(modelItem => item.Supplier)
-                        </td> 
-                        <td class="align-middle">
-                            @Html.DisplayFor(modelItem => item.ImportDate, "{dd/MM/yyyy}")
-                        </td>
-                        <td class="align-middle">
-                            @Html.DisplayFor(modelItem => item.CreatedDate, "{dd/MM/yyyy}")
-                        </td>
-                        <td class="align-middle">
-                            @Html.DisplayFor(modelItem => item.Total)
-                        </td>
-                        <td class="align-middle text-end">
-                            <a class="btn btn-outline-info" asp-action="Details" asp-route-id="@item.Id"><i class="bi bi-eye"></i></a>
-                            <a class="btn btn-primary" asp-action="Edit" asp-route-id="@item.Id"><i class="bi bi-pencil-square"></i></a>
-                            <a class="btn btn-danger" asp-action="Delete" asp-route-id="@item.Id"><i class="bi bi-trash"></i></a>
-                        </td>
-                    </tr>
-                }
-            </tbody>
         </table>
+    </div>
 
-        @Html.PagedListPager(Model, page => Url.Action("index", new { page = page }), new PagedListRenderOptions()
-        {
-        ActiveLiElementClass = "active",
-        PageClasses = new[]{ "page-link"},
-        LiElementClasses=new[] { "page-item" },
-        UlElementClasses = new[] { "pagination", "mt-3" },
-        LinkToNextPageFormat = ">",
-        LinkToPreviousPageFormat = "<",
-        MaximumPageNumbersToDisplay = 5,
-        DisplayLinkToPreviousPage = PagedListDisplayMode.Always,
-        DisplayLinkToNextPage = PagedListDisplayMode.Always
-        })
+    <div class="modal fade" id="deleteModal" tabindex="-1" role="dialog" aria-labelledby="deleteModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="deleteModalLabel">Xác nhận xóa</h5>
+                    <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    Bạn có chắc chắn muốn xóa?
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Quay lại</button>
+                    <button type="button" class="btn btn-danger" onclick="handleDelete()">Xác nhận</button>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
+
+
+@section Scripts {
+    <script>
+        var dataTable;
+        var isEdit = false;
+        var deleteItemId = "";
+        var form = $('#form')[0];
+        var offcanvasForm = new bootstrap.Offcanvas($('#offcanvasForm'));
+        var productsList = [];
+
+        $(document).ready(function () {
+            dataTable = $("#ImportStore-Table").DataTable({
+                "ajax": {
+                    "url": "/ImportStore/GetData",
+                    "type": "GET",
+                    "datatype": "json"
+                },
+                "columns": [
+                    { "data": "id" },
+                    { "data": "importerName" },
+                    { "data": "supplier" },
+                    {
+                        "data": "importDate",
+                        "render": (data) => new Date(data).toLocaleDateString('en-GB')
+                    },
+                    {
+                        "data": "createdDate",
+                        "render": (data) => new Date(data).toLocaleDateString('en-GB')
+                    },
+                    {
+                        "data": "total",
+                        "render": (data) => new Intl.NumberFormat('en-US').format(data)
+                    },
+                    {
+                        "render": (data, type, row, meta) => {
+                            return `<a class="btn btn-outline-info" onclick="openDetailForm('${row.id}')"><i class="bi bi-eye"></i></a>
+                                    <a class="btn btn-primary" onclick="openEditForm('${row.id}')"><i class="bi bi-pencil-square"></i></a>
+                                    <a class="btn btn-danger" onclick="openDeleteModal('${row.id}')" ><i class="bi bi-trash"></i></a>`
+                        },
+                        "class": "text-end"
+                    },
+                ],
+                "responsive": true,
+                "language": {
+                    "emptyTable": "No data found"
+                },
+            });
+
+            getProductItems();
+
+            $('#ProductItem-Table').on('change', '.Price', (e) => {
+                caculateTotal()
+            });
+
+            $('#ProductItem-Table').on('change', '.Quantity', (e) => {
+                caculateTotal()
+            })
+
+            $("#add-product-item").click((e) => {
+                e.preventDefault();
+                addProductItem();
+            })
+
+            form.addEventListener('submit', event => {
+                event.preventDefault()
+                if (!form.checkValidity()) {
+                    event.stopPropagation()
+                    notyf.error('Vui lòng nhập đầy đủ thông tin.');
+                } else {
+                    handleSave()
+                }
+                form.classList.add('was-validated')
+            }, false)
+        });
+
+        function openAddForm() {
+            isEdit = false;
+            resetForm()
+            $("#product-items").empty();
+            $('#btnSubmit').show().text("Thêm")
+            disableValueForm(false);
+            offcanvasForm.show();
+        }
+
+        function openEditForm(id) {
+            isEdit = true;
+            $('#btnSubmit').show().text("Cập nhật");
+            $("#product-items").empty();
+            disableValueForm(false);
+            getDetailValue(id)
+            offcanvasForm.show();
+        }
+
+
+        function openDetailForm(id) {
+            isEdit = false;
+            $('#btnSubmit').hide();
+            $("#product-items").empty();
+            disableValueForm(true);
+            getDetailValue(id);
+            offcanvasForm.show();
+        }
+
+        function resetForm() {
+            $('#form')[0].reset();
+            var elems = document.querySelectorAll(".text-danger");
+            elems.forEach(itm => {
+                document.getElementById(itm.id).innerHTML = ''
+            })
+        }
+
+        function disableValueForm(disabled) {
+            $('#ImporterName').prop("disabled", disabled);
+            $('#Supplier').prop("disabled", disabled);
+            $('#ImportDate').prop("disabled", disabled);
+            $('#Total').prop("disabled", disabled);
+            $('.product-item').each((i, e) => {
+                $(e).find('.Product').prop("disabled", disabled);
+                $(e).find('.Quantity').prop("disabled", disabled);
+                $(e).find('.Price').prop("disabled", disabled);
+                $(e).find('.btn').prop("disabled", disabled);
+            });
+            $("#add-product-item").prop("disabled", disabled);
+        }
+
+        function openDeleteModal(id) {
+            $('#deleteModal').modal("show");
+            deleteItemId = id;
+        }
+
+        function getDetailValue(id) {
+            $.ajax({
+                type: "POST",
+                url: '@Url.Action("Details","ImportStore")/' + id,
+                success: function (data) {
+                    console.log(data)
+                    $('#offcanvasFormLabel').text("Chi tiết");
+                    $('#ImportStoreId').val(data.data.id);
+                    $('#ImporterName').val(data.data.importerName);
+                    $('#Supplier').val(data.data.supplier);
+                    $('#ImportDate').val(new Date(data.data.importDate).toISOString().split('T')[0]);
+                    $('#Total').val(data.data.total);
+                    data.data.importStoreDetails.forEach((detail) => {
+                        addProductItem(detail);
+                    })
+                }
+            }).done(() => disableValueForm(!isEdit));
+        }
+
+        function handleDelete() {
+            $.ajax({
+                type: "POST",
+                url: '@Url.Action("Delete","ImportStore")/' + deleteItemId,
+                success: function (data) {
+                    if (data.isSuccess) {
+                        dataTable.ajax.reload();
+                        notyf.success('Xóa dữ liệu thành công.');
+                        $('#deleteModal').modal("hide");
+                    } else {
+                        notyf.error('Có lỗi xảy ra.');
+                    }
+                }
+            });
+        }
+
+        function getProductItems() {
+            $.ajax({
+                url: '/Product/GetData',
+                type: 'GET',
+            }).done(function (result) {
+                productsList = result.data;
+            });
+        }
+
+        function addProductItem (productItem){
+            var newProductItemHtml = `
+                        <tr class="product-item">
+                            <td>
+                                <select class="Product form-select" required>
+                                    ${productsList.map((p) => (`<option value="${p.id}" ${productItem?.productId == p.id && 'selected'}>${p.productName}</option>`)).join('')}
+                                </select>
+                            </td>
+                            <td><input value="${productItem?.importPrice}" type="number" class="ProductPrice form-control" readonly/></td>
+                            <td><input value="${productItem?.quantity}" type="number" class="Quantity form-control" min="0" required/></td>
+                            <td><input value="${productItem?.importPrice}" type="number" class="Price form-control" min="0" required/></td>
+                            <td class="text-center align-middle">
+                                <button class="btn btn-outline-danger btn-sm"><i class="bi bi-x"></i></button>
+                            </td>
+                        </tr>`
+            $("#product-items").append(newProductItemHtml);
+            setProductItems();
+        }
+
+
+        function setProductItems() {
+            $('.product-item').each((i, e) => {
+                var productId = $(e).find('.Product :selected').val();
+                var productPrice = productsList.find(p => p.id == productId).price
+                $(e).find('.ProductPrice').val(productPrice);
+
+                $(e).find('.Product').on('change', () => {
+                    var productId = $(e).find('.Product :selected').val();
+                    var productPrice = productsList.find(p => p.id == productId).price
+                    $(e).find('.ProductPrice').val(productPrice);
+                })
+                $(e).find('.btn').on('click', () => {
+                    $(e).remove();
+                })
+            })
+        }
+
+        function caculateTotal() {
+            var total = 0;
+            $('.product-item').each((i, e) => {
+                var item = {
+                    quantity: $(e).find('.Quantity').val(),
+                    price: $(e).find('.Price').val(),
+                }
+                total += Number(item.quantity) * Number(item.price);
+            });
+            $("#Total").val(total)
+        }
+
+        function handleSave() {
+            var data = {
+                id: $("#ImportStoreId").val(),
+                importerName: $("#ImporterName").val(),
+                supplier: $("#Supplier").val(),
+                importDate: $("#ImportDate").val(),
+                total: $("#Total").val(),
+                listProducts: []
+            };
+
+            $('.product-item').each((i, e) => {
+                var item = {
+                    productId: $(e).find('.Product :selected').val(),
+                    quantity: $(e).find('.Quantity').val(),
+                    price: $(e).find('.Price').val(),
+                }
+                data.listProducts.push(item);
+            });
+
+            if (isEdit) {
+                $.ajax({
+                    url: '/ImportStore/EditImportStore',
+                    type: 'POST',
+                    dataType: 'json',
+                    data: JSON.stringify(data),
+                    headers: {
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json'
+                    },
+                    error: (e) => {
+                        notyf.error('Lưu dữ liệu không thành công');
+                    },
+                    success: (data) => {
+                        if (data.isSuccess) {
+                            notyf.success('Cập nhật dữ liệu thành công.');
+                            offcanvasForm.hide();
+                            dataTable.ajax.reload();
+                        } else {
+                            notyf.error('Có lỗi xảy ra.');
+                        }
+                    },
+                })
+            } else {
+                $.ajax({
+                    url: '/ImportStore/CreateImportStore',
+                    type: 'POST',
+                    dataType: 'json',
+                    data: JSON.stringify(data),
+                    headers: {
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json'
+                    },
+                    error: (e) => {
+                        notyf.error('Lưu dữ liệu không thành công');
+                    }, 
+                    success: (data) => {
+                        if (data.isSuccess) {
+                            notyf.success('Thêm dữ liệu thành công.');
+                            offcanvasForm.hide();
+                            dataTable.ajax.reload();
+                        }else{
+                            notyf.error('Có lỗi xảy ra.');
+                        }
+                    },
+                })
+            }
+        }
+
+
+    </script>
+}

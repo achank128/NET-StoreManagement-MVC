@@ -26,31 +26,18 @@ namespace StoreManagement.Controllers
             _productRepository = productRepository;
             _notyf = notyf;
         }
-        public IActionResult Index(int? page, string searchString)
-        {
-            ViewData["CurrentFilter"] = searchString;
-
-            if (page == null) page = 1;
-            int pageSize = 3;
-            int pageNumber = (page ?? 1);
-
-            IQueryable<ImportStore> importStores = _importStoreRepository.GetQueryable();
-            if (!String.IsNullOrEmpty(searchString))
-            {
-                importStores = importStores.Where(s =>
-                s.ImporterName.Contains(searchString)
-                || s.Supplier.Contains(searchString)
-                );
-            }
-            importStores = importStores.OrderByDescending(s => s.CreatedDate);
-            return View(importStores.ToPagedList(pageNumber, pageSize));
-        }
-
-        public async Task<IActionResult> Create()
+        public IActionResult Index()
         {
             return View();
         }
 
+        [HttpGet]
+        public async Task<IActionResult> GetData()
+        {
+            var importStore = _importStoreRepository.GetQueryable().OrderByDescending(s => s.CreatedDate).ToList();
+            return Ok(new { data = importStore });
+        }
+     
         [HttpPost]
         public async Task<IActionResult> CreateImportStore([FromBody] ImportStoreRequest importStoreRequest)
         {
@@ -81,25 +68,17 @@ namespace StoreManagement.Controllers
             return Json(new { isSuccess });
         }
 
-        public IActionResult Details(Guid id)
-        {
-            var importStore = _importStoreRepository.GetQueryable()
-                .Include(s => s.ImportStoreDetails).ThenInclude(s => s.Product)
-                .SingleOrDefault(s => s.Id == id);
-            if (importStore == null) return View("NotFound");
-            return View(importStore);
-        }
-
-        public async Task<IActionResult> Edit(Guid id)
+        [HttpPost]
+        public async Task<IActionResult> Details(Guid id)
         {
             var exportStore = _importStoreRepository.GetQueryable()
                .Include(s => s.ImportStoreDetails).ThenInclude(s => s.Product)
                .SingleOrDefault(s => s.Id == id);
-
-            ViewBag.ProductsList = new SelectList(_productRepository.GetAll().ToList(), "Id", "ProductName");
-            if (exportStore == null) return View("NotFound");
-            return View(exportStore);
+            if (exportStore == null) return NotFound();
+            return Ok(new { data = exportStore });
         }
+
+
         [HttpPost]
         public async Task<IActionResult> EditImportStore([FromBody] ImportStoreRequest importStoreRequest)
         {
@@ -125,23 +104,17 @@ namespace StoreManagement.Controllers
                 });
             }
             var isSuccess = await _importStoreRepository.UpdateImportStore(importStore, importStoreDetails);
-            return Json(new { isSuccess });
+            return Ok(new { isSuccess });
         }
 
 
+        [HttpPost]
         public async Task<IActionResult> Delete(Guid id)
         {
             var importStore = _importStoreRepository.GetById(id);
-            if (importStore == null) return View("NotFound");
-            return View(importStore);
-        }
-        [HttpPost, ActionName("Delete")]
-        public async Task<IActionResult> DeleteConfirmed(Guid id)
-        {
-            var importStore = _importStoreRepository.GetById(id);
-            if (importStore == null) return View("NotFound");
-            _importStoreRepository.DeleteImportStore(importStore);
-            return RedirectToAction(nameof(Index));
+            if (importStore == null) return NotFound();
+            var isSuccess = await _importStoreRepository.DeleteImportStore(importStore);
+            return Ok(new { isSuccess });
         }
     }
 }
