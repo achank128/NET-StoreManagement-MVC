@@ -11,15 +11,7 @@
             <i class="bi bi-arrow-clockwise"></i>
         </a>
     </div>
-    <div class="col-md-4 mb-3">
-        <form asp-action="Index" method="get">
-            <div class="input-group">
-                <input type="text" class="form-control" name="SearchString" value="@ViewData["CurrentFilter"]" />
-                <input type="submit" value="Tìm kiếm" class="btn btn-primary" />
-            </div>
-        </form>
-    </div>
-    <div class="col-md-8 text-end">
+    <div class="col-md-12 text-end  mb-3">
         <a class="btn btn-success" onclick="openAddForm()">
             <i class="bi bi-plus-circle"></i> Thêm mới
         </a>

@@ -28,7 +28,14 @@ namespace StoreManagement.Controllers
         }
         public IActionResult Index()
         {
-            return View();
+            if (HttpContext.Session.GetString("idUser") != null)
+            {
+                return View();
+            }
+            else
+            {
+                return RedirectToAction("Login", "Home");
+            }
         }
 
         [HttpGet]

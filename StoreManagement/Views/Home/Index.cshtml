@@ -1,8 +1,19 @@
-﻿@{
+﻿@using Microsoft.AspNetCore.Http
+@inject Microsoft.AspNetCore.Http.IHttpContextAccessor HttpContextAccessor
+
+@{
     ViewData["Title"] = "Home Page";
 }
 
 <div class="text-center">
     <h1 class="display-4">Welcome</h1>
+    <div class="card-body">
+        @if (@HttpContextAccessor.HttpContext.Session.GetString("FullName") != null)
+        {
+            <p>Name: @HttpContextAccessor.HttpContext.Session.GetString("FullName").ToString()</p>
+            <p>Email: @HttpContextAccessor.HttpContext.Session.GetString("Email").ToString()</p>
+            <a class="btn btn-outline-danger" href="@Url.Action("Logout","Home")">Logout</a>
+        }
+    </div>
     <p>Learn about <a href="https://docs.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
 </div>

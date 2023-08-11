@@ -27,14 +27,20 @@ builder.Services.AddDbContext<StoreManagementDbContext>(option =>
     option.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"))
 );
 
+builder.Services.AddDistributedMemoryCache();
+builder.Services.AddSession(options => {
+    options.IdleTimeout = TimeSpan.FromMinutes(100);//You can set Time   
+});
+
 #region Repositories
 builder.Services.AddScoped(typeof(IRepositoryBase<>), typeof(RepositoryBase<>));
 builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
 builder.Services.AddScoped<IProductRepository, ProductRepository>();
 builder.Services.AddScoped<IExportStoreRepository, ExportStoreRepository>();
 builder.Services.AddScoped<IImportStoreRepository, ImportStoreRepository>();
-
 #endregion
+builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -51,6 +57,8 @@ app.UseStaticFiles();
 app.UseRouting();
 
 app.UseAuthorization();
+
+app.UseSession();
 
 app.UseNotyf();
 
