@@ -1,0 +1,246 @@
+﻿@{
+    ViewData["Title"] = "Suppliers";
+}
+
+<div class="row">
+    <div class="col-md-8">
+        <h2>Danh sách nhà cung cấp</h2>
+    </div>
+    <div class="col-md-4 text-end">
+        <a class="btn" asp-action="Index">
+            <i class="bi bi-arrow-clockwise"></i>
+        </a>
+    </div>
+    <div class="col-md-12 text-end mb-3">
+        <button class="btn btn-success" onclick="openAddForm()">
+            <i class="bi bi-plus-circle"></i> Thêm mới
+        </button>
+    </div>
+
+    <div class="offcanvas offcanvas-end" id="offcanvasForm" aria-labelledby="offcanvasFormLabel">
+        <div class="offcanvas-header">
+            <h5 class="offcanvas-title text-primary" id="offcanvasFormLabel">Thêm mới</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+        </div>
+        <div class="offcanvas-body">
+            <form id="form" novalidate>
+                <div class="form-group mb-3">
+                    <label class="control-label">Tên nhà cung cấp</label>
+                    <input id="SupplierId" class="form-control" type="hidden" />
+                    <input id="SupplierName" class="form-control" required />
+                </div>
+                <div class="form-group mb-3">
+                    <label class="control-label">Địa chỉ</label>
+                    <input id="Address" class="form-control" />
+                </div>
+                <div class="form-group mb-3">
+                    <label class="control-label">Số điện thoại</label>
+                    <input id="Phone" class="form-control" />
+                </div>
+                <div class="form-group mb-3">
+                    <label class="control-label">Mô tả</label>
+                    <textarea id="Description" class="form-control"></textarea>
+                </div>
+                <div class="form-group">
+                    <button id="btnSubmit" class="btn btn-primary" data-bs-dismiss="offcanvas">Thêm</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+
+
+    <div class="col-md-12">
+        <div class="table-responsive" style="width: 100%">
+            <table id="Unit-Table" class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th>Mã nhà cung cấp</th>
+                        <th>Tên nhà cung cấp</th>
+                        <th>Địa chỉ</th>
+                        <th>Số điện thoại</th>
+                        <th>Mô tả</th>
+                        <th class="text-end">Thao tác</th>
+                    </tr>
+                </thead>
+            </table>
+        </div>
+    </div>
+
+    <div class="modal fade" id="deleteModal" tabindex="-1" role="dialog" aria-labelledby="deleteModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="deleteModalLabel">Xác nhận xóa</h5>
+                    <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    Bạn có chắc chắn muốn xóa?
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Quay lại</button>
+                    <button type="button" class="btn btn-danger" onclick="handleDelete()">Xác nhận</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        var dataTable;
+        var isEdit = false;
+        var deleteItemId = "";
+        var offcanvasForm = new bootstrap.Offcanvas($('#offcanvasForm'));
+        var form = $('#form')[0];
+
+        $(document).ready(function () {
+            dataTable = $("#Unit-Table").DataTable({
+                "processing": true,
+                "serverSide": true,
+                "filter": true,
+                "orderMulti": false,
+                "ordering": false,
+                "ajax": {
+                    "url": "/Supplier/GetData",
+                    "type": "GET",
+                    "datatype": "json"
+                },
+                "columns": [
+                    { "data": "id" },
+                    { "data": "supplierName" },
+                    { "data": "address" },
+                    { "data": "phone" },
+                    { "data": "description" },
+                    {
+                        "render": function (data, type, row, meta) {
+                            return `
+                                                <a class="btn btn-outline-info" onclick="openDetailForm('${row.id}')"><i class="bi bi-eye"></i></a>
+                                                <a class="btn btn-primary" onclick="openEditForm('${row.id}')"><i class="bi bi-pencil-square"></i></a>
+                                                <a class="btn btn-danger" onclick="openDeleteModal('${row.id}')" ><i class="bi bi-trash"></i></a>
+                                            `
+                        },
+                        "class": "text-end"
+                    },
+                ],
+
+                "language": {
+                    "emptyTable": "No data found"
+                },
+            });
+
+            form.addEventListener('submit', event => {
+                event.preventDefault()
+                if (!form.checkValidity()) {
+                    event.stopPropagation()
+                    notyf.error('Vui lòng nhập đầy đủ thông tin.');
+                } else {
+                    handleSave()
+                }
+                form.classList.add('was-validated')
+            }, false)
+        });
+
+        function openAddForm() {
+            resetForm()
+            isEdit = false;
+            $('#btnSubmit').show().text("Thêm")
+            disableValueForm(false);
+            offcanvasForm.show();
+        }
+
+        function openEditForm(id) {
+            isEdit = true;
+            $('#btnSubmit').show().text("Cập nhật");
+            disableValueForm(false);
+            getDetailValue(id);
+            offcanvasForm.show();
+        }
+
+        function openDetailForm(id) {
+            $('#btnSubmit').hide();
+            disableValueForm(true);
+            getDetailValue(id);
+            offcanvasForm.show();
+        }
+
+        function openDeleteModal(id) {
+            $('#deleteModal').modal("show");
+            deleteItemId = id;
+        }
+
+        function disableValueForm(disabled) {
+            $('#SupplierName').prop("disabled", disabled);
+            $('#Address').prop("disabled", disabled);
+            $('#Phone').prop("disabled", disabled);
+            $('#Description').prop("disabled", disabled);
+        }
+
+        function resetForm() {
+            $('#form')[0].reset();
+        }
+
+        function getDetailValue(id) {
+            $.ajax({
+                type: "GET",
+                url: '@Url.Action("Details","Supplier")/' + id,
+                success: function (data) {
+                    $('#offcanvasFormLabel').text("Chi tiết");
+                    $('#SupplierId').val(data.data.id);
+                    $('#SupplierName').val(data.data.supplierName);
+                    $('#Address').val(data.data.address);
+                    $('#Phone').val(data.data.phone);
+                    $('#Description').val(data.data.description);
+                }
+            });
+        }
+
+        function handleSave() {
+            var data = {
+                Id: $('#SupplierId').val(),
+                SupplierName: $('#SupplierName').val(),
+                Address: $('#Address').val(),
+                Phone: $('#Phone').val(),
+                Description: $('#Description').val(),
+            };
+            if (isEdit) {
+                $.post("/Supplier/Edit", { supplier: data }, (data) => {
+                    if (data.isSuccess) {
+                        notyf.success('Cập nhật dữ liệu thành công.');
+                        dataTable.ajax.reload();
+                    } else {
+                        notyf.error('Có lỗi xảy ra.');
+                    }
+                });
+            } else {
+                $.post("/Supplier/Create", { supplier: data }, (data) => {
+                    if (data.isSuccess) {
+                        notyf.success('Thêm dữ liệu thành công.');
+                        dataTable.ajax.reload();
+                    } else {
+                        notyf.error('Có lỗi xảy ra.');
+                    }
+                });
+            }
+        }
+
+        function handleDelete() {
+            $.ajax({
+                type: "POST",
+                url: '@Url.Action("Delete","Supplier")/' + deleteItemId,
+                success: function (data) {
+                    if (data.isSuccess) {
+                        dataTable.ajax.reload();
+                        notyf.success('Xóa dữ liệu thành công.');
+                        $('#deleteModal').modal("hide");
+                    } else {
+                        notyf.error('Có lỗi xảy ra.');
+                    }
+                }
+            });
+        }
+
+    </script>
+}

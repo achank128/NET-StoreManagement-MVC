@@ -13,7 +13,7 @@ public partial class Customer
     public Guid Id { get; set; }
 
     [StringLength(100)]
-    public string SupplierName { get; set; } = null!;
+    public string CustomerName { get; set; } = null!;
 
     [StringLength(255)]
     public string? Address { get; set; }
