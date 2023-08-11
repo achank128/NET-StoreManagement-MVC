@@ -141,7 +141,10 @@
                     { "data": "category.categoryName" },
                     { "data": "description" },
                     { "data": "unit" },
-                    { "data": "price" },
+                    { 
+                        "data": "price",
+                        "render": (data) => new Intl.NumberFormat('en-US').format(data)
+                    },
                     { "data": "number" },
                     { "data": "status", "render": (data) => data ? 'Sẵn sàng' : 'Xóa' },
                     {

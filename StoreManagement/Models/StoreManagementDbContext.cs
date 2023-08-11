@@ -27,6 +27,8 @@ public partial class StoreManagementDbContext : DbContext
 
     public virtual DbSet<Product> Products { get; set; }
 
+    public virtual DbSet<User> Users { get; set; }
+
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
 #warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see http://go.microsoft.com/fwlink/?LinkId=723263.
         => optionsBuilder.UseSqlServer("Server=NKC\\SQLEXPRESS;Database=StoreManagementDb;Trusted_Connection=True;MultipleActiveResultSets=True;TrustServerCertificate=True;");
@@ -85,6 +87,11 @@ public partial class StoreManagementDbContext : DbContext
             entity.HasOne(d => d.Category).WithMany(p => p.Products)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK__Products_Categories");
+        });
+
+        modelBuilder.Entity<User>(entity =>
+        {
+            entity.Property(e => e.Id).ValueGeneratedNever();
         });
 
         OnModelCreatingPartial(modelBuilder);

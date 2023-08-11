@@ -20,7 +20,7 @@ public partial class ExportStoreDetail
     public int Quantity { get; set; }
 
     [Column(TypeName = "money")]
-    public float ExportPrice { get; set; }
+    public decimal ExportPrice { get; set; }
 
     [ForeignKey("ExportStoreId")]
     [InverseProperty("ExportStoreDetails")]

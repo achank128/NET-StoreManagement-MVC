@@ -10,7 +10,7 @@ namespace StoreManagement.Models.Request
         public string ImporterName { get; set; } = null!;
         public string Supplier { get; set; } = null!;
         public DateTime ImportDate { get; set; }
-        public float Total { get; set; }
+        public decimal Total { get; set; }
         public List<ProductItem> ListProducts { get; set; }
     }
 }

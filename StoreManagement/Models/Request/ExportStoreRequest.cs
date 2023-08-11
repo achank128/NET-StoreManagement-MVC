@@ -10,7 +10,7 @@ namespace StoreManagement.Models.Request
         public string ExporterName { get; set; } = null!;
         public string Customer { get; set; } = null!;
         public DateTime ExportDate { get; set; }
-        public float Total { get; set; }
+        public decimal Total { get; set; }
         public List<ProductItem> ListProducts { get; set; }
     }
 }

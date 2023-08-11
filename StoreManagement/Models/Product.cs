@@ -31,7 +31,7 @@ public partial class Product
     public string? Unit { get; set; }
 
     [Column(TypeName = "money")]
-    public float? Price { get; set; }
+    public decimal? Price { get; set; }
 
     public int? Number { get; set; }
 

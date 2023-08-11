@@ -23,7 +23,7 @@ public partial class ExportStore
     public DateTime ExportDate { get; set; }
 
     [Column(TypeName = "money")]
-    public float Total { get; set; }
+    public decimal Total { get; set; }
 
     [Column(TypeName = "datetime")]
     public DateTime CreatedDate { get; set; }
