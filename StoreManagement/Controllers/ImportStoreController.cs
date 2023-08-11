@@ -34,8 +34,32 @@ namespace StoreManagement.Controllers
         [HttpGet]
         public async Task<IActionResult> GetData()
         {
-            var importStore = _importStoreRepository.GetQueryable().OrderByDescending(s => s.CreatedDate).ToList();
-            return Ok(new { data = importStore });
+            var draw = HttpContext.Request.Query["draw"].ToString();
+            var start = HttpContext.Request.Query["start"].ToString();
+            var length = HttpContext.Request.Query["length"].ToString();
+            var sortColumn = HttpContext.Request.Query["columns[" + HttpContext.Request.Query["order[0][column]"].ToString() + "][name]"].ToString();
+            var sortColumnDir = HttpContext.Request.Query["order[0][dir]"].ToString();
+            var searchValue = HttpContext.Request.Query["search[value]"].ToString();
+
+            //Paging Size 
+            int pageSize = length != null ? Convert.ToInt32(length) : 1;
+            int skip = start != null ? Convert.ToInt32(start) : 0;
+            int recordsTotal = 0;
+
+            // Getting all Customer data    
+            IQueryable<ImportStore> importStores = _importStoreRepository.GetQueryable().OrderByDescending(s => s.CreatedDate);
+
+            //Search    
+            if (!string.IsNullOrEmpty(searchValue))
+            {
+                importStores = importStores.Where(m => m.ImporterName.Contains(searchValue) || m.Supplier.Contains(searchValue));
+            }
+
+            //total number of rows count     
+            recordsTotal = importStores.Count();
+            //Paging     
+            var data = importStores.Skip(skip).Take(pageSize).ToList();
+            return Json(new { draw = draw, recordsFiltered = recordsTotal, recordsTotal = recordsTotal, data = data });
         }
      
         [HttpPost]

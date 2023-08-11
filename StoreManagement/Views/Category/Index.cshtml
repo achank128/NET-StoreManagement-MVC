@@ -1,9 +1,5 @@
-﻿@using X.PagedList.Mvc.Core
-@using X.PagedList.Web.Common;
-@model X.PagedList.IPagedList<Category>
-@{
+﻿@{
     ViewData["Title"] = "Categories";
-    var dummy = Model.FirstOrDefault();
 }
 
 <div class="row">
@@ -53,7 +49,7 @@
     </div>
 
     <div class="col-md-12">
-        <div class="table-responsive">
+        <div class="table-responsive" style="width: 100%">
             <table id="Category-Table" class="table table-bordered">
                 <thead>
                     <tr>
@@ -97,6 +93,11 @@
 
         $(document).ready(function () {
             dataTable = $("#Category-Table").DataTable({
+                "processing": true, 
+                "serverSide": true, 
+                "filter": true, 
+                "orderMulti": false, 
+                "ordering": false,
                 "ajax": {
                     "url": "/Category/GetData",
                     "type": "GET",
@@ -160,7 +161,7 @@
 
         function getDetailValue(id) {
             $.ajax({
-                type: "POST",
+                type: "GET",
                 url: '@Url.Action("Details","Category")/' + id,
                 success: function (data) {
                     $('#offcanvasFormLabel').text("Chi tiết");

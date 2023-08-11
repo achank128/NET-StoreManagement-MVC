@@ -1,8 +1,9 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
+﻿using Azure.Core;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using StoreManagement.Models;
 using StoreManagement.Repositories.CategoryRepository;
-using X.PagedList;
+using System.Linq;
 
 namespace StoreManagement.Controllers
 {
@@ -14,29 +15,49 @@ namespace StoreManagement.Controllers
         {
             _categoryRepository = categoryRepository;
         }
-        public IActionResult Index(int? page, string searchString)
+        public IActionResult Index()
         {
-            ViewData["CurrentFilter"] = searchString;
-
-            if (page == null) page = 1;
-            int pageSize = 3;
-            int pageNumber = (page ?? 1);
-
-            IQueryable<Category> categories = _categoryRepository.GetQueryable();
-            if (!String.IsNullOrEmpty(searchString))
-            {
-                categories = categories.Where(s =>
-                s.CategoryName.Contains(searchString)
-                );
-            }
-            categories = categories.OrderByDescending(s => s.CreatedDate);
-            return View(categories.ToPagedList(pageNumber, pageSize));
+            return View();
         }
 
         [HttpGet]
         public async Task<IActionResult> GetData()
         {
-            return Json(new { data = _categoryRepository.GetAll().ToList() });
+            var draw = HttpContext.Request.Query["draw"].ToString();
+            var start = HttpContext.Request.Query["start"].ToString();
+            var length = HttpContext.Request.Query["length"].ToString();
+            var sortColumn = HttpContext.Request.Query["columns[" + HttpContext.Request.Query["order[0][column]"].ToString() + "][name]"].ToString();
+            var sortColumnDir = HttpContext.Request.Query["order[0][dir]"].ToString();
+            var searchValue = HttpContext.Request.Query["search[value]"].ToString();
+
+            //Paging Size 
+            int pageSize = length != null ? Convert.ToInt32(length) : 1;
+            int skip = start != null ? Convert.ToInt32(start) : 0;
+            int recordsTotal = 0;
+
+            // Getting all Customer data    
+            IQueryable<Category> categories = _categoryRepository.GetQueryable();
+
+            //Search    
+            if (!string.IsNullOrEmpty(searchValue))
+            {
+                categories = categories.Where(m => m.CategoryName.Contains(searchValue));
+            }
+
+            //total number of rows count     
+            recordsTotal = categories.Count();
+            //Paging     
+            var data = categories.Skip(skip).Take(pageSize).ToList();
+            return Json(new { draw = draw, recordsFiltered = recordsTotal, recordsTotal = recordsTotal, data = data });
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> Details([FromRoute] Guid id)
+        {
+            var category = _categoryRepository.GetById<Guid>(id);
+            if (category == null) return NotFound();
+            return Json(new { data = category });
+
         }
 
         [HttpPost]
@@ -66,15 +87,6 @@ namespace StoreManagement.Controllers
             if (category == null) return NotFound();
             _categoryRepository.Delete(category);
             return Json(new { isSuccess = _categoryRepository.Save() });
-        }
-
-        [HttpPost]
-        public async Task<IActionResult> Details([FromRoute] Guid id)
-        {
-            var category = _categoryRepository.GetById<Guid>(id);
-            if (category == null) return NotFound();
-            return Json(new { data = category });
-
         }
     }
 }
