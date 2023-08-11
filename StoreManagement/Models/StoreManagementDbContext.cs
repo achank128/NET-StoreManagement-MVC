@@ -17,6 +17,8 @@ public partial class StoreManagementDbContext : DbContext
 
     public virtual DbSet<Category> Categories { get; set; }
 
+    public virtual DbSet<Customer> Customers { get; set; }
+
     public virtual DbSet<ExportStore> ExportStores { get; set; }
 
     public virtual DbSet<ExportStoreDetail> ExportStoreDetails { get; set; }
@@ -26,6 +28,10 @@ public partial class StoreManagementDbContext : DbContext
     public virtual DbSet<ImportStoreDetail> ImportStoreDetails { get; set; }
 
     public virtual DbSet<Product> Products { get; set; }
+
+    public virtual DbSet<Supplier> Suppliers { get; set; }
+
+    public virtual DbSet<Unit> Units { get; set; }
 
     public virtual DbSet<User> Users { get; set; }
 
@@ -39,6 +45,11 @@ public partial class StoreManagementDbContext : DbContext
         {
             entity.Property(e => e.Id).ValueGeneratedNever();
             entity.Property(e => e.CreatedDate).HasDefaultValueSql("(getdate())");
+        });
+
+        modelBuilder.Entity<Customer>(entity =>
+        {
+            entity.Property(e => e.Id).ValueGeneratedNever();
         });
 
         modelBuilder.Entity<ExportStore>(entity =>
@@ -87,6 +98,13 @@ public partial class StoreManagementDbContext : DbContext
             entity.HasOne(d => d.Category).WithMany(p => p.Products)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK__Products_Categories");
+
+            entity.HasOne(d => d.UnitNavigation).WithMany(p => p.Products).HasConstraintName("FK__Products_Unit");
+        });
+
+        modelBuilder.Entity<Supplier>(entity =>
+        {
+            entity.Property(e => e.Id).ValueGeneratedNever();
         });
 
         modelBuilder.Entity<User>(entity =>

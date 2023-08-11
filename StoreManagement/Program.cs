@@ -3,10 +3,13 @@ using AspNetCoreHero.ToastNotification.Extensions;
 using Microsoft.EntityFrameworkCore;
 using StoreManagement.Models;
 using StoreManagement.Repositories.CategoryRepository;
+using StoreManagement.Repositories.CustomerRepository;
 using StoreManagement.Repositories.ExportStoreRepository;
 using StoreManagement.Repositories.ImportStoreRepository;
 using StoreManagement.Repositories.ProductRepository;
 using StoreManagement.Repositories.RepositoryBase;
+using StoreManagement.Repositories.SupplierRepository;
+using StoreManagement.Repositories.UnitRepository;
 using System;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -38,6 +41,9 @@ builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
 builder.Services.AddScoped<IProductRepository, ProductRepository>();
 builder.Services.AddScoped<IExportStoreRepository, ExportStoreRepository>();
 builder.Services.AddScoped<IImportStoreRepository, ImportStoreRepository>();
+builder.Services.AddScoped<IUnitRepository, UnitRepository>();
+builder.Services.AddScoped<ICustomerRepository, CustomerRepository>();
+builder.Services.AddScoped<ISupplierRepository, SupplierRepository>();
 #endregion
 builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 

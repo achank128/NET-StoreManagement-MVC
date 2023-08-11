@@ -49,4 +49,8 @@ public partial class Product
 
     [InverseProperty("Product")]
     public virtual ICollection<ImportStoreDetail> ImportStoreDetails { get; set; } = new List<ImportStoreDetail>();
+
+    [ForeignKey("Unit")]
+    [InverseProperty("Products")]
+    public virtual Unit? UnitNavigation { get; set; }
 }

@@ -40,27 +40,22 @@
                     <div class="sidebar-heading">
                         Quản lý
                     </div>
-                    @*<li class="nav-item">
-                <a class="nav-link collapsed" href="#" data-bs-toggle="collapse" data-bs-target="#collapseTwo"
-                aria-expanded="true" aria-controls="collapseTwo">
-                <i class="fas fa-solid fa-table"></i>
-                <span>Sản phẩm</span>
-                </a>
-                <div id="collapseTwo" class="collapse" aria-labelledby="headingTwo" data-bs-parent="#accordionSidebar">
-                <div class="bg-white py-2 collapse-inner rounded">
-                <h6 class="bg-white collapse-header">Sản phẩm:</h6>
-                <a class="collapse-item" asp-controller="Product" asp-action="Index">Danh sách</a>
-                <a class="collapse-item" asp-controller="Product" asp-action="Create">Thêm</a>
-                </div>
-                </div>
-                </li>*@
-
                     <li class="nav-item">
-                        <a class="nav-link" asp-controller="Product" asp-action="Index">
-                            <i class="fas fa-solid fa-list"></i>
+                        <a class="nav-link collapsed" href="#" data-bs-toggle="collapse" data-bs-target="#collapseTwo"
+                       aria-expanded="true" aria-controls="collapseTwo">
+                            <i class="fas fa-solid fa-table"></i>
                             <span>Sản phẩm</span>
                         </a>
+                        <div id="collapseTwo" class="collapse" aria-labelledby="headingTwo" data-bs-parent="#accordionSidebar">
+                            <div class="bg-white py-2 collapse-inner rounded">
+                                <h6 class="bg-white collapse-header">Sản phẩm:</h6>
+                                <a class="collapse-item" asp-controller="Product" asp-action="Index">Sản phẩm</a>
+                                <a class="collapse-item" asp-controller="Unit" asp-action="Index">Đơn vị tính</a>
+                            </div>
+                        </div>
                     </li>
+
+
                     <li class="nav-item">
                         <a class="nav-link" asp-controller="Category" asp-action="Index">
                             <i class="fas fa-solid fa-list"></i>

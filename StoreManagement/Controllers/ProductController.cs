@@ -4,25 +4,31 @@ using Microsoft.EntityFrameworkCore;
 using StoreManagement.Models;
 using StoreManagement.Repositories.CategoryRepository;
 using StoreManagement.Repositories.ProductRepository;
+using StoreManagement.Repositories.UnitRepository;
 using X.PagedList;
 
 namespace StoreManagement.Controllers
 {
     public class ProductController : Controller
     {
-        private readonly ICategoryRepository _categoryRepository;
         private readonly IProductRepository _productRepository;
+        private readonly IUnitRepository _unitRepository;
+        private readonly ICategoryRepository _categoryRepository;
 
         public ProductController(
-            ICategoryRepository categoryRepository,
-            IProductRepository productRepository
+            IProductRepository productRepository,
+            IUnitRepository unitRepository,
+            ICategoryRepository categoryRepository
             )
         {
-            _categoryRepository = categoryRepository;
             _productRepository = productRepository;
+            _unitRepository = unitRepository;
+            _categoryRepository = categoryRepository;
         }
         public async Task<IActionResult> Index()
         {
+            ViewBag.UnitsList = new SelectList(_unitRepository.GetAll().ToList(), "Id", "UnitName");
+            ViewBag.CategoriesList = new SelectList(_categoryRepository.GetAll().ToList(), "Id", "CategoryName");
             if (HttpContext.Session.GetString("idUser") != null)
             {
                 return View();
@@ -49,7 +55,7 @@ namespace StoreManagement.Controllers
             int recordsTotal = 0;
 
             // Getting all Customer data    
-            IQueryable<Product> products = _productRepository.GetQueryable().Include(p => p.Category);
+            IQueryable<Product> products = _productRepository.GetQueryable().Include(p => p.Category).Include(p => p.UnitNavigation);
 
             //Search    
             if (!string.IsNullOrEmpty(searchValue))
@@ -62,6 +68,12 @@ namespace StoreManagement.Controllers
             //Paging     
             var data = products.Skip(skip).Take(pageSize).ToList();
             return Json(new { draw = draw, recordsFiltered = recordsTotal, recordsTotal = recordsTotal, data = data });
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> GetAll()
+        {
+            return Json(new { data = _productRepository.GetQueryable().Where(s => s.Status == true).ToList() });
         }
 
         [HttpPost]
@@ -100,13 +112,13 @@ namespace StoreManagement.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Delete(Guid id)
+        public async Task<IActionResult> Delete([FromRoute]Guid id, [FromQuery] string status )
         {
             var product = _productRepository.GetById<Guid>(id);
             if (product == null) return NotFound();
-            product.Status = false;
+            product.Status = status == "1" ? true : false;
             _productRepository.Update(product);
-            return Ok(new { isSuccess = _productRepository.Save() });
+            return Ok(new { isSuccess = _productRepository.Save(), status });
 
         }
 

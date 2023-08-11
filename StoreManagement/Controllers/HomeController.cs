@@ -58,15 +58,18 @@ namespace StoreManagement.Controllers
                 var check = _context.Users.FirstOrDefault(s => s.Email == user.Email);
                 if (check == null)
                 {
+                    user.Id = Guid.NewGuid();
                     user.Password = GetMD5(user.Password);
                     //_context.Configuration.ValidateOnSaveEnabled = false;
                     _context.Users.Add(user);
                     _context.SaveChanges();
+                    _notyf.Success("Đăng ký tài khoản thành công.");
                     return RedirectToAction("Index");
                 }
                 else
                 {
-                    ViewBag.error = "Email already exists";
+                    ViewBag.error = "Email đã tồn tại.";
+                    _notyf.Error("Đăng nhập thất bại vui lòng kiểm tra lại thông tin");
                     return View();
                 }
 
@@ -90,21 +93,20 @@ namespace StoreManagement.Controllers
         {
             if (ModelState.IsValid)
             {
-
-
                 var f_password = GetMD5(password);
                 var data = _context.Users.Where(s => s.Email.Equals(email) && s.Password.Equals(f_password)).ToList();
                 if (data.Count() > 0)
                 {
-                    //add session
                     HttpContext.Session.SetString("FullName", data.FirstOrDefault().FullName);
                     HttpContext.Session.SetString("Email", data.FirstOrDefault().Email);
                     HttpContext.Session.SetString("idUser", data.FirstOrDefault().Id.ToString());
+                    _notyf.Success("Đăng nhập thành công.");
                     return RedirectToAction("Index");
                 }
                 else
                 {
-                    ViewBag.error = "Login failed";
+                    ViewBag.error = "Vui lòng kiểm tra lại thông tin đăng nhập.";
+                    _notyf.Error("Đăng nhập thất bại vui lòng kiểm tra lại thông tin");
                     return RedirectToAction("Login");
                 }
             }

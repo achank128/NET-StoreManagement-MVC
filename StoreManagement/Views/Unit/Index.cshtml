@@ -1,10 +1,10 @@
 ﻿@{
-    ViewData["Title"] = "Categories";
+    ViewData["Title"] = "Product Units";
 }
 
 <div class="row">
     <div class="col-md-8">
-        <h2>Danh sách Danh mục</h2>
+        <h2>Đơn vị tính</h2>
     </div>
     <div class="col-md-4 text-end">
         <a class="btn" asp-action="Index">
@@ -17,7 +17,7 @@
         </button>
     </div>
 
-    <div class="offcanvas offcanvas-end" id="offcanvasForm" aria-labelledby="offcanvasFormLabel" style="max-width: 800px;">
+    <div class="offcanvas offcanvas-end" id="offcanvasForm" aria-labelledby="offcanvasFormLabel">
         <div class="offcanvas-header">
             <h5 class="offcanvas-title text-primary" id="offcanvasFormLabel">Thêm mới</h5>
             <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
@@ -25,13 +25,16 @@
         <div class="offcanvas-body">
             <form id="form" novalidate>
                 <div class="form-group mb-3">
-                    <label class="control-label">Tên danh mục</label>
-                    <input id="CategoryId" type="hidden" />
-                    <input id="CategoryName" class="form-control" />
+                    <label class="control-label">Mã đơn vị</label>
+                    <input id="UnitId" class="form-control" required />
+                </div>
+                <div class="form-group mb-3">
+                    <label class="control-label">Đơn vị tính</label>
+                    <input id="UnitName" class="form-control" required />
                 </div>
                 <div class="form-group mb-3">
                     <label class="control-label">Mô tả</label>
-                    <input id="Description" class="form-control" />
+                    <textarea id="Description" class="form-control" ></textarea>
                 </div>
                 <div class="form-group">
                     <button id="btnSubmit" class="btn btn-primary" data-bs-dismiss="offcanvas">Thêm</button>
@@ -40,13 +43,15 @@
         </div>
     </div>
 
+
+
     <div class="col-md-12">
         <div class="table-responsive" style="width: 100%">
-            <table id="Category-Table" class="table table-bordered">
+            <table id="Unit-Table" class="table table-bordered">
                 <thead>
                     <tr>
-                        <th>Mã danh mục</th>
-                        <th>Tên danh mục</th>
+                        <th>Mã đơn vị</th>
+                        <th>Đơn vị tính</th>
                         <th>Mô tả</th>
                         <th class="text-end">Thao tác</th>
                     </tr>
@@ -78,28 +83,27 @@
 
 @section Scripts {
     <script>
-
-        var Popup, dataTable;
+        var dataTable;
         var isEdit = false;
         var deleteItemId = "";
         var offcanvasForm = new bootstrap.Offcanvas($('#offcanvasForm'));
         var form = $('#form')[0];
 
         $(document).ready(function () {
-            dataTable = $("#Category-Table").DataTable({
-                "processing": true, 
-                "serverSide": true, 
-                "filter": true, 
-                "orderMulti": false, 
+            dataTable = $("#Unit-Table").DataTable({
+                "processing": true,
+                "serverSide": true,
+                "filter": true,
+                "orderMulti": false,
                 "ordering": false,
                 "ajax": {
-                    "url": "/Category/GetData",
+                    "url": "/Unit/GetData",
                     "type": "GET",
                     "datatype": "json"
                 },
                 "columns": [
                     { "data": "id" },
-                    { "data": "categoryName" },
+                    { "data": "unitName" },
                     { "data": "description" },
                     {
                         "render": function (data, type, row, meta) {
@@ -118,33 +122,32 @@
                 },
             });
 
-
             form.addEventListener('submit', event => {
-            event.preventDefault()
-            if (!form.checkValidity()) {
-                event.stopPropagation()
-                notyf.error('Vui lòng nhập đầy đủ thông tin.');
-            } else {
-                handleSave()
-            }
-            form.classList.add('was-validated')
-        }, false)
+                event.preventDefault()
+                if (!form.checkValidity()) {
+                    event.stopPropagation()
+                    notyf.error('Vui lòng nhập đầy đủ thông tin.');
+                } else {
+                    handleSave()
+                }
+                form.classList.add('was-validated')
+            }, false)
         });
 
         function openAddForm() {
             isEdit = false;
             $('#btnSubmit').show().text("Thêm")
-            $('#CategoryId').val("");
-            $('#CategoryName').val("").prop("disabled", false);
+            $('#UnitId').val("").prop("disabled", false);
+            $('#UnitName').val("").prop("disabled", false);
             $('#Description').val("").prop("disabled", false);
             offcanvasForm.show();
         }
 
         function openEditForm(id) {
             isEdit = true;
-            $('#btnSubmit').show();
-            $('#btnSubmit').text("Cập nhật");
-            $('#CategoryName').prop("disabled", false);
+            $('#btnSubmit').show().text("Cập nhật");
+            $('#UnitId').prop("disabled", true);
+            $('#UnitName').prop("disabled", false);
             $('#Description').prop("disabled", false);
             getDetailValue(id);
             offcanvasForm.show();
@@ -152,7 +155,8 @@
 
         function openDetailForm(id) {
             $('#btnSubmit').hide();
-            $('#CategoryName').prop("disabled", true);
+            $('#UnitId').prop("disabled", true);
+            $('#UnitName').prop("disabled", true);
             $('#Description').prop("disabled", true);
             getDetailValue(id);
             offcanvasForm.show();
@@ -166,11 +170,11 @@
         function getDetailValue(id) {
             $.ajax({
                 type: "GET",
-                url: '@Url.Action("Details","Category")/' + id,
+                url: '@Url.Action("Details","Unit")/' + id,
                 success: function (data) {
                     $('#offcanvasFormLabel').text("Chi tiết");
-                    $('#CategoryId').val(data.data.id);
-                    $('#CategoryName').val(data.data.categoryName);
+                    $('#UnitId').val(data.data.id);
+                    $('#UnitName').val(data.data.unitName);
                     $('#Description').val(data.data.description);
                 }
             });
@@ -178,12 +182,12 @@
 
         function handleSave() {
             var data = {
-                Id: $('#CategoryId').val(),
-                CategoryName: $('#CategoryName').val(),
+                Id: $('#UnitId').val(),
+                UnitName: $('#UnitName').val(),
                 Description: $('#Description').val(),
             };
             if (isEdit) {
-                $.post("/Category/Edit", { category: data }, (data) => {
+                $.post("/Unit/Edit", { unit: data }, (data) => {
                     if (data.isSuccess) {
                         notyf.success('Cập nhật dữ liệu thành công.');
                         dataTable.ajax.reload();
@@ -192,7 +196,7 @@
                     }
                 });
             } else {
-                $.post("/Category/Create", { category: data }, (data) => {
+                $.post("/Unit/Create", { unit: data }, (data) => {
                     if (data.isSuccess) {
                         notyf.success('Thêm dữ liệu thành công.');
                         dataTable.ajax.reload();
@@ -206,7 +210,7 @@
         function handleDelete() {
             $.ajax({
                 type: "POST",
-                url: '@Url.Action("Delete","Category")/' + deleteItemId,
+                url: '@Url.Action("Delete","Unit")/' + deleteItemId,
                 success: function (data) {
                     if (data.isSuccess) {
                         dataTable.ajax.reload();

@@ -280,7 +280,7 @@
 
         function getProductItems() {
             $.ajax({
-                url: '/Product/GetData',
+                url: '/Product/GetAll',
                 type: 'GET',
             }).done(function (result) {
                 productsList = result.data;

@@ -59,6 +59,12 @@ namespace StoreManagement.Controllers
         }
 
         [HttpGet]
+        public async Task<IActionResult> GetAll()
+        {
+            return Json(new { data = _categoryRepository.GetAll().ToList() });
+        }
+
+        [HttpGet]
         public async Task<IActionResult> Details([FromRoute] Guid id)
         {
             var category = _categoryRepository.GetById<Guid>(id);
