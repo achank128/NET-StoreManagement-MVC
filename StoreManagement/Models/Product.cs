@@ -27,18 +27,21 @@ public partial class Product
     [StringLength(255)]
     public string? Description { get; set; }
 
-    [StringLength(50)]
-    public string? Unit { get; set; }
+    [StringLength(20)]
+    public string? UnitId { get; set; }
+
+    [Column(TypeName = "money")]
+    public decimal? ImportPrice { get; set; }
 
     [Column(TypeName = "money")]
     public decimal? Price { get; set; }
 
     public int? Number { get; set; }
 
+    public bool? Status { get; set; }
+
     [Column(TypeName = "datetime")]
     public DateTime CreatedDate { get; set; }
-
-    public bool? Status { get; set; }
 
     [ForeignKey("CategoryId")]
     [InverseProperty("Products")]
@@ -50,7 +53,7 @@ public partial class Product
     [InverseProperty("Product")]
     public virtual ICollection<ImportStoreDetail> ImportStoreDetails { get; set; } = new List<ImportStoreDetail>();
 
-    [ForeignKey("Unit")]
+    [ForeignKey("UnitId")]
     [InverseProperty("Products")]
-    public virtual Unit? UnitNavigation { get; set; }
+    public virtual Unit? Unit { get; set; }
 }

@@ -6,9 +6,9 @@ namespace StoreManagement.Repositories.CategoryRepository
 {
     public class CategoryRepository : RepositoryBase<Category>, ICategoryRepository
     {
-        private readonly StoreManagementDbContext _context;
+        private readonly StoreManagementContext _context;
 
-        public CategoryRepository(StoreManagementDbContext context) : base(context)
+        public CategoryRepository(StoreManagementContext context) : base(context)
         {
             _context = context;
         }

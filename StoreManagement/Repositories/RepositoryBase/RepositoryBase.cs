@@ -6,9 +6,9 @@ namespace StoreManagement.Repositories.RepositoryBase
 {
     public class RepositoryBase<TEntity> : IRepositoryBase<TEntity> where TEntity : class
     {
-        private readonly StoreManagementDbContext _context;
+        private readonly StoreManagementContext _context;
 
-        public RepositoryBase(StoreManagementDbContext context)
+        public RepositoryBase(StoreManagementContext context)
         {
             _context = context;
         }

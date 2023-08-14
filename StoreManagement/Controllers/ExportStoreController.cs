@@ -58,7 +58,7 @@ namespace StoreManagement.Controllers
             //Search    
             if (!string.IsNullOrEmpty(searchValue))
             {
-                exportStores = exportStores.Where(m => m.ExporterName.Contains(searchValue) || m.Customer.Contains(searchValue));
+               // exportStores = exportStores.Where(m => m.ExporterName.Contains(searchValue) || m.Customer.Contains(searchValue));
             }
 
             //total number of rows count     
@@ -78,8 +78,8 @@ namespace StoreManagement.Controllers
         {
             ExportStore exportStore = new ExportStore();
             exportStore.Id = Guid.NewGuid();
-            exportStore.ExporterName = exportStoreRequest.ExporterName;
-            exportStore.Customer = exportStoreRequest.Customer;
+            //exportStore.ExporterName = exportStoreRequest.ExporterName;
+            //exportStore.Customer = exportStoreRequest.Customer;
             exportStore.ExportDate = exportStoreRequest.ExportDate;
             exportStore.CreatedDate = DateTime.Now;
             exportStore.Total = exportStoreRequest.Total;
@@ -117,8 +117,8 @@ namespace StoreManagement.Controllers
         {
             ExportStore exportStore = new ExportStore();
             exportStore.Id = (Guid)exportStoreRequest.Id;
-            exportStore.ExporterName = exportStoreRequest.ExporterName;
-            exportStore.Customer = exportStoreRequest.Customer;
+            //exportStore.ExporterName = exportStoreRequest.ExporterName;
+            //exportStore.Customer = exportStoreRequest.Customer;
             exportStore.ExportDate = exportStoreRequest.ExportDate;
             exportStore.CreatedDate = DateTime.Now;
             exportStore.Total = exportStoreRequest.Total;

@@ -5,9 +5,9 @@ namespace StoreManagement.Repositories.UnitRepository
 {
     public class UnitRepository: RepositoryBase<Unit>, IUnitRepository
     {
-        private readonly StoreManagementDbContext _context;
+        private readonly StoreManagementContext _context;
 
-        public UnitRepository(StoreManagementDbContext context) : base(context)
+        public UnitRepository(StoreManagementContext context) : base(context)
         {
             _context = context;
         }

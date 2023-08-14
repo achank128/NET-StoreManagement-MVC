@@ -59,7 +59,7 @@ namespace StoreManagement.Controllers
             //Search    
             if (!string.IsNullOrEmpty(searchValue))
             {
-                importStores = importStores.Where(m => m.ImporterName.Contains(searchValue) || m.Supplier.Contains(searchValue));
+                //importStores = importStores.Where(m => m.ImporterName.Contains(searchValue) || m.Supplier.Contains(searchValue));
             }
 
             //total number of rows count     
@@ -74,8 +74,8 @@ namespace StoreManagement.Controllers
         {
             ImportStore importStore = new ImportStore();
             importStore.Id = Guid.NewGuid();
-            importStore.ImporterName = importStoreRequest.ImporterName;
-            importStore.Supplier = importStoreRequest.Supplier;
+            //importStore.ImporterName = importStoreRequest.ImporterName;
+            //importStore.Supplier = importStoreRequest.Supplier;
             importStore.ImportDate = importStoreRequest.ImportDate;
             importStore.CreatedDate = DateTime.Now;
             importStore.Total = importStoreRequest.Total;
@@ -115,8 +115,8 @@ namespace StoreManagement.Controllers
         {
             ImportStore importStore = new ImportStore();
             importStore.Id = (Guid)importStoreRequest.Id;
-            importStore.ImporterName = importStoreRequest.ImporterName;
-            importStore.Supplier = importStoreRequest.Supplier;
+            //importStore.ImporterName = importStoreRequest.ImporterName;
+            //importStore.Supplier = importStoreRequest.Supplier;
             importStore.ImportDate = importStoreRequest.ImportDate;
             importStore.CreatedDate = DateTime.Now;
             importStore.Total = importStoreRequest.Total;

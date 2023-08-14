@@ -21,6 +21,12 @@ public partial class Supplier
     [StringLength(20)]
     public string? Phone { get; set; }
 
+    [StringLength(20)]
+    public string? FaxCode { get; set; }
+
     [StringLength(255)]
     public string? Description { get; set; }
+
+    [InverseProperty("Supplier")]
+    public virtual ICollection<ImportStore> ImportStores { get; set; } = new List<ImportStore>();
 }

@@ -11,9 +11,9 @@ namespace StoreManagement.Controllers
     {
         private readonly ILogger<HomeController> _logger;
         private readonly INotyfService _notyf;
-        private readonly StoreManagementDbContext _context;
+        private readonly StoreManagementContext _context;
 
-        public HomeController(ILogger<HomeController> logger, INotyfService notyf, StoreManagementDbContext context)
+        public HomeController(ILogger<HomeController> logger, INotyfService notyf, StoreManagementContext context)
         {
             _logger = logger;
             _notyf = notyf;

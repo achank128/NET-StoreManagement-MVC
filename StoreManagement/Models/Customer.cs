@@ -23,4 +23,7 @@ public partial class Customer
 
     [StringLength(255)]
     public string? Description { get; set; }
+
+    [InverseProperty("Customer")]
+    public virtual ICollection<ExportStore> ExportStores { get; set; } = new List<ExportStore>();
 }

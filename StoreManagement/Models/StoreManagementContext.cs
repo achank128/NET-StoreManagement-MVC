@@ -4,13 +4,13 @@ using Microsoft.EntityFrameworkCore;
 
 namespace StoreManagement.Models;
 
-public partial class StoreManagementDbContext : DbContext
+public partial class StoreManagementContext : DbContext
 {
-    public StoreManagementDbContext()
+    public StoreManagementContext()
     {
     }
 
-    public StoreManagementDbContext(DbContextOptions<StoreManagementDbContext> options)
+    public StoreManagementContext(DbContextOptions<StoreManagementContext> options)
         : base(options)
     {
     }
@@ -37,7 +37,7 @@ public partial class StoreManagementDbContext : DbContext
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
 #warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see http://go.microsoft.com/fwlink/?LinkId=723263.
-        => optionsBuilder.UseSqlServer("Server=NKC\\SQLEXPRESS;Database=StoreManagementDb;Trusted_Connection=True;MultipleActiveResultSets=True;TrustServerCertificate=True;");
+        => optionsBuilder.UseSqlServer("Server=NKC\\SQLEXPRESS;Database=StoreManagement;Trusted_Connection=True;MultipleActiveResultSets=True;TrustServerCertificate=True;");
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -56,6 +56,14 @@ public partial class StoreManagementDbContext : DbContext
         {
             entity.Property(e => e.Id).ValueGeneratedNever();
             entity.Property(e => e.CreatedDate).HasDefaultValueSql("(getdate())");
+
+            entity.HasOne(d => d.Customer).WithMany(p => p.ExportStores)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK__ExportStore_Customer");
+
+            entity.HasOne(d => d.Exporter).WithMany(p => p.ExportStores)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK__ExportStore_Exporter");
         });
 
         modelBuilder.Entity<ExportStoreDetail>(entity =>
@@ -68,13 +76,21 @@ public partial class StoreManagementDbContext : DbContext
 
             entity.HasOne(d => d.Product).WithMany(p => p.ExportStoreDetails)
                 .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__ExportStoreDetail_Products");
+                .HasConstraintName("FK__ExportStoreDetail_Product");
         });
 
         modelBuilder.Entity<ImportStore>(entity =>
         {
             entity.Property(e => e.Id).ValueGeneratedNever();
             entity.Property(e => e.CreatedDate).HasDefaultValueSql("(getdate())");
+
+            entity.HasOne(d => d.Importer).WithMany(p => p.ImportStores)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK__ImportStore_Importer");
+
+            entity.HasOne(d => d.Supplier).WithMany(p => p.ImportStores)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK__ImportStore_Supplier");
         });
 
         modelBuilder.Entity<ImportStoreDetail>(entity =>
@@ -87,19 +103,20 @@ public partial class StoreManagementDbContext : DbContext
 
             entity.HasOne(d => d.Product).WithMany(p => p.ImportStoreDetails)
                 .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__ImportStoreDetail_Products");
+                .HasConstraintName("FK__ImportStoreDetail_Product");
         });
 
         modelBuilder.Entity<Product>(entity =>
         {
             entity.Property(e => e.Id).ValueGeneratedNever();
             entity.Property(e => e.CreatedDate).HasDefaultValueSql("(getdate())");
+            entity.Property(e => e.Status).HasDefaultValueSql("((1))");
 
             entity.HasOne(d => d.Category).WithMany(p => p.Products)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK__Products_Categories");
 
-            entity.HasOne(d => d.UnitNavigation).WithMany(p => p.Products).HasConstraintName("FK__Products_Unit");
+            entity.HasOne(d => d.Unit).WithMany(p => p.Products).HasConstraintName("FK__Products_Unit");
         });
 
         modelBuilder.Entity<Supplier>(entity =>
@@ -110,6 +127,7 @@ public partial class StoreManagementDbContext : DbContext
         modelBuilder.Entity<User>(entity =>
         {
             entity.Property(e => e.Id).ValueGeneratedNever();
+            entity.Property(e => e.Role).HasDefaultValueSql("('NV')");
         });
 
         OnModelCreatingPartial(modelBuilder);

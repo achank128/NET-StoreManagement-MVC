@@ -5,7 +5,7 @@ namespace StoreManagement.Repositories.SupplierRepository
 {
     public class SupplierRepository : RepositoryBase<Supplier>, ISupplierRepository
     {
-        public SupplierRepository(StoreManagementDbContext context) : base(context)
+        public SupplierRepository(StoreManagementContext context) : base(context)
         {
         }
     }

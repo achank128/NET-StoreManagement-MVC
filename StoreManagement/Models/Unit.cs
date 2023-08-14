@@ -10,7 +10,7 @@ public partial class Unit
 {
     [Key]
     [Column("ID")]
-    [StringLength(50)]
+    [StringLength(20)]
     public string Id { get; set; } = null!;
 
     [StringLength(100)]
@@ -19,6 +19,6 @@ public partial class Unit
     [StringLength(255)]
     public string? Description { get; set; }
 
-    [InverseProperty("UnitNavigation")]
+    [InverseProperty("Unit")]
     public virtual ICollection<Product> Products { get; set; } = new List<Product>();
 }

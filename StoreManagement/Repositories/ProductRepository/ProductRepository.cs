@@ -6,9 +6,9 @@ namespace StoreManagement.Repositories.ProductRepository
 {
     public class ProductRepository : RepositoryBase<Product>, IProductRepository
     {
-        private readonly StoreManagementDbContext _context;
+        private readonly StoreManagementContext _context;
 
-        public ProductRepository(StoreManagementDbContext context) : base(context) 
+        public ProductRepository(StoreManagementContext context) : base(context) 
         {
             _context = context;
         }

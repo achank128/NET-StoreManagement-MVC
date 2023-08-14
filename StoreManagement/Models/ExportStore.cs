@@ -13,14 +13,21 @@ public partial class ExportStore
     [Column("ID")]
     public Guid Id { get; set; }
 
-    [StringLength(100)]
-    public string ExporterName { get; set; } = null!;
+    public Guid ExporterId { get; set; }
 
-    [StringLength(100)]
-    public string Customer { get; set; } = null!;
+    public Guid CustomerId { get; set; }
 
     [Column(TypeName = "datetime")]
     public DateTime ExportDate { get; set; }
+
+    [Column(TypeName = "money")]
+    public decimal? SubTotal { get; set; }
+
+    [Column(TypeName = "money")]
+    public decimal? Discount { get; set; }
+
+    [StringLength(255)]
+    public string? Note { get; set; }
 
     [Column(TypeName = "money")]
     public decimal Total { get; set; }
@@ -28,6 +35,14 @@ public partial class ExportStore
     [Column(TypeName = "datetime")]
     public DateTime CreatedDate { get; set; }
 
+    [ForeignKey("CustomerId")]
+    [InverseProperty("ExportStores")]
+    public virtual Customer Customer { get; set; } = null!;
+
     [InverseProperty("ExportStore")]
     public virtual ICollection<ExportStoreDetail> ExportStoreDetails { get; set; } = new List<ExportStoreDetail>();
+
+    [ForeignKey("ExporterId")]
+    [InverseProperty("ExportStores")]
+    public virtual User Exporter { get; set; } = null!;
 }

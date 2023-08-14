@@ -5,7 +5,7 @@ namespace StoreManagement.Repositories.CustomerRepository
 {
     public class CustomerRepository : RepositoryBase<Customer>, ICustomerRepository
     {
-        public CustomerRepository(StoreManagementDbContext context) : base(context)
+        public CustomerRepository(StoreManagementContext context) : base(context)
         {
         }
     }

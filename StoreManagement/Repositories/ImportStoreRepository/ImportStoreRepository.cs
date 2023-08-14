@@ -6,10 +6,10 @@ namespace StoreManagement.Repositories.ImportStoreRepository
 {
     public class ImportStoreRepository : RepositoryBase<ImportStore>, IImportStoreRepository
     {
-        private readonly StoreManagementDbContext _context;
+        private readonly StoreManagementContext _context;
         private readonly INotyfService _notyf;
 
-        public ImportStoreRepository(StoreManagementDbContext context, INotyfService notyf) : base(context)
+        public ImportStoreRepository(StoreManagementContext context, INotyfService notyf) : base(context)
         {
             _context = context;
             _notyf = notyf;

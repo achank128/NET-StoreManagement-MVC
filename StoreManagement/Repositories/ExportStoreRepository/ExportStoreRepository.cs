@@ -6,10 +6,10 @@ namespace StoreManagement.Repositories.ExportStoreRepository
 {
     public class ExportStoreRepository : RepositoryBase<ExportStore>, IExportStoreRepository
     {
-        private readonly StoreManagementDbContext _context;
+        private readonly StoreManagementContext _context;
         private readonly INotyfService _notyf;
 
-        public ExportStoreRepository(StoreManagementDbContext context, INotyfService notyf) : base(context)
+        public ExportStoreRepository(StoreManagementContext context, INotyfService notyf) : base(context)
         {
             _context = context;
             _notyf = notyf;

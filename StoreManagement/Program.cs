@@ -26,7 +26,7 @@ builder.Services.AddNotyf(config =>
     config.Position = NotyfPosition.TopRight;
 });
 
-builder.Services.AddDbContext<StoreManagementDbContext>(option =>
+builder.Services.AddDbContext<StoreManagementContext>(option =>
     option.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"))
 );
 

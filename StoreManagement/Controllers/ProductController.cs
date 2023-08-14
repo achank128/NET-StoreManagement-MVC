@@ -55,7 +55,7 @@ namespace StoreManagement.Controllers
             int recordsTotal = 0;
 
             // Getting all Customer data    
-            IQueryable<Product> products = _productRepository.GetQueryable().Include(p => p.Category).Include(p => p.UnitNavigation);
+            IQueryable<Product> products = _productRepository.GetQueryable().Include(p => p.Category).Include(p => p.Unit);
 
             //Search    
             if (!string.IsNullOrEmpty(searchValue))

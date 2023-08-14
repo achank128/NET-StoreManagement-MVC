@@ -13,11 +13,9 @@ public partial class ImportStore
     [Column("ID")]
     public Guid Id { get; set; }
 
-    [StringLength(100)]
-    public string ImporterName { get; set; } = null!;
+    public Guid ImporterId { get; set; }
 
-    [StringLength(100)]
-    public string Supplier { get; set; } = null!;
+    public Guid SupplierId { get; set; }
 
     [Column(TypeName = "datetime")]
     public DateTime ImportDate { get; set; }
@@ -25,9 +23,20 @@ public partial class ImportStore
     [Column(TypeName = "money")]
     public decimal Total { get; set; }
 
+    [StringLength(255)]
+    public string? Note { get; set; }
+
     [Column(TypeName = "datetime")]
     public DateTime CreatedDate { get; set; }
 
     [InverseProperty("ImportStore")]
     public virtual ICollection<ImportStoreDetail> ImportStoreDetails { get; set; } = new List<ImportStoreDetail>();
+
+    [ForeignKey("ImporterId")]
+    [InverseProperty("ImportStores")]
+    public virtual User Importer { get; set; } = null!;
+
+    [ForeignKey("SupplierId")]
+    [InverseProperty("ImportStores")]
+    public virtual Supplier Supplier { get; set; } = null!;
 }
