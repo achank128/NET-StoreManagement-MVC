@@ -22,7 +22,7 @@ public partial class Supplier
     public string? Phone { get; set; }
 
     [StringLength(20)]
-    public string? FaxCode { get; set; }
+    public string? TaxCode { get; set; }
 
     [StringLength(255)]
     public string? Description { get; set; }

@@ -7,10 +7,11 @@ namespace StoreManagement.Models.Request
     public class ImportStoreRequest
     {
         public Guid? Id { get; set; }
-        public string ImporterName { get; set; } = null!;
-        public string Supplier { get; set; } = null!;
+        public Guid ImporterId { get; set; }
+        public Guid SupplierId { get; set; }
         public DateTime ImportDate { get; set; }
         public decimal Total { get; set; }
+        public string Note { get; set; }
         public List<ProductItem> ListProducts { get; set; }
     }
 }

@@ -51,6 +51,10 @@
 
                 </div>
                 <div class="col-md-6 mb-2">
+                    <label class="control-label">Giá nhập</label>
+                    <input id="ImportPrice" class="form-control" type="number" min="0" required />
+                </div>
+                <div class="col-md-6 mb-2">
                     <label class="control-label">Đơn giá</label>
                     <input id="Price" class="form-control" type="number" min="0" required />
                 </div>
@@ -77,6 +81,7 @@
                         <th>Danh mục</th>
                         <th>Mô tả</th>
                         <th>Đơn vị tính</th>
+                        <th>Giá nhập</th>
                         <th>Đơn giá</th>
                         <th>Số lượng tồn</th>
                         <th>Trạng thái</th>
@@ -135,7 +140,11 @@
                     { "data": "manufacturer" },
                     { "data": "category.categoryName" },
                     { "data": "description" },
-                    { "data": "unitNavigation.unitName" },
+                    { "data": "unit.unitName" },
+                    { 
+                        "data": "importPrice",
+                        "render": (data) => new Intl.NumberFormat('en-US').format(data)
+                    },
                     { 
                         "data": "price",
                         "render": (data) => new Intl.NumberFormat('en-US').format(data)
@@ -213,6 +222,7 @@
             $('#CategoryId').prop("disabled", disabled);
             $('#Description').prop("disabled", disabled);
             $('#Unit').prop("disabled", disabled);
+            $('#ImportPrice').prop("disabled", disabled);
             $('#Price').prop("disabled", disabled);
             $('#Number').prop("disabled", disabled);
         }
@@ -235,6 +245,7 @@
                     $('#CategoryId').val(data.data.categoryId);
                     $('#Description').val(data.data.description);
                     $('#Unit').val(data.data.unit);
+                    $('#ImportPrice').val(data.data.importPrice);
                     $('#Price').val(data.data.price);
                     $('#Number').val(data.data.number);
 
@@ -256,7 +267,8 @@
                 Manufacturer: $('#Manufacturer').val(),
                 CategoryId: $('#CategoryId').val(),
                 Description: $('#Description').val(),
-                Unit: $('#Unit').val(),
+                UnitId: $('#Unit').val(),
+                Price: $('#ImportPrice').val(),
                 Price: $('#Price').val(),
                 Number: $('#Number').val(),
             };

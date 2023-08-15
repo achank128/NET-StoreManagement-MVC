@@ -29,6 +29,8 @@ public partial class StoreManagementContext : DbContext
 
     public virtual DbSet<Product> Products { get; set; }
 
+    public virtual DbSet<ProductPost> ProductPosts { get; set; }
+
     public virtual DbSet<Supplier> Suppliers { get; set; }
 
     public virtual DbSet<Unit> Units { get; set; }
@@ -117,6 +119,21 @@ public partial class StoreManagementContext : DbContext
                 .HasConstraintName("FK__Products_Categories");
 
             entity.HasOne(d => d.Unit).WithMany(p => p.Products).HasConstraintName("FK__Products_Unit");
+        });
+
+        modelBuilder.Entity<ProductPost>(entity =>
+        {
+            entity.Property(e => e.Id).ValueGeneratedNever();
+            entity.Property(e => e.CreatedDate).HasDefaultValueSql("(getdate())");
+            entity.Property(e => e.Status).HasDefaultValueSql("((1))");
+
+            entity.HasOne(d => d.Author).WithMany(p => p.ProductPosts)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK__ProductPost_Author");
+
+            entity.HasOne(d => d.Product).WithMany(p => p.ProductPosts)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK__ProductPost_Product");
         });
 
         modelBuilder.Entity<Supplier>(entity =>

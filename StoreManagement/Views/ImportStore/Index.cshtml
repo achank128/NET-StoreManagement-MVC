@@ -25,18 +25,24 @@
         </div>
         <div class="offcanvas-body">
             <form id="form" class="row" novalidate>
-                <div class="col-md-12 mb-2">
+                <div class="col-md-6 mb-2">
                     <label class="control-label">Người nhập</label>
                     <input id="ImportStoreId" name="ImportStoreId" type="hidden" />
-                    <input id="ImporterName" name="ImporterName" class="form-control" required />
+                    <select id="ImporterId" class="form-control" asp-items="ViewBag.UsersList" required></select>
                 </div>
-                <div class="col-md-12 mb-2">
+                <div class="col-md-6 mb-2">
                     <label class="control-label">Nhà cung cấp</label>
-                    <input id="Supplier" name="Supplier" class="form-control" required />
+                    <select id="SupplierId" class="form-control" asp-items="ViewBag.SuppliersList" required></select>
+
                 </div>
                 <div class="col-md-6 mb-2">
                     <label class="control-label">Ngày nhập</label>
                     <input id="ImportDate" name="ImportDate" class="form-control" type="date" required />
+                </div>
+                <div class="col-md-12 mb-2">
+                    <label class="control-label">Ghi chú</label>
+                    <textarea id="Note" class="form-control"></textarea>
+
                 </div>
                 <div class="col-md-12 my-4">
                     <p class="mb-0">Chi tiết phiếu nhập kho:</p>
@@ -132,8 +138,8 @@
                 },
                 "columns": [
                     { "data": "id" },
-                    { "data": "importerName" },
-                    { "data": "supplier" },
+                    { "data": "importer.fullName" },
+                    { "data": "supplier.supplierName" },
                     {
                         "data": "importDate",
                         "render": (data) => new Date(data).toLocaleDateString('en-GB')
@@ -225,9 +231,10 @@
         }
 
         function disableValueForm(disabled) {
-            $('#ImporterName').prop("disabled", disabled);
-            $('#Supplier').prop("disabled", disabled);
+            $('#ImporterId').prop("disabled", disabled);
+            $('#SupplierId').prop("disabled", disabled);
             $('#ImportDate').prop("disabled", disabled);
+            $('#Note').prop("disabled", disabled);
             $('#Total').prop("disabled", disabled);
             $('.product-item').each((i, e) => {
                 $(e).find('.Product').prop("disabled", disabled);
@@ -251,9 +258,10 @@
                     console.log(data)
                     $('#offcanvasFormLabel').text("Chi tiết");
                     $('#ImportStoreId').val(data.data.id);
-                    $('#ImporterName').val(data.data.importerName);
-                    $('#Supplier').val(data.data.supplier);
+                    $('#ImporterId').val(data.data.importerId);
+                    $('#SupplierId').val(data.data.supplierId);
                     $('#ImportDate').val(new Date(data.data.importDate).toISOString().split('T')[0]);
+                    $('#Note').val(data.data.note);
                     $('#Total').val(data.data.total);
                     data.data.importStoreDetails.forEach((detail) => {
                         addProductItem(detail);
@@ -339,9 +347,10 @@
         function handleSave() {
             var data = {
                 id: $("#ImportStoreId").val(),
-                importerName: $("#ImporterName").val(),
-                supplier: $("#Supplier").val(),
+                importerId: $("#ImporterId").val(),
+                supplierId: $("#SupplierId").val(),
                 importDate: $("#ImportDate").val(),
+                note: $("#Note").val(),
                 total: $("#Total").val(),
                 listProducts: []
             };

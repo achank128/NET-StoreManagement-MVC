@@ -6,6 +6,8 @@ using StoreManagement.Models;
 using StoreManagement.Models.Request;
 using StoreManagement.Repositories.ImportStoreRepository;
 using StoreManagement.Repositories.ProductRepository;
+using StoreManagement.Repositories.SupplierRepository;
+using StoreManagement.Repositories.UserRepository;
 using X.PagedList;
 
 namespace StoreManagement.Controllers
@@ -14,20 +16,28 @@ namespace StoreManagement.Controllers
     {
         private readonly IImportStoreRepository _importStoreRepository;
         private readonly IProductRepository _productRepository;
+        private readonly ISupplierRepository _supplierRepository;
+        private readonly IUserRepository _userRepository;
         private readonly INotyfService _notyf;
 
         public ImportStoreController(
             IImportStoreRepository importStoreRepository,
             IProductRepository productRepository,
+            ISupplierRepository supplierRepository,
+            IUserRepository userRepository,
             INotyfService notyf
             )
         {
             _importStoreRepository = importStoreRepository;
             _productRepository = productRepository;
+            _supplierRepository = supplierRepository;
+            _userRepository = userRepository;
             _notyf = notyf;
         }
         public IActionResult Index()
         {
+            ViewBag.SuppliersList = new SelectList(_supplierRepository.GetAll().ToList(), "Id", "SupplierName");
+            ViewBag.UsersList = new SelectList(_userRepository.GetAll().ToList(), "Id", "FullName");
             if (HttpContext.Session.GetString("idUser") != null)
             {
                 return View();
@@ -56,6 +66,8 @@ namespace StoreManagement.Controllers
             // Getting all Customer data    
             IQueryable<ImportStore> importStores = _importStoreRepository.GetQueryable().OrderByDescending(s => s.CreatedDate);
 
+            importStores = importStores.Include(s => s.Supplier).Include(s => s.Importer);
+
             //Search    
             if (!string.IsNullOrEmpty(searchValue))
             {
@@ -74,9 +86,10 @@ namespace StoreManagement.Controllers
         {
             ImportStore importStore = new ImportStore();
             importStore.Id = Guid.NewGuid();
-            //importStore.ImporterName = importStoreRequest.ImporterName;
-            //importStore.Supplier = importStoreRequest.Supplier;
+            importStore.ImporterId = importStoreRequest.ImporterId;
+            importStore.SupplierId = importStoreRequest.SupplierId;
             importStore.ImportDate = importStoreRequest.ImportDate;
+            importStore.Note = importStoreRequest.Note;
             importStore.CreatedDate = DateTime.Now;
             importStore.Total = importStoreRequest.Total;
 
@@ -115,9 +128,10 @@ namespace StoreManagement.Controllers
         {
             ImportStore importStore = new ImportStore();
             importStore.Id = (Guid)importStoreRequest.Id;
-            //importStore.ImporterName = importStoreRequest.ImporterName;
-            //importStore.Supplier = importStoreRequest.Supplier;
+            importStore.ImporterId = importStoreRequest.ImporterId;
+            importStore.SupplierId = importStoreRequest.SupplierId;
             importStore.ImportDate = importStoreRequest.ImportDate;
+            importStore.Note = importStoreRequest.Note;
             importStore.CreatedDate = DateTime.Now;
             importStore.Total = importStoreRequest.Total;
 

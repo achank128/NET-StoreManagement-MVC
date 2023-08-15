@@ -10,6 +10,7 @@ using StoreManagement.Repositories.ProductRepository;
 using StoreManagement.Repositories.RepositoryBase;
 using StoreManagement.Repositories.SupplierRepository;
 using StoreManagement.Repositories.UnitRepository;
+using StoreManagement.Repositories.UserRepository;
 using System;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -44,6 +45,7 @@ builder.Services.AddScoped<IImportStoreRepository, ImportStoreRepository>();
 builder.Services.AddScoped<IUnitRepository, UnitRepository>();
 builder.Services.AddScoped<ICustomerRepository, CustomerRepository>();
 builder.Services.AddScoped<ISupplierRepository, SupplierRepository>();
+builder.Services.AddScoped<IUserRepository, UserRepository>();
 #endregion
 builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 

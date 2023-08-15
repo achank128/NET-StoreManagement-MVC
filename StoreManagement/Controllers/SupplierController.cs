@@ -88,6 +88,7 @@ namespace StoreManagement.Controllers
             supplierUpdate.SupplierName = supplier.SupplierName;
             supplierUpdate.Address = supplier.Address;
             supplierUpdate.Phone = supplier.Phone;
+            supplierUpdate.TaxCode = supplier.TaxCode;
             supplierUpdate.Description = supplier.Description;
             _supplierRepository.Update(supplierUpdate);
             return Json(new { isSuccess = _supplierRepository.Save() });

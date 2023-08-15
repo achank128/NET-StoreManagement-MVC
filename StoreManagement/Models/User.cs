@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace StoreManagement.Models;
 
-[Index("Email", Name = "UQ__Users__A9D10534A7283EE7", IsUnique = true)]
+[Index("Email", Name = "UQ__Users__A9D10534902CD905", IsUnique = true)]
 public partial class User
 {
     [Key]
@@ -37,4 +37,7 @@ public partial class User
 
     [InverseProperty("Importer")]
     public virtual ICollection<ImportStore> ImportStores { get; set; } = new List<ImportStore>();
+
+    [InverseProperty("Author")]
+    public virtual ICollection<ProductPost> ProductPosts { get; set; } = new List<ProductPost>();
 }

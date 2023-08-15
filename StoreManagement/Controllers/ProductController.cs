@@ -104,7 +104,8 @@ namespace StoreManagement.Controllers
             productUpdate.Manufacturer = product.Manufacturer;
             productUpdate.CategoryId = product.CategoryId;
             productUpdate.Description = product.Description;
-            productUpdate.Unit = product.Unit;
+            productUpdate.UnitId = product.UnitId;
+            productUpdate.ImportPrice = product.ImportPrice;
             productUpdate.Price = product.Price;
             productUpdate.Number = product.Number;
             _productRepository.Update(productUpdate);
