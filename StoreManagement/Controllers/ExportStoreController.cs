@@ -4,8 +4,10 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using StoreManagement.Models;
 using StoreManagement.Models.Request;
+using StoreManagement.Repositories.CustomerRepository;
 using StoreManagement.Repositories.ExportStoreRepository;
 using StoreManagement.Repositories.ProductRepository;
+using StoreManagement.Repositories.UserRepository;
 using X.PagedList;
 
 namespace StoreManagement.Controllers
@@ -14,19 +16,26 @@ namespace StoreManagement.Controllers
     {
         private readonly IExportStoreRepository _exportStoreRepository;
         private readonly IProductRepository _productRepository;
+        private readonly IUserRepository _userRepository;
+        private readonly ICustomerRepository _customerRepository;
         private readonly INotyfService _notyf;
         public ExportStoreController(
             IExportStoreRepository exportStoreRepository,
             IProductRepository productRepository,
-            INotyfService notyf
-            )
+            INotyfService notyf,
+            IUserRepository userRepository,
+            ICustomerRepository customerRepository)
         {
             _exportStoreRepository = exportStoreRepository;
             _productRepository = productRepository;
             _notyf = _notyf;
+            _userRepository = userRepository;
+            _customerRepository = customerRepository;
         }
         public IActionResult Index()
         {
+            ViewBag.CustomersList = new SelectList(_customerRepository.GetAll().ToList(), "Id", "CustomerName");
+            ViewBag.UsersList = new SelectList(_userRepository.GetAll().ToList(), "Id", "FullName");
             if (HttpContext.Session.GetString("idUser") != null)
             {
                 return View();
@@ -55,6 +64,9 @@ namespace StoreManagement.Controllers
             // Getting all Customer data    
             IQueryable<ExportStore> exportStores = _exportStoreRepository.GetQueryable().OrderByDescending(s => s.CreatedDate);
 
+            exportStores = exportStores.Include(s => s.Customer).Include(s => s.Exporter);
+
+
             //Search    
             if (!string.IsNullOrEmpty(searchValue))
             {
@@ -78,10 +90,13 @@ namespace StoreManagement.Controllers
         {
             ExportStore exportStore = new ExportStore();
             exportStore.Id = Guid.NewGuid();
-            //exportStore.ExporterName = exportStoreRequest.ExporterName;
-            //exportStore.Customer = exportStoreRequest.Customer;
+            exportStore.ExporterId = exportStoreRequest.ExporterId;
+            exportStore.CustomerId = exportStoreRequest.CustomerId;
             exportStore.ExportDate = exportStoreRequest.ExportDate;
             exportStore.CreatedDate = DateTime.Now;
+            exportStore.SubTotal = exportStoreRequest.SubTotal;
+            exportStore.Discount = exportStoreRequest.Discount;
+            exportStore.Note = exportStoreRequest.Note;
             exportStore.Total = exportStoreRequest.Total;
 
             List<ExportStoreDetail> exportStoreDetails = new List<ExportStoreDetail>();
@@ -117,10 +132,13 @@ namespace StoreManagement.Controllers
         {
             ExportStore exportStore = new ExportStore();
             exportStore.Id = (Guid)exportStoreRequest.Id;
-            //exportStore.ExporterName = exportStoreRequest.ExporterName;
-            //exportStore.Customer = exportStoreRequest.Customer;
+            exportStore.ExporterId = exportStoreRequest.ExporterId;
+            exportStore.CustomerId = exportStoreRequest.CustomerId;
             exportStore.ExportDate = exportStoreRequest.ExportDate;
             exportStore.CreatedDate = DateTime.Now;
+            exportStore.SubTotal = exportStoreRequest.SubTotal;
+            exportStore.Discount = exportStoreRequest.Discount;
+            exportStore.Note = exportStoreRequest.Note;
             exportStore.Total = exportStoreRequest.Total;
 
             List<ExportStoreDetail> exportStoreDetails = new List<ExportStoreDetail>();

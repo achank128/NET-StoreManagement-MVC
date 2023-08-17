@@ -1,4 +1,8 @@
-﻿@{
+﻿@using Microsoft.AspNetCore.Http
+@inject Microsoft.AspNetCore.Http.IHttpContextAccessor HttpContextAccessor
+
+
+@{
     ViewData["Title"] = "Export Store";
 }
 
@@ -24,18 +28,24 @@
         </div>
         <div class="offcanvas-body">
             <form id="form" class="row" novalidate>
-                <div class="col-md-12 mb-2">
+                <div class="col-md-6 mb-2">
                     <label class="control-label">Người xuất</label>
                     <input id="ExportStoreId" name="ExportStoreId" type="hidden" />
-                    <input id="ExporterName" name="ExporterName" class="form-control" required />
+                    <select id="ExporterId" class="form-control" asp-items="ViewBag.UsersList" required></select>
+
                 </div>
-                <div class="col-md-12 mb-2">
+                <div class="col-md-6 mb-2">
                     <label class="control-label">Khách hàng</label>
-                    <input id="Customer" name="Customer" class="form-control" required />
+                    <select id="CustomerId" class="form-control" asp-items="ViewBag.CustomersList" required></select>
+
                 </div>
                 <div class="col-md-6 mb-2">
                     <label class="control-label">Ngày xuất</label>
                     <input id="ExportDate" name="ExportDate" class="form-control" type="date" required />
+                </div>
+                <div class="col-md-12 mb-2">
+                    <label class="control-label">Ghi chú</label>
+                    <textarea id="Note" class="form-control"></textarea>
                 </div>
                 <div class="col-md-12 my-4">
                     <p class="mb-0">Chi tiết phiếu xuất kho:</p>
@@ -44,6 +54,7 @@
                             <tr>
                                 <th>Sản phẩm</th>
                                 <th>Đơn giá</th>
+                                <th>Số lượng tồn</th>
                                 <th>Số lượng</th>
                                 <th>Giá Xuất</th>
                                 <th class="text-center">
@@ -57,9 +68,25 @@
                         </tbody>
                     </table>
                 </div>
-                <div class="col-md-6 mb-4">
-                    <label class="control-label">Tổng tiền</label>
-                    <input id="Total" class="form-control" type="number" readonly />
+                <div class="col-md-12 mb-4 d-flex justify-content-between align-items-center">
+                    <label class="control-label">Tổng tiền:</label>
+                    <input id="SubTotal" class="form-control w-50" type="number" readonly />
+                </div>
+                <div class="col-md-12 mb-4 d-flex justify-content-between align-items-center">
+                    <label class="control-label">Giảm giá</label>
+                    <div class="d-flex w-50">
+                        <select id="DiscountPercent" class="form-select">
+                            <option value="0" selected>Chọn mức giảm</option>
+                            <option value="5">5%</option>
+                            <option value="10">10%</option>
+                            <option value="15">15%</option>
+                        </select>
+                        <input id="Discount" class="form-control" type="number" readonly/>
+                    </div>
+                </div>
+                <div class="col-md-12 mb-4 d-flex justify-content-between align-items-center">
+                    <label class="control-label h5">Thành tiền:</label>
+                    <input id="Total" class="form-control w-50" type="number" readonly />
                 </div>
                 <div class="form-group">
                     <button id="btnSubmit" class="btn btn-primary">Thêm</button>
@@ -78,7 +105,7 @@
                         <th>Khách hàng</th>
                         <th>Ngày xuất</th>
                         <th>Ngày cập nhật</th>
-                        <th>Tổng tiền</th>
+                        <th>Thành tiền</th>
                         <th class="text-end">Thao tác</th>
                     </tr>
                 </thead>
@@ -132,8 +159,8 @@
                 },
                 "columns": [
                     { "data": "id" },
-                    { "data": "exporterName" },
-                    { "data": "customer" },
+                    { "data": "exporter.fullName" },
+                    { "data": "customer.customerName" },
                     {
                         "data": "exportDate",
                         "render": (data) => new Date(data).toLocaleDateString('en-GB')
@@ -149,8 +176,8 @@
                     {
                         "render": (data, type, row, meta) => {
                             return `<a class="btn btn-outline-info" onclick="openDetailForm('${row.id}')"><i class="bi bi-eye"></i></a>
-                                                    <a class="btn btn-primary" onclick="openEditForm('${row.id}')"><i class="bi bi-pencil-square"></i></a>
-                                                    <a class="btn btn-danger" onclick="openDeleteModal('${row.id}')" ><i class="bi bi-trash"></i></a>`
+                                                                    <a class="btn btn-primary" onclick="openEditForm('${row.id}')"><i class="bi bi-pencil-square"></i></a>
+                                                                    <a class="btn btn-danger" onclick="openDeleteModal('${row.id}')" ><i class="bi bi-trash"></i></a>`
                         },
                         "class": "text-end"
                     },
@@ -164,12 +191,14 @@
             getProductItems();
 
             $('#ProductItem-Table').on('change', '.Price', (e) => {
-                caculateTotal()
+                caculateTotal();
             });
-
             $('#ProductItem-Table').on('change', '.Quantity', (e) => {
-                caculateTotal()
-            })
+                caculateTotal();
+            });
+            $('#DiscountPercent').on('change', (e) => {
+                caculateTotal();
+            });
 
             $("#add-product-item").click((e) => {
                 e.preventDefault();
@@ -192,6 +221,8 @@
             isEdit = false;
             resetForm()
             $("#product-items").empty();
+            $("#DiscountPercent").show();
+            $("#ExporterId").val('@HttpContextAccessor.HttpContext.Session.GetString("idUser")');
             $('#btnSubmit').show().text("Thêm")
             disableValueForm(false);
             offcanvasForm.show();
@@ -199,8 +230,10 @@
 
         function openEditForm(id) {
             isEdit = true;
-            $('#btnSubmit').show().text("Cập nhật");
             $("#product-items").empty();
+            $("#DiscountPercent").show();
+            $("#ExporterId").val('@HttpContextAccessor.HttpContext.Session.GetString("idUser")');
+            $('#btnSubmit').show().text("Cập nhật");
             disableValueForm(false);
             getDetailValue(id)
             offcanvasForm.show();
@@ -210,6 +243,7 @@
         function openDetailForm(id) {
             isEdit = false;
             $('#btnSubmit').hide();
+            $("#DiscountPercent").hide();
             $("#product-items").empty();
             disableValueForm(true);
             getDetailValue(id);
@@ -225,9 +259,12 @@
         }
 
         function disableValueForm(disabled) {
-            $('#ExporterName').prop("disabled", disabled);
-            $('#Customer').prop("disabled", disabled);
+            $('#ExporterId').prop("disabled", disabled);
+            $('#CustomerId').prop("disabled", disabled);
             $('#ExportDate').prop("disabled", disabled);
+            $('#SubTotal').prop("disabled", disabled);
+            $('#Discount').prop("disabled", disabled);
+            $('#Note').prop("disabled", disabled);
             $('#Total').prop("disabled", disabled);
             $('.product-item').each((i, e) => {
                 $(e).find('.Product').prop("disabled", disabled);
@@ -251,9 +288,12 @@
                     console.log(data)
                     $('#offcanvasFormLabel').text("Chi tiết");
                     $('#ExportStoreId').val(data.data.id);
-                    $('#ExporterName').val(data.data.exporterName);
-                    $('#Customer').val(data.data.customer);
+                    $('#ExporterId').val(data.data.exporterId);
+                    $('#CustomerId').val(data.data.customerId);
                     $('#ExportDate').val(new Date(data.data.exportDate).toISOString().split('T')[0]);
+                    $('#SubTotal').val(data.data.subTotal);
+                    $('#Discount').val(data.data.discount);
+                    $('#Note').val(data.data.note);
                     $('#Total').val(data.data.total);
                     data.data.exportStoreDetails.forEach((detail) => {
                         addProductItem(detail);
@@ -289,19 +329,20 @@
 
         function addProductItem(productItem) {
             var newProductItemHtml = `
-                                        <tr class="product-item">
-                                            <td>
-                                                <select class="Product form-select" required>
-                                                    ${productsList.map((p) => (`<option value="${p.id}" ${productItem?.productId == p.id && 'selected'}>${p.productName}</option>`)).join('')}
-                                                </select>
-                                            </td>
-                                            <td><input value="${productItem?.importPrice}" type="number" class="ProductPrice form-control" readonly/></td>
-                                            <td><input value="${productItem?.quantity}" type="number" class="Quantity form-control" min="0" required/></td>
-                                            <td><input value="${productItem?.exportPrice}" type="number" class="Price form-control" min="0" required/></td>
-                                            <td class="text-center align-middle">
-                                                <button class="btn btn-outline-danger btn-sm"><i class="bi bi-x"></i></button>
-                                            </td>
-                                        </tr>`
+                                                        <tr class="product-item">
+                                                            <td>
+                                                                <select class="Product form-select" required>
+                                                                    ${productsList.map((p) => (`<option value="${p.id}" ${productItem?.productId == p.id && 'selected'}>${p.productName}</option>`)).join('')}
+                                                                </select>
+                                                            </td>
+                                                            <td><input value="${productItem?.importPrice}" type="number" class="ProductPrice form-control" readonly/></td>
+                                                            <td><input value="${productItem?.number}" type="number" class="Number form-control" readonly/></td>
+                                                            <td><input value="${productItem?.quantity}" type="number" class="Quantity form-control" min="0" required/></td>
+                                                            <td><input value="${productItem?.exportPrice}" type="number" class="Price form-control" min="0" required/></td>
+                                                            <td class="text-center align-middle">
+                                                                <button class="btn btn-outline-danger btn-sm"><i class="bi bi-x"></i></button>
+                                                            </td>
+                                                        </tr>`
             $("#product-items").append(newProductItemHtml);
             setProductItems();
         }
@@ -310,8 +351,10 @@
         function setProductItems() {
             $('.product-item').each((i, e) => {
                 var productId = $(e).find('.Product :selected').val();
-                var productPrice = productsList.find(p => p.id == productId).price
-                $(e).find('.ProductPrice').val(productPrice);
+                var product = productsList.find(p => p.id == productId)
+                $(e).find('.ProductPrice').val(product.price);
+                $(e).find('.Number').val(product.number);
+                $(e).find('.Price').val(product.price);
 
                 $(e).find('.Product').on('change', () => {
                     var productId = $(e).find('.Product :selected').val();
@@ -333,15 +376,20 @@
                 }
                 total += Number(item.quantity) * Number(item.price);
             });
-            $("#Total").val(total)
+            $("#SubTotal").val(total);
+            $("#Discount").val(- $("#DiscountPercent").val()/100 * total);
+            $("#Total").val(total + Number($("#Discount").val()));
         }
 
         function handleSave() {
             var data = {
                 id: $("#ExportStoreId").val(),
-                exporterName: $("#ExporterName").val(),
-                customer: $("#Customer").val(),
+                exporterId: $("#ExporterId").val(),
+                customerId: $("#CustomerId").val(),
                 exportDate: $("#ExportDate").val(),
+                subTotal: $("#SubTotal").val(),
+                discount: $("#Discount").val(),
+                note: $("#Note").val(),
                 total: $("#Total").val(),
                 listProducts: []
             };

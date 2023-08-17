@@ -1,4 +1,7 @@
-﻿@{
+﻿@using Microsoft.AspNetCore.Http
+@inject Microsoft.AspNetCore.Http.IHttpContextAccessor HttpContextAccessor
+
+@{
     ViewData["Title"] = "Import Store";
 }
 
@@ -42,15 +45,14 @@
                 <div class="col-md-12 mb-2">
                     <label class="control-label">Ghi chú</label>
                     <textarea id="Note" class="form-control"></textarea>
-
                 </div>
                 <div class="col-md-12 my-4">
                     <p class="mb-0">Chi tiết phiếu nhập kho:</p>
                     <table id="ProductItem-Table" class="table table-bordered">
                         <thead>
                             <tr>
-                                <th>Sản phẩm</th>
-                                <th>Đơn giá</th>
+                                <th style="width: 200px;">Sản phẩm</th>
+                                <th>Số lượng tồn</th>
                                 <th>Số lượng</th>
                                 <th>Giá Nhập</th>
                                 <th class="text-center">
@@ -198,6 +200,7 @@
             isEdit = false;
             resetForm()
             $("#product-items").empty();
+            $("#ImporterId").val('@HttpContextAccessor.HttpContext.Session.GetString("idUser")');
             $('#btnSubmit').show().text("Thêm")
             disableValueForm(false);
             offcanvasForm.show();
@@ -206,6 +209,7 @@
         function openEditForm(id) {
             isEdit = true;
             $('#btnSubmit').show().text("Cập nhật");
+            $("#ImporterId").val('@HttpContextAccessor.HttpContext.Session.GetString("idUser")');
             $("#product-items").empty();
             disableValueForm(false);
             getDetailValue(id)
@@ -279,6 +283,7 @@
                         dataTable.ajax.reload();
                         notyf.success('Xóa dữ liệu thành công.');
                         $('#deleteModal').modal("hide");
+                        getProductItems();
                     } else {
                         notyf.error('Có lỗi xảy ra.');
                     }
@@ -303,7 +308,7 @@
                                             ${productsList.map((p) => (`<option value="${p.id}" ${productItem?.productId == p.id && 'selected'}>${p.productName}</option>`)).join('')}
                                         </select>
                                     </td>
-                                    <td><input value="${productItem?.importPrice}" type="number" class="ProductPrice form-control" readonly/></td>
+                                    <td><input value="${productItem?.number}" type="number" class="Number form-control" readonly/></td>
                                     <td><input value="${productItem?.quantity}" type="number" class="Quantity form-control" min="0" required/></td>
                                     <td><input value="${productItem?.importPrice}" type="number" class="Price form-control" min="0" required/></td>
                                     <td class="text-center align-middle">
@@ -318,8 +323,10 @@
         function setProductItems() {
             $('.product-item').each((i, e) => {
                 var productId = $(e).find('.Product :selected').val();
-                var productPrice = productsList.find(p => p.id == productId).price
-                $(e).find('.ProductPrice').val(productPrice);
+                var product = productsList.find(p => p.id == productId)
+                //$(e).find('.ProductPrice').val(product.price);
+                $(e).find('.Number').val(product.number);
+                $(e).find('.Price').val(product.importPrice);
 
                 $(e).find('.Product').on('change', () => {
                     var productId = $(e).find('.Product :selected').val();
@@ -411,6 +418,7 @@
                     },
                 })
             }
+
         }
 
 

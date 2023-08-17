@@ -6,6 +6,7 @@ using StoreManagement.Repositories.CategoryRepository;
 using StoreManagement.Repositories.CustomerRepository;
 using StoreManagement.Repositories.ExportStoreRepository;
 using StoreManagement.Repositories.ImportStoreRepository;
+using StoreManagement.Repositories.ProductPostRepository;
 using StoreManagement.Repositories.ProductRepository;
 using StoreManagement.Repositories.RepositoryBase;
 using StoreManagement.Repositories.SupplierRepository;
@@ -46,6 +47,7 @@ builder.Services.AddScoped<IUnitRepository, UnitRepository>();
 builder.Services.AddScoped<ICustomerRepository, CustomerRepository>();
 builder.Services.AddScoped<ISupplierRepository, SupplierRepository>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
+builder.Services.AddScoped<IProductPostRepository, ProductPostRepository>();
 #endregion
 builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 

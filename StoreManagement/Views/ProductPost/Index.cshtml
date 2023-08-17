@@ -4,14 +4,14 @@
 
 <div class="row">
     <div class="col-md-8">
-        <h2>Danh sách sản phẩm</h2>
+        <h2>Bài viết sản phẩm</h2>
     </div>
     <div class="col-md-4 text-end">
         <a class="btn" asp-action="Index">
             <i class="bi bi-arrow-clockwise"></i>
         </a>
     </div>
-     <div class="col-md-12 text-end mb-3">
+    <div class="col-md-12 text-end mb-3">
         <a class="btn btn-success" onclick="openAddForm()">
             <i class="bi bi-plus-circle"></i> Thêm mới
         </a>
@@ -141,11 +141,11 @@
                     { "data": "category.categoryName" },
                     { "data": "description" },
                     { "data": "unit.unitName" },
-                    { 
+                    {
                         "data": "importPrice",
                         "render": (data) => new Intl.NumberFormat('en-US').format(data)
                     },
-                    { 
+                    {
                         "data": "price",
                         "render": (data) => new Intl.NumberFormat('en-US').format(data)
                     },
@@ -154,8 +154,8 @@
                     {
                         "render": (data, type, row, meta) => {
                             return `<a class="btn btn-outline-info" onclick="openDetailForm('${row.id}')"><i class="bi bi-eye"></i></a>
-                                            <a class="btn btn-primary" onclick="openEditForm('${row.id}')"><i class="bi bi-pencil-square"></i></a>
-                                            <a class="btn btn-danger" onclick="openDeleteModal('${row.id}')" ><i class="bi bi-trash"></i></a>`
+                                                    <a class="btn btn-primary" onclick="openEditForm('${row.id}')"><i class="bi bi-pencil-square"></i></a>
+                                                    <a class="btn btn-danger" onclick="openDeleteModal('${row.id}')" ><i class="bi bi-trash"></i></a>`
                         },
                         "class": "text-end"
                     },
@@ -250,9 +250,9 @@
                     $('#Number').val(data.data.number);
 
                     console.log(data);
-                    if(!data.data.status && isEdit) {
+                    if (!data.data.status && isEdit) {
                         $('#btnActive').show();
-                    }else{
+                    } else {
                         $('#btnActive').hide();
                     }
                 }
