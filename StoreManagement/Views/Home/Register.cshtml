@@ -12,18 +12,17 @@
 
             <div class="card">
                 <div class="card-header text-center">
-                        <h3>Đăng Ký</h3>
+                    <h3>@_localization.Getkey("auth_register")</h3>
                 </div>
                 <div class="card-body">
                     <div class="form-group">
-                        @Html.LabelFor(m => m.FullName)
-                        @Html.TextBoxFor(m => m.FullName, "", new { @class = "form-control", @placeholder = "Tên đầy đủ" })
+                        <label>@_localization.Getkey("common_fullname")</label>
+                        @Html.TextBoxFor(m => m.FullName, "", new { @class = "form-control", @placeholder = _localization.Getkey("common_fullname") })
                         @Html.ValidationMessageFor(m => m.FullName, "", new { @class = "badge badge-danger" })
                     </div>
-                   
                     <div class="form-group">
-                        @Html.LabelFor(m => m.Email)
-                        @Html.TextBoxFor(m => m.Email, "", new { @class = "form-control", @placeholder = "Email" })
+                        <label>@_localization.Getkey("common_email")</label>
+                        @Html.TextBoxFor(m => m.Email, "", new { @class = "form-control", @placeholder = _localization.Getkey("common_email") })
                         @Html.ValidationMessageFor(m => m.Email, "", new { @class = "badge badge-danger" })
                         @if (ViewBag.error != null)
                         {
@@ -31,24 +30,26 @@
                         }
                     </div>
                     <div class="form-group">
-                        @Html.LabelFor(m => m.Password)
-                        @Html.PasswordFor(m => m.Password, new { @class = "form-control", @placeholder = "Mật khẩu" })
+                        <label>@_localization.Getkey("common_password")</label>
+                        @Html.PasswordFor(m => m.Password, new { @class = "form-control", @placeholder = _localization.Getkey("auth_password") })
                         @Html.ValidationMessageFor(m => m.Password, "", new { @class = "badge badge-danger" })
                     </div>
                     <div class="form-group">
-                        @Html.LabelFor(m => m.Address)
-                        @Html.TextBoxFor(m => m.Address, "", new { @class = "form-control", @placeholder = "Địa chỉ" })
+                        <label>@_localization.Getkey("common_address")</label>
+                        @Html.TextBoxFor(m => m.Address, "", new { @class = "form-control", @placeholder = _localization.Getkey("common_address") })
                         @Html.ValidationMessageFor(m => m.Address, "", new { @class = "badge badge-danger" })
                     </div>
-                        <div class="form-group">
-                        @Html.LabelFor(m => m.Phone)
-                        @Html.TextBoxFor(m => m.Phone, "", new { @class = "form-control", @placeholder = "Số điện thoại" })
+                    <div class="form-group">
+                        <label>@_localization.Getkey("common_phone")</label>
+                        @Html.TextBoxFor(m => m.Phone, "", new { @class = "form-control", @placeholder = _localization.Getkey("common_phone") })
                         @Html.ValidationMessageFor(m => m.Phone, "", new { @class = "badge badge-danger" })
                     </div>
                     <div class="form-group">
-                        <input type="submit" name="submit" class="btn btn-primary" value="Đăng ký" />
+                        <button type="submit" name="submit" class="btn btn-primary">
+                            @_localization.Getkey("auth_register")
+                        </button>
                     </div>
-                    <span>Đã có tài khoản? <a class="link" asp-action="Login">Đăng nhập</a></span>
+                    <span>@_localization.Getkey("auth_already_account") <a class="link" asp-action="Login">@_localization.Getkey("auth_login")</a></span>
                 </div>
             </div>
 

@@ -7,26 +7,27 @@
     <div class="col-md-4">
         <div class="card">
             <div class="card-header text-center">
-                <h3>Đăng nhập</h3>
+                <h3>@_localization.Getkey("auth_login")</h3>
             </div>
             <div class="card-body">
                 @using (Html.BeginForm("Login", "Home", FormMethod.Post))
                 {
                     @Html.AntiForgeryToken()
                     <div class="form-group">
-                        @Html.LabelFor(m => m.Email)
-                        @Html.TextBoxFor(m => m.Email, "", new { @class = "form-control", @placeholder = "Email" })
-
+                        <label>@_localization.Getkey("common_email")</label>
+                        @Html.TextBoxFor(m => m.Email, "", new { @class = "form-control", @placeholder = _localization.Getkey("common_email") })
                     </div>
                     <div class="form-group">
-                        @Html.LabelFor(m => m.Password)
-                        @Html.PasswordFor(m => m.Password, new { @class = "form-control", @placeholder = "Mật khẩu" })
+                        <label>@_localization.Getkey("common_password")</label>
+                        @Html.PasswordFor(m => m.Password, new { @class = "form-control", @placeholder = _localization.Getkey("common_password") })
                     </div>
                     <div class="form-group">
-                        <input type="submit" name="submit" class="btn btn-primary" value="Login" />
+                        <button type="submit" name="submit" class="btn btn-primary">
+                            @_localization.Getkey("auth_login")
+                        </button>
                     </div>
                 }
-                <span>Bạn chưa có tài khoản? <a class="link" asp-action="Register">Tạo tài khoản</a></span>
+                <span>@_localization.Getkey("auth_not_have_account") <a class="link" asp-action="Register">@_localization.Getkey("auth_register")</a></span>
             </div>
         </div>
     </div>

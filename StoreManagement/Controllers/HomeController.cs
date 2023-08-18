@@ -1,6 +1,8 @@
 ﻿using AspNetCoreHero.ToastNotification.Abstractions;
+using Microsoft.AspNetCore.Localization;
 using Microsoft.AspNetCore.Mvc;
 using StoreManagement.Models;
+using StoreManagement.Services;
 using System.Diagnostics;
 using System.Security.Cryptography;
 using System.Text;
@@ -12,16 +14,19 @@ namespace StoreManagement.Controllers
         private readonly ILogger<HomeController> _logger;
         private readonly INotyfService _notyf;
         private readonly StoreManagementContext _context;
+        private LanguageService _localization;
 
-        public HomeController(ILogger<HomeController> logger, INotyfService notyf, StoreManagementContext context)
+        public HomeController(ILogger<HomeController> logger, INotyfService notyf, StoreManagementContext context, LanguageService localization)
         {
             _logger = logger;
             _notyf = notyf;
             _context = context;
+            _localization = localization;
         }
 
         public IActionResult Index()
         {
+            ViewBag.WelcomeMessage = _localization.Getkey("common_welcome");
             if (HttpContext.Session.GetString("idUser") != null)
             {
                 return View();
@@ -32,9 +37,13 @@ namespace StoreManagement.Controllers
             }
         }
 
-        public IActionResult Privacy()
+        public IActionResult ChangeLanguage(string culture)
         {
-            return View();
+            Response.Cookies.Append(CookieRequestCultureProvider.DefaultCookieName, CookieRequestCultureProvider.MakeCookieValue(new RequestCulture(culture)), new CookieOptions()
+            {
+                Expires = DateTimeOffset.UtcNow.AddYears(1)
+            });
+            return Redirect(Request.Headers["Referer"].ToString());
         }
 
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]

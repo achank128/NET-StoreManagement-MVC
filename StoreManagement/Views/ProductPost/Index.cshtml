@@ -24,44 +24,25 @@
         </div>
         <div class="offcanvas-body">
             <form id="form" class="row" novalidate>
-                <div class="col-md-6 mb-2">
-                    <label class="control-label">Mã sản phẩm</label>
-                    <input id="ProductId" class="form-control" type="hidden" />
-                    <input id="ProductCode" name="ProductCode" class="form-control" required />
-                </div>
                 <div class="col-md-12 mb-2">
-                    <label class="control-label">Tên sản phẩm</label>
-                    <input id="ProductName" name="ProductName" class="form-control" required />
+                    <label class="control-label">Sản phẩm</label>
+                    <input id="ProductPostId" class="form-control" type="hidden" />
+                    <select id="ProductId" class="form-control" asp-items="ViewBag.ProductsList" required></select>
                 </div>
                 <div class="col-md-6 mb-2">
-                    <label class="control-label">Nhà sản xuất</label>
-                    <input id="Manufacturer" name="Manufacturer" class="form-control" required />
+                    <label class="control-label">Người viết</label>
+                    <select id="AuthorId" class="form-control" asp-items="ViewBag.UsersList" required></select>
                 </div>
                 <div class="col-md-6 mb-2">
-                    <label class="control-label">Danh mục</label>
-                    <select id="CategoryId" class="form-control" asp-items="ViewBag.CategoriesList" required></select>
-                </div>
-                <div class="col-md-12 mb-2">
-                    <label class="control-label">Mô tả</label>
-                    <textarea id="Description" class="form-control"></textarea>
-                </div>
-                <div class="col-md-6 mb-2">
-                    <label class="control-label">Đơn vị tính</label>
-                    <select id="Unit" class="form-control" asp-items="ViewBag.UnitsList" required></select>
+                    <label class="control-label">Ảnh bìa</label>
+                    <input id="CoverImg" class="form-control" />
 
                 </div>
-                <div class="col-md-6 mb-2">
-                    <label class="control-label">Giá nhập</label>
-                    <input id="ImportPrice" class="form-control" type="number" min="0" required />
+                <div class="col-md-12 mb-2">
+                    <label class="control-label">Nội dung</label>
+                    <textarea id="Content" class="form-control"></textarea>
                 </div>
-                <div class="col-md-6 mb-2">
-                    <label class="control-label">Đơn giá</label>
-                    <input id="Price" class="form-control" type="number" min="0" required />
-                </div>
-                <div class="col-md-12 mb-4">
-                    <label class="control-label">Số lượng tồn</label>
-                    <input id="Number" class="form-control" type="number" min="0" required />
-                </div>
+                
                 <div class="form-group">
                     <button id="btnSubmit" class="btn btn-primary">Thêm</button>
                 </div>
@@ -75,16 +56,12 @@
             <table id="Product-Table" class="table table-bordered">
                 <thead>
                     <tr>
-                        <th>Mã sản phẩm</th>
-                        <th>Tên sản phẩm</th>
-                        <th>Nhà sản xuất</th>
-                        <th>Danh mục</th>
-                        <th>Mô tả</th>
-                        <th>Đơn vị tính</th>
-                        <th>Giá nhập</th>
-                        <th>Đơn giá</th>
-                        <th>Số lượng tồn</th>
+                        <th>Sản phẩm</th>
+                        <th>Người viết</th>
+                        <th>Ảnh</th>
+                        <th>Nội Dung</th>
                         <th>Trạng thái</th>
+                        <th>Ngày viết</th>
                         <th class="text-end">Thao tác</th>
                     </tr>
                 </thead>
@@ -130,27 +107,20 @@
                 "orderMulti": false,
                 "ordering": false,
                 "ajax": {
-                    "url": "/Product/GetData",
+                    "url": "/ProductPost/GetData",
                     "type": "GET",
                     "datatype": "json"
                 },
                 "columns": [
-                    { "data": "productCode" },
-                    { "data": "productName" },
-                    { "data": "manufacturer" },
-                    { "data": "category.categoryName" },
-                    { "data": "description" },
-                    { "data": "unit.unitName" },
-                    {
-                        "data": "importPrice",
-                        "render": (data) => new Intl.NumberFormat('en-US').format(data)
-                    },
-                    {
-                        "data": "price",
-                        "render": (data) => new Intl.NumberFormat('en-US').format(data)
-                    },
-                    { "data": "number" },
+                    { "data": "product.productName" },
+                    { "data": "author.fullName" },
+                    { "data": "coverImg" },
+                    { "data": "content" },
                     { "data": "status", "render": (data) => data ? 'Sẵn sàng' : 'Xóa' },
+                    {
+                        "data": "createdDate",
+                        "render": (data) => new Date(data).toLocaleDateString('en-GB')
+                    },
                     {
                         "render": (data, type, row, meta) => {
                             return `<a class="btn btn-outline-info" onclick="openDetailForm('${row.id}')"><i class="bi bi-eye"></i></a>
@@ -216,15 +186,10 @@
         }
 
         function disableValueForm(disabled) {
-            $('#ProductCode').prop("disabled", disabled);
-            $('#ProductName').prop("disabled", disabled);
-            $('#Manufacturer').prop("disabled", disabled);
-            $('#CategoryId').prop("disabled", disabled);
-            $('#Description').prop("disabled", disabled);
-            $('#Unit').prop("disabled", disabled);
-            $('#ImportPrice').prop("disabled", disabled);
-            $('#Price').prop("disabled", disabled);
-            $('#Number').prop("disabled", disabled);
+            $('#ProductId').prop("disabled", disabled);
+            $('#AuthorId').prop("disabled", disabled);
+            $('#CoverImg').prop("disabled", disabled);
+            $('#Content').prop("disabled", disabled);
         }
 
         function openDeleteModal(id) {
@@ -235,19 +200,14 @@
         function getDetailValue(id) {
             $.ajax({
                 type: "GET",
-                url: '@Url.Action("Details","Product")/' + id,
+                url: '@Url.Action("Details","ProductPost")/' + id,
                 success: function (data) {
                     $('#offcanvasFormLabel').text("Chi tiết");
-                    $('#ProductId').val(data.data.id);
-                    $('#ProductCode').val(data.data.productCode);
-                    $('#ProductName').val(data.data.productName);
-                    $('#Manufacturer').val(data.data.manufacturer);
-                    $('#CategoryId').val(data.data.categoryId);
-                    $('#Description').val(data.data.description);
-                    $('#UnitId').val(data.data.unitId);
-                    $('#ImportPrice').val(data.data.importPrice);
-                    $('#Price').val(data.data.price);
-                    $('#Number').val(data.data.number);
+                    $('#ProductPostId').val(data.data.id);
+                    $('#ProductId').val(data.data.productId);
+                    $('#AuthorId').val(data.data.authorId);
+                    $('#CoverImg').val(data.data.coverImg);
+                    $('#Content').val(data.data.content);
 
                     console.log(data);
                     if (!data.data.status && isEdit) {
@@ -261,20 +221,15 @@
 
         function handleSave() {
             var data = {
-                Id: $('#ProductId').val(),
-                ProductName: $('#ProductName').val(),
-                ProductCode: $('#ProductCode').val(),
-                Manufacturer: $('#Manufacturer').val(),
-                CategoryId: $('#CategoryId').val(),
-                Description: $('#Description').val(),
-                UnitId: $('#Unit').val(),
-                ImportPrice: $('#ImportPrice').val(),
-                Price: $('#Price').val(),
-                Number: $('#Number').val(),
+                Id: $('#ProductPostId').val(),
+                ProductId: $('#ProductId').val(),
+                AuthorId: $('#AuthorId').val(),
+                CoverImg: $('#CoverImg').val(),
+                Content: $('#Content').val(),
             };
 
             if (isEdit) {
-                $.post("/Product/Edit", { product: data }, (data) => {
+                $.post("/ProductPost/Edit", { productPost: data }, (data) => {
                     if (data.isSuccess) {
                         notyf.success('Cập nhật dữ liệu thành công.');
                         dataTable.ajax.reload();
@@ -284,7 +239,7 @@
                     }
                 });
             } else {
-                $.post("/Product/Create", { product: data }, (data) => {
+                $.post("/ProductPost/Create", { productPost: data }, (data) => {
                     if (data.isSuccess) {
                         notyf.success('Thêm dữ liệu thành công.');
                         dataTable.ajax.reload();
@@ -299,7 +254,7 @@
         function handleDelete(status) {
             $.ajax({
                 type: "POST",
-                url: 'Product/Delete/' + deleteItemId + '?status=' + status,
+                url: 'ProductPost/Delete/' + deleteItemId + '?status=' + status,
                 success: function (data) {
                     if (data.isSuccess) {
                         dataTable.ajax.reload();
