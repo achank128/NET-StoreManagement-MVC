@@ -132,8 +132,47 @@
   <data name="auth_register" xml:space="preserve">
     <value>Đăng ký</value>
   </data>
+  <data name="category" xml:space="preserve">
+    <value>Danh mục</value>
+  </data>
+  <data name="common_actions" xml:space="preserve">
+    <value>Thao tác</value>
+  </data>
+  <data name="common_active" xml:space="preserve">
+    <value>Hoạt động</value>
+  </data>
+  <data name="common_add" xml:space="preserve">
+    <value>Thêm</value>
+  </data>
   <data name="common_address" xml:space="preserve">
     <value>Địa chỉ</value>
+  </data>
+  <data name="common_add_new" xml:space="preserve">
+    <value>Thêm mới</value>
+  </data>
+  <data name="common_are_you_sure_delete" xml:space="preserve">
+    <value>Bạn có chắc chắn muốn xóa?</value>
+  </data>
+  <data name="common_back" xml:space="preserve">
+    <value>Quay lại</value>
+  </data>
+  <data name="common_confirm" xml:space="preserve">
+    <value>Xác nhận</value>
+  </data>
+  <data name="common_confirm_delete" xml:space="preserve">
+    <value>Xác nhận xóa</value>
+  </data>
+  <data name="common_delete" xml:space="preserve">
+    <value>Xóa</value>
+  </data>
+  <data name="common_deleted" xml:space="preserve">
+    <value>Đã xóa</value>
+  </data>
+  <data name="common_description" xml:space="preserve">
+    <value>Mô tả</value>
+  </data>
+  <data name="common_details" xml:space="preserve">
+    <value>Chi tiết</value>
   </data>
   <data name="common_email" xml:space="preserve">
     <value>Email</value>
@@ -156,6 +195,12 @@
   <data name="common_phone" xml:space="preserve">
     <value>Số điện thoại</value>
   </data>
+  <data name="common_status" xml:space="preserve">
+    <value>Trạng thái</value>
+  </data>
+  <data name="common_update" xml:space="preserve">
+    <value>Cập nhật</value>
+  </data>
   <data name="common_username" xml:space="preserve">
     <value>Tên đăng nhập</value>
   </data>
@@ -164,5 +209,32 @@
   </data>
   <data name="common_welcome" xml:space="preserve">
     <value>Chào mừng bạn</value>
+  </data>
+  <data name="product" xml:space="preserve">
+    <value>Sản phẩm</value>
+  </data>
+  <data name="product_id" xml:space="preserve">
+    <value>Mã sản phẩm</value>
+  </data>
+  <data name="product_import_price" xml:space="preserve">
+    <value>Giá nhập</value>
+  </data>
+  <data name="product_list" xml:space="preserve">
+    <value>Danh sách sản phẩm</value>
+  </data>
+  <data name="product_manufacturer" xml:space="preserve">
+    <value>Nhà sản xuất</value>
+  </data>
+  <data name="product_name" xml:space="preserve">
+    <value>Tên sản phẩm</value>
+  </data>
+  <data name="product_price" xml:space="preserve">
+    <value>Đơn giá</value>
+  </data>
+  <data name="product_quantity_in_stock" xml:space="preserve">
+    <value>Số lượng tồn</value>
+  </data>
+  <data name="unit" xml:space="preserve">
+    <value>Đơn vị tính</value>
   </data>
 </root>

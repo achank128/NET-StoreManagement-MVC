@@ -1,10 +1,12 @@
 ﻿@{
     ViewData["Title"] = "Products";
+    ViewData["AddNew"] = "Thêm mới";
+    ViewData["Details"] = _localization.Getkey("common_details");
 }
 
 <div class="row">
     <div class="col-md-8">
-        <h2>Danh sách sản phẩm</h2>
+        <h2>@_localization.Getkey("product_list")</h2>
     </div>
     <div class="col-md-4 text-end">
         <a class="btn" asp-action="Index">
@@ -13,57 +15,56 @@
     </div>
      <div class="col-md-12 text-end mb-3">
         <a class="btn btn-success" onclick="openAddForm()">
-            <i class="bi bi-plus-circle"></i> Thêm mới
+            <i class="bi bi-plus-circle"></i> @_localization.Getkey("common_add_new")
         </a>
     </div>
 
     <div class="offcanvas offcanvas-end" id="offcanvasForm" aria-labelledby="offcanvasFormLabel" style="width: 800px;">
         <div class="offcanvas-header">
-            <h5 class="offcanvas-title text-primary" id="offcanvasFormLabel">Thêm mới</h5>
+            <h5 class="offcanvas-title text-primary" id="offcanvasFormLabel">@_localization.Getkey("common_add_new")</h5>
             <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
         </div>
         <div class="offcanvas-body">
             <form id="form" class="row" novalidate>
                 <div class="col-md-6 mb-2">
-                    <label class="control-label">Mã sản phẩm</label>
+                    <label class="control-label">@_localization.Getkey("product_id")</label>
                     <input id="ProductId" class="form-control" type="hidden" />
                     <input id="ProductCode" name="ProductCode" class="form-control" required />
                 </div>
                 <div class="col-md-12 mb-2">
-                    <label class="control-label">Tên sản phẩm</label>
+                    <label class="control-label">@_localization.Getkey("product_name")</label>
                     <input id="ProductName" name="ProductName" class="form-control" required />
                 </div>
                 <div class="col-md-6 mb-2">
-                    <label class="control-label">Nhà sản xuất</label>
+                    <label class="control-label">@_localization.Getkey("product_manufacturer")</label>
                     <input id="Manufacturer" name="Manufacturer" class="form-control" required />
                 </div>
                 <div class="col-md-6 mb-2">
-                    <label class="control-label">Danh mục</label>
+                    <label class="control-label">@_localization.Getkey("category")</label>
                     <select id="CategoryId" class="form-control" asp-items="ViewBag.CategoriesList" required></select>
                 </div>
                 <div class="col-md-12 mb-2">
-                    <label class="control-label">Mô tả</label>
+                    <label class="control-label">@_localization.Getkey("common_description")</label>
                     <textarea id="Description" class="form-control"></textarea>
                 </div>
                 <div class="col-md-6 mb-2">
-                    <label class="control-label">Đơn vị tính</label>
-                    <select id="Unit" class="form-control" asp-items="ViewBag.UnitsList" required></select>
-
-                </div>
-                <div class="col-md-6 mb-2">
-                    <label class="control-label">Giá nhập</label>
+                    <label class="control-label">@_localization.Getkey("product_import_price")</label>
                     <input id="ImportPrice" class="form-control" type="number" min="0" required />
                 </div>
                 <div class="col-md-6 mb-2">
-                    <label class="control-label">Đơn giá</label>
+                    <label class="control-label">@_localization.Getkey("product_price")</label>
                     <input id="Price" class="form-control" type="number" min="0" required />
                 </div>
+                <div class="col-md-6 mb-2">
+                    <label class="control-label">@_localization.Getkey("unit")</label>
+                    <select id="Unit" class="form-control" asp-items="ViewBag.UnitsList" required></select>
+                </div>
                 <div class="col-md-12 mb-4">
-                    <label class="control-label">Số lượng tồn</label>
+                    <label class="control-label">@_localization.Getkey("product_quantity_in_stock")</label>
                     <input id="Number" class="form-control" type="number" min="0" required />
                 </div>
                 <div class="form-group">
-                    <button id="btnSubmit" class="btn btn-primary">Thêm</button>
+                    <button id="btnSubmit" class="btn btn-primary">@_localization.Getkey("common_add")</button>
                 </div>
             </form>
             <button id="btnActive" class="btn btn-warning" onclick="handleDelete(1)"><i class="bi bi-play-fill"></i> Ngưng xóa</button>
@@ -75,17 +76,17 @@
             <table id="Product-Table" class="table table-bordered">
                 <thead>
                     <tr>
-                        <th>Mã sản phẩm</th>
-                        <th>Tên sản phẩm</th>
-                        <th>Nhà sản xuất</th>
-                        <th>Danh mục</th>
-                        <th>Mô tả</th>
-                        <th>Đơn vị tính</th>
-                        <th>Giá nhập</th>
-                        <th>Đơn giá</th>
-                        <th>Số lượng tồn</th>
-                        <th>Trạng thái</th>
-                        <th class="text-end">Thao tác</th>
+                        <th>@_localization.Getkey("product_id")</th>
+                        <th>@_localization.Getkey("product_name")</th>
+                        <th>@_localization.Getkey("product_manufacturer")</th>
+                        <th>@_localization.Getkey("category")</th>
+                        <th>@_localization.Getkey("common_description")</th>
+                        <th>@_localization.Getkey("unit")</th>
+                        <th>@_localization.Getkey("product_import_price")</th>
+                        <th>@_localization.Getkey("product_price")</th>
+                        <th>@_localization.Getkey("product_quantity_in_stock")</th>
+                        <th>@_localization.Getkey("common_status")</th>
+                        <th class="text-end">@_localization.Getkey("common_actions")</th>
                     </tr>
                 </thead>
             </table>
@@ -96,17 +97,17 @@
         <div class="modal-dialog" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="deleteModalLabel">Xác nhận xóa</h5>
+                    <h5 class="modal-title" id="deleteModalLabel">@_localization.Getkey("common_confirm_delete")</h5>
                     <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>
                 </div>
                 <div class="modal-body">
-                    Bạn có chắc chắn muốn xóa?
+                    @_localization.Getkey("common_are_you_sure_delete")
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Quay lại</button>
-                    <button type="button" class="btn btn-danger" onclick="handleDelete(0)">Xác nhận</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">@_localization.Getkey("common_back")</button>
+                    <button type="button" class="btn btn-danger" onclick="handleDelete(0)">@_localization.Getkey("common_confirm")</button>
                 </div>
             </div>
         </div>
@@ -150,7 +151,7 @@
                         "render": (data) => new Intl.NumberFormat('en-US').format(data)
                     },
                     { "data": "number" },
-                    { "data": "status", "render": (data) => data ? 'Sẵn sàng' : 'Xóa' },
+                    { "data": "status", "render": (data) => data ? '@_localization.Getkey("common_active")' : '@_localization.Getkey("common_delete")' },
                     {
                         "render": (data, type, row, meta) => {
                             return `<a class="btn btn-outline-info" onclick="openDetailForm('${row.id}')"><i class="bi bi-eye"></i></a>
@@ -183,15 +184,19 @@
         function openAddForm() {
             resetForm()
             isEdit = false;
-            $('#btnSubmit').show().text("Thêm");
+            var addLabel = @Html.Raw(Json.Serialize(_localization.Getkey("common_add")))
+            var addNewLabel = @Html.Raw(Json.Serialize(_localization.Getkey("common_add_new")))
+            $('#btnSubmit').show().text(addLabel.value);
             $('#btnActive').hide();
             disableValueForm(false);
+            $('#offcanvasFormLabel').text(addNewLabel.value);
             offcanvasForm.show();
         }
 
         function openEditForm(id) {
             isEdit = true;
-            $('#btnSubmit').show().text("Cập nhật");
+            var updateLabel = @Html.Raw(Json.Serialize(_localization.Getkey("common_update")))
+            $('#btnSubmit').show().text(updateLabel.value);
             disableValueForm(false);
             getDetailValue(id)
             offcanvasForm.show();
@@ -237,7 +242,8 @@
                 type: "GET",
                 url: '@Url.Action("Details","Product")/' + id,
                 success: function (data) {
-                    $('#offcanvasFormLabel').text("Chi tiết");
+                    var detailsLabel = @Json.Serialize(_localization.Getkey("common_details"))
+                    $('#offcanvasFormLabel').text(detailsLabel.value);
                     $('#ProductId').val(data.data.id);
                     $('#ProductCode').val(data.data.productCode);
                     $('#ProductName').val(data.data.productName);
@@ -249,7 +255,6 @@
                     $('#Price').val(data.data.price);
                     $('#Number').val(data.data.number);
 
-                    console.log(data);
                     if(!data.data.status && isEdit) {
                         $('#btnActive').show();
                     }else{

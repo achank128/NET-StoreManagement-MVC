@@ -5,6 +5,7 @@ using StoreManagement.Models;
 using StoreManagement.Repositories.CategoryRepository;
 using StoreManagement.Repositories.ProductRepository;
 using StoreManagement.Repositories.UnitRepository;
+using StoreManagement.Services;
 using X.PagedList;
 
 namespace StoreManagement.Controllers
@@ -14,16 +15,18 @@ namespace StoreManagement.Controllers
         private readonly IProductRepository _productRepository;
         private readonly IUnitRepository _unitRepository;
         private readonly ICategoryRepository _categoryRepository;
+        private LanguageService _localization;
 
         public ProductController(
             IProductRepository productRepository,
             IUnitRepository unitRepository,
-            ICategoryRepository categoryRepository
-            )
+            ICategoryRepository categoryRepository,
+            LanguageService localization)
         {
             _productRepository = productRepository;
             _unitRepository = unitRepository;
             _categoryRepository = categoryRepository;
+            _localization = localization;
         }
         public async Task<IActionResult> Index()
         {
