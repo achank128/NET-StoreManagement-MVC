@@ -44,57 +44,57 @@
                         <a class="nav-link collapsed" href="#" data-bs-toggle="collapse" data-bs-target="#collapseTwo"
                        aria-expanded="true" aria-controls="collapseTwo">
                             <i class="bi bi-bag-fill"></i>
-                            <span>Sản phẩm</span>
+                            <span>@_localization.Getkey("product")</span>
                         </a>
                         <div id="collapseTwo" class="collapse" aria-labelledby="headingTwo" data-bs-parent="#accordionSidebar">
                             <div class="bg-white py-2 collapse-inner rounded">
-                                <h6 class="bg-white collapse-header">Sản phẩm:</h6>
-                                <a class="collapse-item" asp-controller="Product" asp-action="Index">Sản phẩm</a>
-                                <a class="collapse-item" asp-controller="Unit" asp-action="Index">Đơn vị tính</a>
-                                <a class="collapse-item" asp-controller="ProductPost" asp-action="Index">Bài viết</a>
+                                <h6 class="bg-white collapse-header">@_localization.Getkey("product"):</h6>
+                                <a class="collapse-item" asp-controller="Product" asp-action="Index">@_localization.Getkey("product_list")</a>
+                                <a class="collapse-item" asp-controller="Unit" asp-action="Index">@_localization.Getkey("unit")</a>
+                                <a class="collapse-item" asp-controller="ProductPost" asp-action="Index">@_localization.Getkey("product_post")</a>
                             </div>
                         </div>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" asp-controller="Category" asp-action="Index">
                             <i class="fas fa-solid fa-list"></i>
-                            <span>Danh mục</span>
+                            <span>@_localization.Getkey("category")</span>
                         </a>
                     </li>
 
                     <hr class="sidebar-divider">
 
                     <div class="sidebar-heading">
-                        Nhập xuất
+                        @_localization.Getkey("import_export")
                     </div>
                     <li class="nav-item">
                         <a class="nav-link" asp-controller="ImportStore" asp-action="Index">
                             <i class="fas fa-fw fa-chart-area"></i>
-                            <span>Phiếu nhập</span>
+                            <span>@_localization.Getkey("import")</span>
                         </a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" asp-controller="ExportStore" asp-action="Index">
                             <i class="fas fa-fw fa-table"></i>
-                            <span>Phiếu xuất</span>
+                            <span>@_localization.Getkey("export")</span>
                         </a>
                     </li>
 
                     <hr class="sidebar-divider">
 
                     <div class="sidebar-heading">
-                        Đối tác
+                        @_localization.Getkey("partner")
                     </div>
                     <li class="nav-item">
                         <a class="nav-link" asp-controller="Supplier" asp-action="Index">
                             <i class="bi bi-briefcase-fill"></i>
-                            <span>Nhà cung cấp</span>
+                            <span>@_localization.Getkey("supplier")</span>
                         </a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" asp-controller="Customer" asp-action="Index">
                             <i class="bi bi-people-fill"></i>
-                            <span>Khách hàng</span>
+                            <span>@_localization.Getkey("customer")</span>
                         </a>
                     </li>
 
@@ -313,6 +313,9 @@
     <script src="~/js/sb-admin-2.min.js" asp-append-version="true"></script>
     <script src="~/lib/datatables/js/jquery.dataTables.min.js"></script>
     <script src="~/lib/datatables/js/dataTables.bootstrap4.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.1/js/dataTables.buttons.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.html5.min.js"></script>
 
     @await RenderSectionAsync("Scripts", required: false)
     @await Component.InvokeAsync("Notyf")

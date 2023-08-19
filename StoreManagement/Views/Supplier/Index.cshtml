@@ -4,7 +4,7 @@
 
 <div class="row">
     <div class="col-md-8">
-        <h2>Danh sách nhà cung cấp</h2>
+        <h2>@_localization.Getkey("supplier_list")</h2>
     </div>
     <div class="col-md-4 text-end">
         <a class="btn" asp-action="Index">
@@ -13,40 +13,40 @@
     </div>
     <div class="col-md-12 text-end mb-3">
         <button class="btn btn-success" onclick="openAddForm()">
-            <i class="bi bi-plus-circle"></i> Thêm mới
+            <i class="bi bi-plus-circle"></i> @_localization.Getkey("common_add_new")
         </button>
     </div>
 
     <div class="offcanvas offcanvas-end" id="offcanvasForm" aria-labelledby="offcanvasFormLabel">
         <div class="offcanvas-header">
-            <h5 class="offcanvas-title text-primary" id="offcanvasFormLabel">Thêm mới</h5>
+            <h5 class="offcanvas-title text-primary" id="offcanvasFormLabel">@_localization.Getkey("common_add_new")</h5>
             <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
         </div>
         <div class="offcanvas-body">
             <form id="form" novalidate>
                 <div class="form-group mb-3">
-                    <label class="control-label">Tên nhà cung cấp</label>
+                    <label class="control-label">@_localization.Getkey("supplier_name")</label>
                     <input id="SupplierId" class="form-control" type="hidden" />
                     <input id="SupplierName" class="form-control" required />
                 </div>
                 <div class="form-group mb-3">
-                    <label class="control-label">Địa chỉ</label>
+                    <label class="control-label">@_localization.Getkey("common_address")</label>
                     <input id="Address" class="form-control" />
                 </div>
                 <div class="form-group mb-3">
-                    <label class="control-label">Số điện thoại</label>
+                    <label class="control-label">@_localization.Getkey("common_phone")</label>
                     <input id="Phone" class="form-control" />
                 </div>
                 <div class="form-group mb-3">
-                    <label class="control-label">Mã số thuế</label>
+                    <label class="control-label">@_localization.Getkey("common_phone")</label>
                     <input id="TaxCode" class="form-control" />
                 </div>
                 <div class="form-group mb-3">
-                    <label class="control-label">Mô tả</label>
+                    <label class="control-label">@_localization.Getkey("common_description")</label>
                     <textarea id="Description" class="form-control"></textarea>
                 </div>
                 <div class="form-group">
-                    <button id="btnSubmit" class="btn btn-primary" data-bs-dismiss="offcanvas">Thêm</button>
+                    <button id="btnSubmit" class="btn btn-primary" data-bs-dismiss="offcanvas">@_localization.Getkey("common_add")</button>
                 </div>
             </form>
         </div>
@@ -56,16 +56,16 @@
 
     <div class="col-md-12">
         <div class="table-responsive" style="width: 100%">
-            <table id="Unit-Table" class="table table-bordered">
+            <table id="Supplier-Table" class="table table-bordered">
                 <thead>
                     <tr>
-                        <th>Mã nhà cung cấp</th>
-                        <th>Tên nhà cung cấp</th>
-                        <th>Địa chỉ</th>
-                        <th>Số điện thoại</th>
-                        <th>Mã số thuế</th>
-                        <th>Mô tả</th>
-                        <th class="text-end">Thao tác</th>
+                        <th>@_localization.Getkey("supplier_id")</th>
+                        <th>@_localization.Getkey("supplier_name")</th>
+                        <th>@_localization.Getkey("common_address")</th>
+                        <th>@_localization.Getkey("common_phone")</th>
+                        <th>@_localization.Getkey("common_taxcode")</th>
+                        <th>@_localization.Getkey("common_description")</th>
+                        <th class="text-end">@_localization.Getkey("common_actions")</th>
                     </tr>
                 </thead>
             </table>
@@ -76,17 +76,17 @@
         <div class="modal-dialog" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="deleteModalLabel">Xác nhận xóa</h5>
+                    <h5 class="modal-title" id="deleteModalLabel">@_localization.Getkey("common_confirm_delete")</h5>
                     <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>
                 </div>
                 <div class="modal-body">
-                    Bạn có chắc chắn muốn xóa?
+                    @_localization.Getkey("common_are_you_sure_delete")
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Quay lại</button>
-                    <button type="button" class="btn btn-danger" onclick="handleDelete()">Xác nhận</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">@_localization.Getkey("common_back")</button>
+                    <button type="button" class="btn btn-danger" onclick="handleDelete()">@_localization.Getkey("common_confirm")</button>
                 </div>
             </div>
         </div>
@@ -102,7 +102,7 @@
         var form = $('#form')[0];
 
         $(document).ready(function () {
-            dataTable = $("#Unit-Table").DataTable({
+            dataTable = $("#Supplier-Table").DataTable({
                 "processing": true,
                 "serverSide": true,
                 "filter": true,
@@ -152,14 +152,18 @@
         function openAddForm() {
             resetForm()
             isEdit = false;
-            $('#btnSubmit').show().text("Thêm")
+            var addLabel = @Html.Raw(Json.Serialize(_localization.Getkey("common_add")));
+            var addNewLabel = @Html.Raw(Json.Serialize(_localization.Getkey("common_add_new")));
+            $('#btnSubmit').show().text(addLabel.value);
+            $('#offcanvasFormLabel').text(addNewLabel.value);
             disableValueForm(false);
             offcanvasForm.show();
         }
 
         function openEditForm(id) {
             isEdit = true;
-            $('#btnSubmit').show().text("Cập nhật");
+            var updateLabel = @Html.Raw(Json.Serialize(_localization.Getkey("common_update")));
+            $('#btnSubmit').show().text(updateLabel.value);
             disableValueForm(false);
             getDetailValue(id);
             offcanvasForm.show();
@@ -194,7 +198,8 @@
                 type: "GET",
                 url: '@Url.Action("Details","Supplier")/' + id,
                 success: function (data) {
-                    $('#offcanvasFormLabel').text("Chi tiết");
+                    var detailsLabel = @Json.Serialize(_localization.Getkey("common_details"));
+                    $('#offcanvasFormLabel').text(detailsLabel.value);
                     $('#SupplierId').val(data.data.id);
                     $('#SupplierName').val(data.data.supplierName);
                     $('#Address').val(data.data.address);

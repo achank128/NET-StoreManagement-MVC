@@ -13,10 +13,13 @@
             <i class="bi bi-arrow-clockwise"></i>
         </a>
     </div>
-     <div class="col-md-12 text-end mb-3">
-        <a class="btn btn-success" onclick="openAddForm()">
+    <div class="col-md-12 text-end mb-3">
+        <button id="ExportExcel" class="btn btn-outline-success mr-2">
+            <i class="bi bi-file-earmark-excel"></i> Export Excel
+        </button>
+        <button class="btn btn-success" onclick="openAddForm()">
             <i class="bi bi-plus-circle"></i> @_localization.Getkey("common_add_new")
-        </a>
+        </button>
     </div>
 
     <div class="offcanvas offcanvas-end" id="offcanvasForm" aria-labelledby="offcanvasFormLabel" style="width: 800px;">
@@ -142,11 +145,11 @@
                     { "data": "category.categoryName" },
                     { "data": "description" },
                     { "data": "unit.unitName" },
-                    { 
+                    {
                         "data": "importPrice",
                         "render": (data) => new Intl.NumberFormat('en-US').format(data)
                     },
-                    { 
+                    {
                         "data": "price",
                         "render": (data) => new Intl.NumberFormat('en-US').format(data)
                     },
@@ -154,9 +157,11 @@
                     { "data": "status", "render": (data) => data ? '@_localization.Getkey("common_active")' : '@_localization.Getkey("common_delete")' },
                     {
                         "render": (data, type, row, meta) => {
-                            return `<a class="btn btn-outline-info" onclick="openDetailForm('${row.id}')"><i class="bi bi-eye"></i></a>
-                                            <a class="btn btn-primary" onclick="openEditForm('${row.id}')"><i class="bi bi-pencil-square"></i></a>
-                                            <a class="btn btn-danger" onclick="openDeleteModal('${row.id}')" ><i class="bi bi-trash"></i></a>`
+                            return `
+                                    <a class="btn btn-outline-info" onclick="openDetailForm('${row.id}')"><i class="bi bi-eye"></i></a>
+                                    <a class="btn btn-primary" onclick="openEditForm('${row.id}')"><i class="bi bi-pencil-square"></i></a>
+                                    <a class="btn btn-danger" onclick="openDeleteModal('${row.id}')" ><i class="bi bi-trash"></i></a>
+                                    `
                         },
                         "class": "text-end"
                     },
@@ -165,8 +170,34 @@
                 "language": {
                     "emptyTable": "No data found"
                 },
+                "dom": 'Bfrtip',
+                "buttons": [
+                    {
+
+                        "extend": 'excel',
+                        "text": 'Export',
+                        "titleAttr": 'Excel',
+                        "action": newexportaction,
+                        "exportOptions": {
+                            columns: ':not(:last-child)',
+                            modifer: {
+                                page: 'all',
+                                search: 'none'    
+                            }
+                        },
+                        "filename": function () {
+                            var d = new Date();
+                            var l = d.getFullYear() + '-' + (d.getMonth() + 1) + '-' + d.getDate();
+                            var n = d.getHours() + "-" + d.getMinutes() + "-" + d.getSeconds();
+                            return 'ExportStore_' + l + ' ' + n;
+                        },
+                    },
+                ],
             });
 
+            $('#ExportExcel').click(() => {
+                $('.buttons-excel').click();
+            })
 
             form.addEventListener('submit', event => {
                 event.preventDefault()
@@ -180,22 +211,64 @@
             }, false)
         });
 
+        function newexportaction(e, dt, button, config) {
+            var self = this;
+            var oldStart = dt.settings()[0]._iDisplayStart;
+            dt.one('preXhr', function (e, s, data) {
+                // Just this once, load all data from the server...
+                data.start = 0;
+                data.length = 2147483647;
+                dt.one('preDraw', function (e, settings) {
+                    // Call the original action function
+                    if (button[0].className.indexOf('buttons-copy') >= 0) {
+                        $.fn.dataTable.ext.buttons.copyHtml5.action.call(self, e, dt, button, config);
+                    } else if (button[0].className.indexOf('buttons-excel') >= 0) {
+                        $.fn.dataTable.ext.buttons.excelHtml5.available(dt, config) ?
+                            $.fn.dataTable.ext.buttons.excelHtml5.action.call(self, e, dt, button, config) :
+                            $.fn.dataTable.ext.buttons.excelFlash.action.call(self, e, dt, button, config);
+                    } else if (button[0].className.indexOf('buttons-csv') >= 0) {
+                        $.fn.dataTable.ext.buttons.csvHtml5.available(dt, config) ?
+                            $.fn.dataTable.ext.buttons.csvHtml5.action.call(self, e, dt, button, config) :
+                            $.fn.dataTable.ext.buttons.csvFlash.action.call(self, e, dt, button, config);
+                    } else if (button[0].className.indexOf('buttons-pdf') >= 0) {
+                        $.fn.dataTable.ext.buttons.pdfHtml5.available(dt, config) ?
+                            $.fn.dataTable.ext.buttons.pdfHtml5.action.call(self, e, dt, button, config) :
+                            $.fn.dataTable.ext.buttons.pdfFlash.action.call(self, e, dt, button, config);
+                    } else if (button[0].className.indexOf('buttons-print') >= 0) {
+                        $.fn.dataTable.ext.buttons.print.action(e, dt, button, config);
+                    }
+                    dt.one('preXhr', function (e, s, data) {
+                        // DataTables thinks the first item displayed is index 0, but we're not drawing that.
+                        // Set the property to what it was before exporting.
+                        settings._iDisplayStart = oldStart;
+                        data.start = oldStart;
+                    });
+                    // Reload the grid with the original page. Otherwise, API functions like table.cell(this) don't work properly.
+                    setTimeout(dt.ajax.reload, 0);
+                    // Prevent rendering of the full data to the DOM
+                    return false;
+                });
+            });
+            // Requery the server with the new one-time export settings
+            dt.ajax.reload();
+        };
+
 
         function openAddForm() {
             resetForm()
             isEdit = false;
-            var addLabel = @Html.Raw(Json.Serialize(_localization.Getkey("common_add")))
-            var addNewLabel = @Html.Raw(Json.Serialize(_localization.Getkey("common_add_new")))
+            var addLabel = @Html.Raw(Json.Serialize(_localization.Getkey("common_add")));
+            var addNewLabel = @Html.Raw(Json.Serialize(_localization.Getkey("common_add_new")));
             $('#btnSubmit').show().text(addLabel.value);
+            $('#offcanvasFormLabel').text(addNewLabel.value);
             $('#btnActive').hide();
             disableValueForm(false);
-            $('#offcanvasFormLabel').text(addNewLabel.value);
             offcanvasForm.show();
         }
 
         function openEditForm(id) {
             isEdit = true;
-            var updateLabel = @Html.Raw(Json.Serialize(_localization.Getkey("common_update")))
+            var updateLabel = @Html.Raw(Json.Serialize(_localization.Getkey("common_update")));
             $('#btnSubmit').show().text(updateLabel.value);
             disableValueForm(false);
             getDetailValue(id)
@@ -242,7 +315,7 @@
                 type: "GET",
                 url: '@Url.Action("Details","Product")/' + id,
                 success: function (data) {
-                    var detailsLabel = @Json.Serialize(_localization.Getkey("common_details"))
+                    var detailsLabel = @Json.Serialize(_localization.Getkey("common_details"));
                     $('#offcanvasFormLabel').text(detailsLabel.value);
                     $('#ProductId').val(data.data.id);
                     $('#ProductCode').val(data.data.productCode);
@@ -255,9 +328,9 @@
                     $('#Price').val(data.data.price);
                     $('#Number').val(data.data.number);
 
-                    if(!data.data.status && isEdit) {
+                    if (!data.data.status && isEdit) {
                         $('#btnActive').show();
-                    }else{
+                    } else {
                         $('#btnActive').hide();
                     }
                 }

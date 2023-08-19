@@ -4,7 +4,7 @@
 
 <div class="row">
     <div class="col-md-8">
-        <h2>Đơn vị tính</h2>
+        <h2>@_localization.Getkey("unit_list")</h2>
     </div>
     <div class="col-md-4 text-end">
         <a class="btn" asp-action="Index">
@@ -13,31 +13,31 @@
     </div>
     <div class="col-md-12 text-end mb-3">
         <button class="btn btn-success" onclick="openAddForm()">
-            <i class="bi bi-plus-circle"></i> Thêm mới
+            <i class="bi bi-plus-circle"></i> @_localization.Getkey("common_add_new")
         </button>
     </div>
 
     <div class="offcanvas offcanvas-end" id="offcanvasForm" aria-labelledby="offcanvasFormLabel">
         <div class="offcanvas-header">
-            <h5 class="offcanvas-title text-primary" id="offcanvasFormLabel">Thêm mới</h5>
+            <h5 class="offcanvas-title text-primary" id="offcanvasFormLabel">@_localization.Getkey("common_add_new")</h5>
             <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
         </div>
         <div class="offcanvas-body">
             <form id="form" novalidate>
                 <div class="form-group mb-3">
-                    <label class="control-label">Mã đơn vị</label>
+                    <label class="control-label">@_localization.Getkey("unit_id")</label>
                     <input id="UnitId" class="form-control" required />
                 </div>
                 <div class="form-group mb-3">
-                    <label class="control-label">Đơn vị tính</label>
+                    <label class="control-label">@_localization.Getkey("unit")</label>
                     <input id="UnitName" class="form-control" required />
                 </div>
                 <div class="form-group mb-3">
-                    <label class="control-label">Mô tả</label>
+                    <label class="control-label">@_localization.Getkey("common_description")</label>
                     <textarea id="Description" class="form-control" ></textarea>
                 </div>
                 <div class="form-group">
-                    <button id="btnSubmit" class="btn btn-primary" data-bs-dismiss="offcanvas">Thêm</button>
+                    <button id="btnSubmit" class="btn btn-primary" data-bs-dismiss="offcanvas">@_localization.Getkey("common_add")</button>
                 </div>
             </form>
         </div>
@@ -50,10 +50,10 @@
             <table id="Unit-Table" class="table table-bordered">
                 <thead>
                     <tr>
-                        <th>Mã đơn vị</th>
-                        <th>Đơn vị tính</th>
-                        <th>Mô tả</th>
-                        <th class="text-end">Thao tác</th>
+                        <th>@_localization.Getkey("unit_id")</th>
+                        <th>@_localization.Getkey("unit")</th>
+                        <th>@_localization.Getkey("common_description")</th>
+                        <th class="text-end">@_localization.Getkey("common_actions")</th>
                     </tr>
                 </thead>
             </table>
@@ -64,17 +64,17 @@
         <div class="modal-dialog" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="deleteModalLabel">Xác nhận xóa</h5>
+                    <h5 class="modal-title" id="deleteModalLabel">@_localization.Getkey("common_confirm_delete")</h5>
                     <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>
                 </div>
                 <div class="modal-body">
-                    Bạn có chắc chắn muốn xóa?
+                    @_localization.Getkey("common_are_you_sure_delete")
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Quay lại</button>
-                    <button type="button" class="btn btn-danger" onclick="handleDelete()">Xác nhận</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">@_localization.Getkey("common_back")</button>
+                    <button type="button" class="btn btn-danger" onclick="handleDelete()">@_localization.Getkey("common_confirm")</button>
                 </div>
             </div>
         </div>

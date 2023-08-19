@@ -8,7 +8,7 @@
 
 <div class="row">
     <div class="col-md-8">
-        <h2>Phiếu xuất kho</h2>
+        <h2>@_localization.Getkey("export_list")</h2>
     </div>
     <div class="col-md-4 text-end">
         <a class="btn" asp-action="Index">
@@ -16,50 +16,53 @@
         </a>
     </div>
     <div class="col-md-12 text-end  mb-3">
-        <a class="btn btn-success" onclick="openAddForm()">
-            <i class="bi bi-plus-circle"></i> Thêm mới
-        </a>
+        <button id="ExportExcel" class="btn btn-outline-success mr-2">
+            <i class="bi bi-file-earmark-excel"></i> Export Excel
+        </button>
+        <button class="btn btn-success" onclick="openAddForm()">
+            <i class="bi bi-plus-circle"></i> @_localization.Getkey("common_add_new")
+        </button>
     </div>
 
     <div class="offcanvas offcanvas-end" id="offcanvasForm" aria-labelledby="offcanvasFormLabel" style="width: 800px;">
         <div class="offcanvas-header">
-            <h5 class="offcanvas-title text-primary" id="offcanvasFormLabel">Thêm mới</h5>
+            <h5 class="offcanvas-title text-primary" id="offcanvasFormLabel">@_localization.Getkey("common_add_new")</h5>
             <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
         </div>
         <div class="offcanvas-body">
             <form id="form" class="row" novalidate>
                 <div class="col-md-6 mb-2">
-                    <label class="control-label">Người xuất</label>
+                    <label class="control-label">@_localization.Getkey("export_exporter")</label>
                     <input id="ExportStoreId" name="ExportStoreId" type="hidden" />
                     <select id="ExporterId" class="form-control" asp-items="ViewBag.UsersList" required></select>
 
                 </div>
                 <div class="col-md-6 mb-2">
-                    <label class="control-label">Khách hàng</label>
+                    <label class="control-label">@_localization.Getkey("customer")</label>
                     <select id="CustomerId" class="form-control" asp-items="ViewBag.CustomersList" required></select>
 
                 </div>
                 <div class="col-md-6 mb-2">
-                    <label class="control-label">Ngày xuất</label>
+                    <label class="control-label">@_localization.Getkey("export_date")</label>
                     <input id="ExportDate" name="ExportDate" class="form-control" type="date" required />
                 </div>
                 <div class="col-md-12 mb-2">
-                    <label class="control-label">Ghi chú</label>
+                    <label class="control-label">@_localization.Getkey("common_note")</label>
                     <textarea id="Note" class="form-control"></textarea>
                 </div>
                 <div class="col-md-12 my-4">
-                    <p class="mb-0">Chi tiết phiếu xuất kho:</p>
+                    <p class="mb-0">@_localization.Getkey("product_list"):</p>
                     <table id="ProductItem-Table" class="table table-bordered">
                         <thead>
                             <tr>
-                                <th>Sản phẩm</th>
-                                <th>Đơn giá</th>
-                                <th>Số lượng tồn</th>
-                                <th>Số lượng</th>
-                                <th>Giá Xuất</th>
+                                <th style="width: 160px;">@_localization.Getkey("product")</th>
+                                <th>@_localization.Getkey("product_price")</th>
+                                <th>@_localization.Getkey("product_quantity_in_stock")</th>
+                                <th>@_localization.Getkey("common_quantity")</th>
+                                <th>@_localization.Getkey("export_price")</th>
                                 <th class="text-center">
                                     <button id="add-product-item" class="btn btn-success">
-                                        <i class="bi bi-plus-square"></i> Thêm
+                                        <i class="bi bi-plus-square"></i> @_localization.Getkey("common_add")
                                     </button>
                                 </th>
                             </tr>
@@ -69,23 +72,23 @@
                     </table>
                 </div>
                 <div class="col-md-12 mb-4 d-flex justify-content-between align-items-center">
-                    <label class="control-label">Tổng tiền:</label>
+                    <label class="control-label">@_localization.Getkey("common_subtotal"):</label>
                     <input id="SubTotal" class="form-control w-50" type="number" readonly />
                 </div>
                 <div class="col-md-12 mb-4 d-flex justify-content-between align-items-center">
-                    <label class="control-label">Giảm giá</label>
+                    <label class="control-label">@_localization.Getkey("common_discount")</label>
                     <div class="d-flex w-50">
                         <select id="DiscountPercent" class="form-select">
-                            <option value="0" selected>Chọn mức giảm</option>
+                            <option value="0" selected>@_localization.Getkey("common_choose_discount")</option>
                             <option value="5">5%</option>
                             <option value="10">10%</option>
                             <option value="15">15%</option>
                         </select>
-                        <input id="Discount" class="form-control" type="number" readonly/>
+                        <input id="Discount" class="form-control" type="number" readonly />
                     </div>
                 </div>
                 <div class="col-md-12 mb-4 d-flex justify-content-between align-items-center">
-                    <label class="control-label h5">Thành tiền:</label>
+                    <label class="control-label h5">@_localization.Getkey("common_total"):</label>
                     <input id="Total" class="form-control w-50" type="number" readonly />
                 </div>
                 <div class="form-group">
@@ -100,13 +103,13 @@
             <table id="ExportStore-Table" class="table table-bordered">
                 <thead>
                     <tr>
-                        <th>Mã xuất</th>
-                        <th>Người xuất</th>
-                        <th>Khách hàng</th>
-                        <th>Ngày xuất</th>
-                        <th>Ngày cập nhật</th>
-                        <th>Thành tiền</th>
-                        <th class="text-end">Thao tác</th>
+                        <th>@_localization.Getkey("export_id")</th>
+                        <th>@_localization.Getkey("export_exporter")</th>
+                        <th>@_localization.Getkey("customer")</th>
+                        <th>@_localization.Getkey("export_date")</th>
+                        <th>@_localization.Getkey("common_created_date")</th>
+                        <th>@_localization.Getkey("common_total")</th>
+                        <th class="text-end">@_localization.Getkey("common_actions")</th>
                     </tr>
                 </thead>
             </table>
@@ -118,17 +121,17 @@
         <div class="modal-dialog" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="deleteModalLabel">Xác nhận xóa</h5>
+                    <h5 class="modal-title" id="deleteModalLabel">@_localization.Getkey("common_confirm_delete")</h5>
                     <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>
                 </div>
                 <div class="modal-body">
-                    Bạn có chắc chắn muốn xóa?
+                    @_localization.Getkey("common_are_you_sure_delete")
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Quay lại</button>
-                    <button type="button" class="btn btn-danger" onclick="handleDelete()">Xác nhận</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">@_localization.Getkey("common_back")</button>
+                    <button type="button" class="btn btn-danger" onclick="handleDelete()">@_localization.Getkey("common_confirm")</button>
                 </div>
             </div>
         </div>
@@ -176,8 +179,8 @@
                     {
                         "render": (data, type, row, meta) => {
                             return `<a class="btn btn-outline-info" onclick="openDetailForm('${row.id}')"><i class="bi bi-eye"></i></a>
-                                                                    <a class="btn btn-primary" onclick="openEditForm('${row.id}')"><i class="bi bi-pencil-square"></i></a>
-                                                                    <a class="btn btn-danger" onclick="openDeleteModal('${row.id}')" ><i class="bi bi-trash"></i></a>`
+                                                                                                                    <a class="btn btn-primary" onclick="openEditForm('${row.id}')"><i class="bi bi-pencil-square"></i></a>
+                                                                                                                    <a class="btn btn-danger" onclick="openDeleteModal('${row.id}')" ><i class="bi bi-trash"></i></a>`
                         },
                         "class": "text-end"
                     },
@@ -186,6 +189,29 @@
                 "language": {
                     "emptyTable": "No data found"
                 },
+                "dom": 'Bfrtip',
+                "buttons": [
+                    {
+
+                        "extend": 'excel',
+                        "text": '<button class="btn btn-outline-success"><i class="fa fa-file-excel-o" style="color: green;"></i> Export</button>',
+                        "titleAttr": 'Excel',
+                        "action": newexportaction,
+                        "exportOptions": {
+                            columns: ':not(:last-child)',
+                            modifer: {
+                                page: 'all',
+                                search: 'none'    
+                            }
+                        },
+                        "filename": function () {
+                            var d = new Date();
+                            var l = d.getFullYear() + '-' + (d.getMonth() + 1) + '-' + d.getDate();
+                            var n = d.getHours() + "-" + d.getMinutes() + "-" + d.getSeconds();
+                            return 'ExportStore_' + l + ' ' + n;
+                        },
+                    },
+                ],
             });
 
             getProductItems();
@@ -203,6 +229,10 @@
             $("#add-product-item").click((e) => {
                 e.preventDefault();
                 addProductItem();
+            });
+
+            $('#ExportExcel').click(()=>{
+                $('.buttons-excel').click();
             })
 
             form.addEventListener('submit', event => {
@@ -217,13 +247,58 @@
             }, false)
         });
 
+        function newexportaction(e, dt, button, config) {
+            var self = this;
+            var oldStart = dt.settings()[0]._iDisplayStart;
+            dt.one('preXhr', function (e, s, data) {
+                // Just this once, load all data from the server...
+                data.start = 0;
+                data.length = 2147483647;
+                dt.one('preDraw', function (e, settings) {
+                    // Call the original action function
+                    if (button[0].className.indexOf('buttons-copy') >= 0) {
+                        $.fn.dataTable.ext.buttons.copyHtml5.action.call(self, e, dt, button, config);
+                    } else if (button[0].className.indexOf('buttons-excel') >= 0) {
+                        $.fn.dataTable.ext.buttons.excelHtml5.available(dt, config) ?
+                            $.fn.dataTable.ext.buttons.excelHtml5.action.call(self, e, dt, button, config) :
+                            $.fn.dataTable.ext.buttons.excelFlash.action.call(self, e, dt, button, config);
+                    } else if (button[0].className.indexOf('buttons-csv') >= 0) {
+                        $.fn.dataTable.ext.buttons.csvHtml5.available(dt, config) ?
+                            $.fn.dataTable.ext.buttons.csvHtml5.action.call(self, e, dt, button, config) :
+                            $.fn.dataTable.ext.buttons.csvFlash.action.call(self, e, dt, button, config);
+                    } else if (button[0].className.indexOf('buttons-pdf') >= 0) {
+                        $.fn.dataTable.ext.buttons.pdfHtml5.available(dt, config) ?
+                            $.fn.dataTable.ext.buttons.pdfHtml5.action.call(self, e, dt, button, config) :
+                            $.fn.dataTable.ext.buttons.pdfFlash.action.call(self, e, dt, button, config);
+                    } else if (button[0].className.indexOf('buttons-print') >= 0) {
+                        $.fn.dataTable.ext.buttons.print.action(e, dt, button, config);
+                    }
+                    dt.one('preXhr', function (e, s, data) {
+                        // DataTables thinks the first item displayed is index 0, but we're not drawing that.
+                        // Set the property to what it was before exporting.
+                        settings._iDisplayStart = oldStart;
+                        data.start = oldStart;
+                    });
+                    // Reload the grid with the original page. Otherwise, API functions like table.cell(this) don't work properly.
+                    setTimeout(dt.ajax.reload, 0);
+                    // Prevent rendering of the full data to the DOM
+                    return false;
+                });
+            });
+            // Requery the server with the new one-time export settings
+            dt.ajax.reload();
+        };
+
         function openAddForm() {
             isEdit = false;
             resetForm()
             $("#product-items").empty();
             $("#DiscountPercent").show();
             $("#ExporterId").val('@HttpContextAccessor.HttpContext.Session.GetString("idUser")');
-            $('#btnSubmit').show().text("Thêm")
+            var addLabel = @Html.Raw(Json.Serialize(_localization.Getkey("common_add")));
+            var addNewLabel = @Html.Raw(Json.Serialize(_localization.Getkey("common_add_new")));
+            $('#btnSubmit').show().text(addLabel.value);
+            $('#offcanvasFormLabel').text(addNewLabel.value);
             disableValueForm(false);
             offcanvasForm.show();
         }
@@ -233,7 +308,8 @@
             $("#product-items").empty();
             $("#DiscountPercent").show();
             $("#ExporterId").val('@HttpContextAccessor.HttpContext.Session.GetString("idUser")');
-            $('#btnSubmit').show().text("Cập nhật");
+            var updateLabel = @Html.Raw(Json.Serialize(_localization.Getkey("common_update")));
+            $('#btnSubmit').show().text(updateLabel.value);
             disableValueForm(false);
             getDetailValue(id)
             offcanvasForm.show();
@@ -285,8 +361,8 @@
                 type: "POST",
                 url: '@Url.Action("Details","ExportStore")/' + id,
                 success: function (data) {
-                    console.log(data)
-                    $('#offcanvasFormLabel').text("Chi tiết");
+                    var detailsLabel = @Json.Serialize(_localization.Getkey("common_details"));
+                    $('#offcanvasFormLabel').text(detailsLabel.value);
                     $('#ExportStoreId').val(data.data.id);
                     $('#ExporterId').val(data.data.exporterId);
                     $('#CustomerId').val(data.data.customerId);
@@ -329,20 +405,20 @@
 
         function addProductItem(productItem) {
             var newProductItemHtml = `
-                                                        <tr class="product-item">
-                                                            <td>
-                                                                <select class="Product form-select" required>
-                                                                    ${productsList.map((p) => (`<option value="${p.id}" ${productItem?.productId == p.id && 'selected'}>${p.productName}</option>`)).join('')}
-                                                                </select>
-                                                            </td>
-                                                            <td><input value="${productItem?.importPrice}" type="number" class="ProductPrice form-control" readonly/></td>
-                                                            <td><input value="${productItem?.number}" type="number" class="Number form-control" readonly/></td>
-                                                            <td><input value="${productItem?.quantity}" type="number" class="Quantity form-control" min="0" required/></td>
-                                                            <td><input value="${productItem?.exportPrice}" type="number" class="Price form-control" min="0" required/></td>
-                                                            <td class="text-center align-middle">
-                                                                <button class="btn btn-outline-danger btn-sm"><i class="bi bi-x"></i></button>
-                                                            </td>
-                                                        </tr>`
+                                                                                                        <tr class="product-item">
+                                                                                                            <td>
+                                                                                                                <select class="Product form-select" required>
+                                                                                                                    ${productsList.map((p) => (`<option value="${p.id}" ${productItem?.productId == p.id && 'selected'}>${p.productName}</option>`)).join('')}
+                                                                                                                </select>
+                                                                                                            </td>
+                                                                                                            <td><input value="${productItem?.importPrice}" type="number" class="ProductPrice form-control" readonly/></td>
+                                                                                                            <td><input value="${productItem?.number}" type="number" class="Number form-control" readonly/></td>
+                                                                                                            <td><input value="${productItem?.quantity}" type="number" class="Quantity form-control" min="0" required/></td>
+                                                                                                            <td><input value="${productItem?.exportPrice}" type="number" class="Price form-control" min="0" required/></td>
+                                                                                                            <td class="text-center align-middle">
+                                                                                                                <button class="btn btn-outline-danger btn-sm"><i class="bi bi-x"></i></button>
+                                                                                                            </td>
+                                                                                                        </tr>`
             $("#product-items").append(newProductItemHtml);
             setProductItems();
         }
@@ -377,7 +453,7 @@
                 total += Number(item.quantity) * Number(item.price);
             });
             $("#SubTotal").val(total);
-            $("#Discount").val(- $("#DiscountPercent").val()/100 * total);
+            $("#Discount").val(- $("#DiscountPercent").val() / 100 * total);
             $("#Total").val(total + Number($("#Discount").val()));
         }
 

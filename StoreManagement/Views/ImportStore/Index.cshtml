@@ -7,7 +7,7 @@
 
 <div class="row">
     <div class="col-md-8">
-        <h2>Phiếu nhập kho</h2>
+        <h2>@_localization.Getkey("import_list")</h2>
     </div>
     <div class="col-md-4 text-end">
         <a class="btn" asp-action="Index">
@@ -15,49 +15,52 @@
         </a>
     </div>
     <div class="col-md-12 text-end  mb-3">
-        <a class="btn btn-success" onclick="openAddForm()">
-            <i class="bi bi-plus-circle"></i> Thêm mới
-        </a>
+        <button id="ExportExcel" class="btn btn-outline-success mr-2">
+            <i class="bi bi-file-earmark-excel"></i> Export Excel
+        </button>
+        <button class="btn btn-success" onclick="openAddForm()">
+            <i class="bi bi-plus-circle"></i> @_localization.Getkey("common_add_new")
+        </button>
     </div>
 
 
     <div class="offcanvas offcanvas-end" id="offcanvasForm" aria-labelledby="offcanvasFormLabel" style="width: 800px;">
         <div class="offcanvas-header">
-            <h5 class="offcanvas-title text-primary" id="offcanvasFormLabel">Thêm mới</h5>
+            <h5 class="offcanvas-title text-primary" id="offcanvasFormLabel">@_localization.Getkey("common_add_new")</h5>
             <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
         </div>
         <div class="offcanvas-body">
             <form id="form" class="row" novalidate>
                 <div class="col-md-6 mb-2">
-                    <label class="control-label">Người nhập</label>
+                    <label class="control-label">@_localization.Getkey("import_importer")</label>
                     <input id="ImportStoreId" name="ImportStoreId" type="hidden" />
                     <select id="ImporterId" class="form-control" asp-items="ViewBag.UsersList" required></select>
                 </div>
                 <div class="col-md-6 mb-2">
-                    <label class="control-label">Nhà cung cấp</label>
+                    <label class="control-label">@_localization.Getkey("supplier")</label>
                     <select id="SupplierId" class="form-control" asp-items="ViewBag.SuppliersList" required></select>
 
                 </div>
                 <div class="col-md-6 mb-2">
-                    <label class="control-label">Ngày nhập</label>
+                    <label class="control-label">@_localization.Getkey("import_date")</label>
                     <input id="ImportDate" name="ImportDate" class="form-control" type="date" required />
                 </div>
                 <div class="col-md-12 mb-2">
-                    <label class="control-label">Ghi chú</label>
+                    <label class="control-label">@_localization.Getkey("common_note")</label>
                     <textarea id="Note" class="form-control"></textarea>
                 </div>
                 <div class="col-md-12 my-4">
-                    <p class="mb-0">Chi tiết phiếu nhập kho:</p>
+                    <p class="mb-0">@_localization.Getkey("product_list"):</p>
                     <table id="ProductItem-Table" class="table table-bordered">
                         <thead>
                             <tr>
-                                <th style="width: 200px;">Sản phẩm</th>
-                                <th>Số lượng tồn</th>
-                                <th>Số lượng</th>
-                                <th>Giá Nhập</th>
+                                <th style="width: 160px;">@_localization.Getkey("product")</th>
+                                <th>@_localization.Getkey("product_quantity_in_stock")</th>
+                                <th>@_localization.Getkey("common_quantity")</th>
+                                <th>@_localization.Getkey("import_price")</th>
                                 <th class="text-center">
                                     <button id="add-product-item" class="btn btn-success">
-                                        <i class="bi bi-plus-square"></i> Thêm
+                                        <i class="bi bi-plus-square"></i> @_localization.Getkey("common_add")
                                     </button>
                                 </th>
                             </tr>
@@ -67,11 +70,11 @@
                     </table>
                 </div>
                 <div class="col-md-6 mb-4">
-                    <label class="control-label">Tổng tiền</label>
+                    <label class="control-label">@_localization.Getkey("common_total")</label>
                     <input id="Total" class="form-control" type="number" readonly />
                 </div>
                 <div class="form-group">
-                    <button id="btnSubmit" class="btn btn-primary">Thêm</button>
+                    <button id="btnSubmit" class="btn btn-primary">@_localization.Getkey("common_add")</button>
                 </div>
             </form>
         </div>
@@ -82,13 +85,13 @@
             <table id="ImportStore-Table" class="table table-bordered">
                 <thead>
                     <tr>
-                        <th>Mã nhập</th>
-                        <th>Người nhập</th>
-                        <th>Nhà cung cấp</th>
-                        <th>Ngày nhập</th>
-                        <th>Ngày cập nhật</th>
-                        <th>Tổng tiền</th>
-                        <th class="text-end">Thao tác</th>
+                        <th>@_localization.Getkey("import_id")</th>
+                        <th>@_localization.Getkey("import_importer")</th>
+                        <th>@_localization.Getkey("supplier")</th>
+                        <th>@_localization.Getkey("import_date")</th>
+                        <th>@_localization.Getkey("common_created_date")</th>
+                        <th>@_localization.Getkey("common_total")</th>
+                        <th class="text-end">@_localization.Getkey("common_actions")</th>
                     </tr>
                 </thead>
             </table>
@@ -99,17 +102,17 @@
         <div class="modal-dialog" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="deleteModalLabel">Xác nhận xóa</h5>
+                    <h5 class="modal-title" id="deleteModalLabel">@_localization.Getkey("common_confirm_delete")</h5>
                     <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>
                 </div>
                 <div class="modal-body">
-                    Bạn có chắc chắn muốn xóa?
+                    @_localization.Getkey("common_are_you_sure_delete")
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Quay lại</button>
-                    <button type="button" class="btn btn-danger" onclick="handleDelete()">Xác nhận</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">@_localization.Getkey("common_back")</button>
+                    <button type="button" class="btn btn-danger" onclick="handleDelete()">@_localization.Getkey("common_confirm")</button>
                 </div>
             </div>
         </div>
@@ -167,6 +170,25 @@
                 "language": {
                     "emptyTable": "No data found"
                 },
+                "dom": 'Bfrtip',
+                "buttons": [
+                    {
+
+                        "extend": 'excel',
+                        "text": '<button class="btn btn-outline-success"><i class="fa fa-file-excel-o" style="color: green;"></i> Export</button>',
+                        "titleAttr": 'Excel',
+                        "action": newexportaction,
+                        "exportOptions": {
+                            columns: ':not(:last-child)',
+                        },
+                        "filename": function () {
+                            var d = new Date();
+                            var l = d.getFullYear() + '-' + (d.getMonth() + 1) + '-' + d.getDate();
+                            var n = d.getHours() + "-" + d.getMinutes() + "-" + d.getSeconds();
+                            return 'ExportStore_' + l + ' ' + n;
+                        },
+                    },
+                ],
             });
 
             getProductItems();
@@ -184,6 +206,10 @@
                 addProductItem();
             })
 
+            $('#ExportExcel').click(() => {
+                $('.buttons-excel').click();
+            })
+
             form.addEventListener('submit', event => {
                 event.preventDefault()
                 if (!form.checkValidity()) {
@@ -196,19 +222,65 @@
             }, false)
         });
 
+        function newexportaction(e, dt, button, config) {
+            var self = this;
+            var oldStart = dt.settings()[0]._iDisplayStart;
+            dt.one('preXhr', function (e, s, data) {
+                // Just this once, load all data from the server...
+                data.start = 0;
+                data.length = 2147483647;
+                dt.one('preDraw', function (e, settings) {
+                    // Call the original action function
+                    if (button[0].className.indexOf('buttons-copy') >= 0) {
+                        $.fn.dataTable.ext.buttons.copyHtml5.action.call(self, e, dt, button, config);
+                    } else if (button[0].className.indexOf('buttons-excel') >= 0) {
+                        $.fn.dataTable.ext.buttons.excelHtml5.available(dt, config) ?
+                            $.fn.dataTable.ext.buttons.excelHtml5.action.call(self, e, dt, button, config) :
+                            $.fn.dataTable.ext.buttons.excelFlash.action.call(self, e, dt, button, config);
+                    } else if (button[0].className.indexOf('buttons-csv') >= 0) {
+                        $.fn.dataTable.ext.buttons.csvHtml5.available(dt, config) ?
+                            $.fn.dataTable.ext.buttons.csvHtml5.action.call(self, e, dt, button, config) :
+                            $.fn.dataTable.ext.buttons.csvFlash.action.call(self, e, dt, button, config);
+                    } else if (button[0].className.indexOf('buttons-pdf') >= 0) {
+                        $.fn.dataTable.ext.buttons.pdfHtml5.available(dt, config) ?
+                            $.fn.dataTable.ext.buttons.pdfHtml5.action.call(self, e, dt, button, config) :
+                            $.fn.dataTable.ext.buttons.pdfFlash.action.call(self, e, dt, button, config);
+                    } else if (button[0].className.indexOf('buttons-print') >= 0) {
+                        $.fn.dataTable.ext.buttons.print.action(e, dt, button, config);
+                    }
+                    dt.one('preXhr', function (e, s, data) {
+                        // DataTables thinks the first item displayed is index 0, but we're not drawing that.
+                        // Set the property to what it was before exporting.
+                        settings._iDisplayStart = oldStart;
+                        data.start = oldStart;
+                    });
+                    // Reload the grid with the original page. Otherwise, API functions like table.cell(this) don't work properly.
+                    setTimeout(dt.ajax.reload, 0);
+                    // Prevent rendering of the full data to the DOM
+                    return false;
+                });
+            });
+            // Requery the server with the new one-time export settings
+            dt.ajax.reload();
+        };
+
         function openAddForm() {
             isEdit = false;
             resetForm()
             $("#product-items").empty();
             $("#ImporterId").val('@HttpContextAccessor.HttpContext.Session.GetString("idUser")');
-            $('#btnSubmit').show().text("Thêm")
+            var addLabel = @Html.Raw(Json.Serialize(_localization.Getkey("common_add")));
+            var addNewLabel = @Html.Raw(Json.Serialize(_localization.Getkey("common_add_new")));
+            $('#btnSubmit').show().text(addLabel.value);
+            $('#offcanvasFormLabel').text(addNewLabel.value);
             disableValueForm(false);
             offcanvasForm.show();
         }
 
         function openEditForm(id) {
             isEdit = true;
-            $('#btnSubmit').show().text("Cập nhật");
+            var updateLabel = @Html.Raw(Json.Serialize(_localization.Getkey("common_update")));
+            $('#btnSubmit').show().text(updateLabel.value);
             $("#ImporterId").val('@HttpContextAccessor.HttpContext.Session.GetString("idUser")');
             $("#product-items").empty();
             disableValueForm(false);
@@ -259,8 +331,8 @@
                 type: "POST",
                 url: '@Url.Action("Details","ImportStore")/' + id,
                 success: function (data) {
-                    console.log(data)
-                    $('#offcanvasFormLabel').text("Chi tiết");
+                    var detailsLabel = @Json.Serialize(_localization.Getkey("common_details"));
+                    $('#offcanvasFormLabel').text(detailsLabel.value);
                     $('#ImportStoreId').val(data.data.id);
                     $('#ImporterId').val(data.data.importerId);
                     $('#SupplierId').val(data.data.supplierId);
