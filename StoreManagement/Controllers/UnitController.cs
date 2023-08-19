@@ -81,7 +81,7 @@ namespace StoreManagement.Controllers
         [HttpPost]
         public async Task<IActionResult> Edit(Unit unit)
         {
-            var unitUpdate = _unitRepository.GetById<string>(unit.Id);
+            var unitUpdate = _unitRepository.GetById<Guid>(unit.Id);
             if (unitUpdate == null) return NotFound();
 
             unitUpdate.UnitName = unit.UnitName;

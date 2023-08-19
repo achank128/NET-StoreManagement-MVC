@@ -118,7 +118,9 @@ public partial class StoreManagementContext : DbContext
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK__Products_Categories");
 
-            entity.HasOne(d => d.Unit).WithMany(p => p.Products).HasConstraintName("FK__Products_Unit");
+            entity.HasOne(d => d.Unit).WithMany(p => p.Products)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK__Products_Unit");
         });
 
         modelBuilder.Entity<ProductPost>(entity =>
@@ -137,6 +139,11 @@ public partial class StoreManagementContext : DbContext
         });
 
         modelBuilder.Entity<Supplier>(entity =>
+        {
+            entity.Property(e => e.Id).ValueGeneratedNever();
+        });
+
+        modelBuilder.Entity<Unit>(entity =>
         {
             entity.Property(e => e.Id).ValueGeneratedNever();
         });

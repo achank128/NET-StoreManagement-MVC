@@ -198,8 +198,14 @@
   <data name="common_english" xml:space="preserve">
     <value>Tiếng Anh</value>
   </data>
+  <data name="common_export_excel" xml:space="preserve">
+    <value>Xuất excel</value>
+  </data>
   <data name="common_fullname" xml:space="preserve">
     <value>Tên đầy đủ</value>
+  </data>
+  <data name="common_import_excel" xml:space="preserve">
+    <value>Nhập excel</value>
   </data>
   <data name="common_language" xml:space="preserve">
     <value>Ngôn ngữ</value>
@@ -233,6 +239,9 @@
   </data>
   <data name="common_update" xml:space="preserve">
     <value>Cập nhật</value>
+  </data>
+  <data name="common_upload" xml:space="preserve">
+    <value>Tải lên</value>
   </data>
   <data name="common_username" xml:space="preserve">
     <value>Tên đăng nhập</value>

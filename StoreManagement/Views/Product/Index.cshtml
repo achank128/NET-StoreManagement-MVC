@@ -14,8 +14,11 @@
         </a>
     </div>
     <div class="col-md-12 text-end mb-3">
+        <button class="btn btn-info mr-2" onclick="openUpload()">
+            <i class="bi bi-cloud-arrow-up"></i> @_localization.Getkey("common_import_excel")
+        </button>
         <button id="ExportExcel" class="btn btn-outline-success mr-2">
-            <i class="bi bi-file-earmark-excel"></i> Export Excel
+            <i class="bi bi-file-earmark-excel"></i> @_localization.Getkey("common_export_excel")
         </button>
         <button class="btn btn-success" onclick="openAddForm()">
             <i class="bi bi-plus-circle"></i> @_localization.Getkey("common_add_new")
@@ -74,6 +77,24 @@
         </div>
     </div>
 
+    <div class="offcanvas offcanvas-end" id="offcanvasUpload">
+        <div class="offcanvas-header">
+            <h5 class="offcanvas-title text-primary">@_localization.Getkey("common_import_excel")</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+        </div>
+        <div class="offcanvas-body">
+            <form asp-controller="FileUpload" asp-action="ImportProduct" method="post" enctype="multipart/form-data">
+                <div class="mb-3">
+                    <label for="formFile" class="form-label">@_localization.Getkey("common_import_excel")</label>
+                    <input class="form-control" type="file" id="formFile" name="postedFile">
+                </div>
+                <div class="form-group">
+                    <button type="submit" class="btn btn-primary">@_localization.Getkey("common_upload")</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <div class="col-md-12">
         <div class="table-responsive" style="width: 100%">
             <table id="Product-Table" class="table table-bordered">
@@ -125,6 +146,7 @@
         var deleteItemId = "";
         var form = $('#form')[0];
         var offcanvasForm = new bootstrap.Offcanvas($('#offcanvasForm'));
+        var offcanvasUpload = new bootstrap.Offcanvas($('#offcanvasUpload'));
 
         $(document).ready(function () {
             dataTable = $("#Product-Table").DataTable({
@@ -264,6 +286,10 @@
             $('#btnActive').hide();
             disableValueForm(false);
             offcanvasForm.show();
+        }
+        
+        function openUpload() {
+            offcanvasUpload.show();
         }
 
         function openEditForm(id) {

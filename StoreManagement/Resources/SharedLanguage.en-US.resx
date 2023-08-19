@@ -198,8 +198,14 @@
   <data name="common_english" xml:space="preserve">
     <value>English</value>
   </data>
+  <data name="common_export_excel" xml:space="preserve">
+    <value>Export excel</value>
+  </data>
   <data name="common_fullname" xml:space="preserve">
     <value>Full Name</value>
+  </data>
+  <data name="common_import_excel" xml:space="preserve">
+    <value>Import excel</value>
   </data>
   <data name="common_language" xml:space="preserve">
     <value>Language</value>
@@ -233,6 +239,9 @@
   </data>
   <data name="common_update" xml:space="preserve">
     <value>Update</value>
+  </data>
+  <data name="common_upload" xml:space="preserve">
+    <value>Upload</value>
   </data>
   <data name="common_username" xml:space="preserve">
     <value>Username</value>

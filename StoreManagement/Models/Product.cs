@@ -6,14 +6,14 @@ using Microsoft.EntityFrameworkCore;
 
 namespace StoreManagement.Models;
 
+[Index("ProductCode", Name = "UQ__Products__2F4E024FEE43FB09", IsUnique = true)]
 public partial class Product
 {
     [Key]
     [Column("ID")]
     public Guid Id { get; set; }
 
-    [StringLength(20)]
-    [Unicode(false)]
+    [StringLength(50)]
     public string ProductCode { get; set; } = null!;
 
     [StringLength(100)]
@@ -24,19 +24,18 @@ public partial class Product
 
     public Guid CategoryId { get; set; }
 
+    public Guid UnitId { get; set; }
+
     [StringLength(255)]
     public string? Description { get; set; }
-
-    [StringLength(20)]
-    public string? UnitId { get; set; }
 
     [Column(TypeName = "money")]
     public decimal? ImportPrice { get; set; }
 
     [Column(TypeName = "money")]
-    public decimal? Price { get; set; }
+    public decimal Price { get; set; }
 
-    public int? Number { get; set; }
+    public int Number { get; set; }
 
     public bool? Status { get; set; }
 
@@ -58,5 +57,5 @@ public partial class Product
 
     [ForeignKey("UnitId")]
     [InverseProperty("Products")]
-    public virtual Unit? Unit { get; set; }
+    public virtual Unit Unit { get; set; } = null!;
 }

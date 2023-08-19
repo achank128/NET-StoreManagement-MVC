@@ -1,13 +1,11 @@
-﻿<form method="post" enctype="multipart/form-data" asp-controller="FileUpload" asp-action="Index">
-    <div class="form-group">
-        <div class="col-md-10">
-            <p>Upload one or more files using this form:</p>
-            <input type="file" name="files" multiple />
-        </div>
-    </div>
-    <div class="form-group">
-        <div class="col-md-10">
-            <input type="submit" value="Upload" />
-        </div>
-    </div>
+﻿<h2>Upload</h2>
+<form method="post" enctype="multipart/form-data" asp-controller="FileUpload" asp-action="Index">
+    <input type="file" name="files" multiple />
+    <input type="submit" value="Upload" />
+</form>
+
+<h2 class="mt-4">Import excel</h2>
+<form asp-controller="FileUpload" asp-action="Import" method="post" enctype="multipart/form-data">
+    <input type="file" name="postedFile" />
+    <input type="submit" value="Import" />
 </form>

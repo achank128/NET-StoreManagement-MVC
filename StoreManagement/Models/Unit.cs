@@ -6,12 +6,15 @@ using Microsoft.EntityFrameworkCore;
 
 namespace StoreManagement.Models;
 
+[Index("UnitCode", Name = "UQ__Units__0665E6D993174FA7", IsUnique = true)]
 public partial class Unit
 {
     [Key]
     [Column("ID")]
-    [StringLength(20)]
-    public string Id { get; set; } = null!;
+    public Guid Id { get; set; }
+
+    [StringLength(50)]
+    public string UnitCode { get; set; } = null!;
 
     [StringLength(100)]
     public string UnitName { get; set; } = null!;
