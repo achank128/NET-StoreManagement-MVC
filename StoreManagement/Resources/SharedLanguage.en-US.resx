@@ -216,6 +216,21 @@
   <data name="common_note" xml:space="preserve">
     <value>Note</value>
   </data>
+  <data name="common_notyf_create_success" xml:space="preserve">
+    <value>Create successful</value>
+  </data>
+  <data name="common_notyf_delete_success" xml:space="preserve">
+    <value>Delete successful</value>
+  </data>
+  <data name="common_notyf_error" xml:space="preserve">
+    <value>An error occurred</value>
+  </data>
+  <data name="common_notyf_please_enter_input" xml:space="preserve">
+    <value>Please enter full information</value>
+  </data>
+  <data name="common_notyf_update_success" xml:space="preserve">
+    <value>Update successful</value>
+  </data>
   <data name="common_password" xml:space="preserve">
     <value>Password</value>
   </data>

@@ -86,7 +86,7 @@ namespace StoreManagement.Controllers
         {
             var categoryUpdate = _categoryRepository.GetById<Guid>(category.Id);
             if (categoryUpdate == null) return NotFound();
-
+            categoryUpdate.CategoryCode = category.CategoryCode;
             categoryUpdate.CategoryName = category.CategoryName;
             categoryUpdate.Description = category.Description;
             _categoryRepository.Update(categoryUpdate);

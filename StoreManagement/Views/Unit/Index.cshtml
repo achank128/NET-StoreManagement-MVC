@@ -12,6 +12,9 @@
         </a>
     </div>
     <div class="col-md-12 text-end mb-3">
+        <button class="btn btn-info mr-2" data-bs-toggle="offcanvas" data-bs-target="#offcanvasUpload">
+            <i class="bi bi-cloud-arrow-up"></i> @_localization.Getkey("common_import_excel")
+        </button>
         <button class="btn btn-success" onclick="openAddForm()">
             <i class="bi bi-plus-circle"></i> @_localization.Getkey("common_add_new")
         </button>
@@ -26,7 +29,8 @@
             <form id="form" novalidate>
                 <div class="form-group mb-3">
                     <label class="control-label">@_localization.Getkey("unit_id")</label>
-                    <input id="UnitId" class="form-control" required />
+                    <input id="UnitId" class="form-control" type="hidden" />
+                    <input id="UnitCode" class="form-control" required />
                 </div>
                 <div class="form-group mb-3">
                     <label class="control-label">@_localization.Getkey("unit")</label>
@@ -43,7 +47,23 @@
         </div>
     </div>
 
-
+    <div class="offcanvas offcanvas-end" id="offcanvasUpload">
+        <div class="offcanvas-header">
+            <h5 class="offcanvas-title text-primary">@_localization.Getkey("common_import_excel")</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+        </div>
+        <div class="offcanvas-body">
+            <form asp-controller="FileUpload" asp-action="ImportUnit" method="post" enctype="multipart/form-data">
+                <div class="mb-3">
+                    <label for="formFile" class="form-label">@_localization.Getkey("common_import_excel")</label>
+                    <input class="form-control" type="file" id="formFile" name="postedFile">
+                </div>
+                <div class="form-group">
+                    <button type="submit" class="btn btn-primary">@_localization.Getkey("common_upload")</button>
+                </div>
+            </form>
+        </div>
+    </div>
 
     <div class="col-md-12">
         <div class="table-responsive" style="width: 100%">
@@ -102,7 +122,7 @@
                     "datatype": "json"
                 },
                 "columns": [
-                    { "data": "id" },
+                    { "data": "unitCode" },
                     { "data": "unitName" },
                     { "data": "description" },
                     {
@@ -126,7 +146,8 @@
                 event.preventDefault()
                 if (!form.checkValidity()) {
                     event.stopPropagation()
-                    notyf.error('Vui lòng nhập đầy đủ thông tin.');
+                    var validateLabel = @Html.Raw(Json.Serialize(_localization.Getkey("common_notyf_please_enter_input")));
+                    notyf.error(validateLabel.value);
                 } else {
                     handleSave()
                 }
@@ -136,30 +157,41 @@
 
         function openAddForm() {
             isEdit = false;
-            $('#btnSubmit').show().text("Thêm")
-            $('#UnitId').val("").prop("disabled", false);
-            $('#UnitName').val("").prop("disabled", false);
-            $('#Description').val("").prop("disabled", false);
+            resetForm();
+            var addLabel = @Html.Raw(Json.Serialize(_localization.Getkey("common_add")));
+            var addNewLabel = @Html.Raw(Json.Serialize(_localization.Getkey("common_add_new")));
+            $('#btnSubmit').show().text(addLabel.value);
+            $('#offcanvasFormLabel').text(addNewLabel.value);
+            disableValueForm(false);
             offcanvasForm.show();
         }
 
         function openEditForm(id) {
             isEdit = true;
-            $('#btnSubmit').show().text("Cập nhật");
-            $('#UnitId').prop("disabled", true);
-            $('#UnitName').prop("disabled", false);
-            $('#Description').prop("disabled", false);
+            resetForm();
+            var updateLabel = @Html.Raw(Json.Serialize(_localization.Getkey("common_update")));
+            $('#btnSubmit').show().text(updateLabel.value);
+            disableValueForm(false);
             getDetailValue(id);
             offcanvasForm.show();
         }
 
         function openDetailForm(id) {
             $('#btnSubmit').hide();
-            $('#UnitId').prop("disabled", true);
-            $('#UnitName').prop("disabled", true);
-            $('#Description').prop("disabled", true);
+            disableValueForm(true);
             getDetailValue(id);
             offcanvasForm.show();
+        }
+
+        function disableValueForm(disabled) {
+            $('#UnitCode').prop("disabled", disabled);
+            $('#UnitName').prop("disabled", disabled);
+            $('#Description').prop("disabled", disabled);
+        }
+
+        function resetForm() {
+            form.reset();
+            $('#form').removeClass('was-validated');
         }
 
         function openDeleteModal(id) {
@@ -172,8 +204,10 @@
                 type: "GET",
                 url: '@Url.Action("Details","Unit")/' + id,
                 success: function (data) {
-                    $('#offcanvasFormLabel').text("Chi tiết");
+                    var detailsLabel = @Json.Serialize(_localization.Getkey("common_details"));
+                    $('#offcanvasFormLabel').text(detailsLabel.value);
                     $('#UnitId').val(data.data.id);
+                    $('#UnitCode').val(data.data.unitCode);
                     $('#UnitName').val(data.data.unitName);
                     $('#Description').val(data.data.description);
                 }
@@ -183,42 +217,73 @@
         function handleSave() {
             var data = {
                 Id: $('#UnitId').val(),
+                UnitCode: $('#UnitCode').val(),
                 UnitName: $('#UnitName').val(),
                 Description: $('#Description').val(),
             };
+
+            var createSuccessLabel = @Json.Serialize(_localization.Getkey("common_notyf_create_success"));
+            var updateSuccessLabel = @Json.Serialize(_localization.Getkey("common_notyf_update_success"));
+            var errorLabel = @Json.Serialize(_localization.Getkey("common_notyf_error"));
+
             if (isEdit) {
-                $.post("/Unit/Edit", { unit: data }, (data) => {
-                    if (data.isSuccess) {
-                        notyf.success('Cập nhật dữ liệu thành công.');
-                        dataTable.ajax.reload();
-                    } else {
-                        notyf.error('Có lỗi xảy ra.');
+                $.ajax({
+                    type: "POST",
+                    url: "/Unit/Edit",
+                    data: data,
+                    dataType: 'json',
+                    success: function (data) {
+                        if (data.isSuccess) {
+                            notyf.success(updateSuccessLabel.value);
+                            dataTable.ajax.reload();
+                        } else {
+                            notyf.error(errorLabel.value);
+                        }
+                    },
+                    error: function () {
+                        notyf.error(errorLabel.value);
                     }
                 });
             } else {
-                $.post("/Unit/Create", { unit: data }, (data) => {
-                    if (data.isSuccess) {
-                        notyf.success('Thêm dữ liệu thành công.');
-                        dataTable.ajax.reload();
-                    } else {
-                        notyf.error('Có lỗi xảy ra.');
+                $.ajax({
+                    type: "POST",
+                    url: "/Unit/Create",
+                    data: data,
+                    dataType: 'json',
+                    success: function (data) {
+                        if (data.isSuccess) {
+                            notyf.success(createSuccessLabel.value);
+                            dataTable.ajax.reload();
+                        } else {
+                            notyf.error(errorLabel.value);
+                        }
+                    },
+                    error: function () {
+                        notyf.error(errorLabel.value);
                     }
                 });
             }
         }
 
         function handleDelete() {
+            var deleteSuccessLabel = @Json.Serialize(_localization.Getkey("common_notyf_delete_success"));
+            var errorLabel = @Json.Serialize(_localization.Getkey("common_notyf_error"));
             $.ajax({
                 type: "POST",
                 url: '@Url.Action("Delete","Unit")/' + deleteItemId,
                 success: function (data) {
                     if (data.isSuccess) {
                         dataTable.ajax.reload();
-                        notyf.success('Xóa dữ liệu thành công.');
+                        notyf.success(deleteSuccessLabel.value);
                         $('#deleteModal').modal("hide");
                     } else {
-                        notyf.error('Có lỗi xảy ra.');
+                        notyf.error(errorLabel.value);
+                        $('#deleteModal').modal("hide");
                     }
+                },
+                error: function (){
+                    notyf.error(errorLabel.value);
+                    $('#deleteModal').modal("hide");
                 }
             });
         }

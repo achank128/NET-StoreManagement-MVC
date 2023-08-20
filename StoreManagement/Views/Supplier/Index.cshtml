@@ -38,8 +38,8 @@
                     <input id="Phone" class="form-control" />
                 </div>
                 <div class="form-group mb-3">
-                    <label class="control-label">@_localization.Getkey("common_phone")</label>
-                    <input id="TaxCode" class="form-control" />
+                    <label class="control-label">@_localization.Getkey("common_taxcode")</label>
+                    <input id="TaxCode" class="form-control" required/>
                 </div>
                 <div class="form-group mb-3">
                     <label class="control-label">@_localization.Getkey("common_description")</label>
@@ -141,7 +141,8 @@
                 event.preventDefault()
                 if (!form.checkValidity()) {
                     event.stopPropagation()
-                    notyf.error('Vui lòng nhập đầy đủ thông tin.');
+                    var validateLabel = @Html.Raw(Json.Serialize(_localization.Getkey("common_notyf_please_enter_input")));
+                    notyf.error(validateLabel.value);
                 } else {
                     handleSave()
                 }
@@ -150,8 +151,8 @@
         });
 
         function openAddForm() {
-            resetForm()
             isEdit = false;
+            resetForm();
             var addLabel = @Html.Raw(Json.Serialize(_localization.Getkey("common_add")));
             var addNewLabel = @Html.Raw(Json.Serialize(_localization.Getkey("common_add_new")));
             $('#btnSubmit').show().text(addLabel.value);
@@ -162,6 +163,7 @@
 
         function openEditForm(id) {
             isEdit = true;
+            resetForm();
             var updateLabel = @Html.Raw(Json.Serialize(_localization.Getkey("common_update")));
             $('#btnSubmit').show().text(updateLabel.value);
             disableValueForm(false);
@@ -190,7 +192,8 @@
         }
 
         function resetForm() {
-            $('#form')[0].reset();
+            form.reset();
+            $('#form').removeClass('was-validated');
         }
 
         function getDetailValue(id) {
@@ -205,7 +208,6 @@
                     $('#Address').val(data.data.address);
                     $('#Phone').val(data.data.phone);
                     $('#TaxCode').val(data.data.taxCode);
-                    $('#TaxCode').val(data.data.phone);
                     $('#Description').val(data.data.description);
                 }
             });
@@ -220,39 +222,69 @@
                 TaxCode: $('#TaxCode').val(),
                 Description: $('#Description').val(),
             };
+            var createSuccessLabel = @Json.Serialize(_localization.Getkey("common_notyf_create_success"));
+            var updateSuccessLabel = @Json.Serialize(_localization.Getkey("common_notyf_update_success"));
+            var errorLabel = @Json.Serialize(_localization.Getkey("common_notyf_error"));
             if (isEdit) {
-                $.post("/Supplier/Edit", { supplier: data }, (data) => {
-                    if (data.isSuccess) {
-                        notyf.success('Cập nhật dữ liệu thành công.');
-                        dataTable.ajax.reload();
-                    } else {
-                        notyf.error('Có lỗi xảy ra.');
+                $.ajax({
+                    type: "POST",
+                    url: "/Supplier/Edit",
+                    data: data,
+                    dataType: 'json',
+                    success: function (data) {
+                        if (data.isSuccess) {
+                            notyf.success(updateSuccessLabel.value);
+                            dataTable.ajax.reload();
+                            offcanvasForm.hide();
+                        } else {
+                            notyf.error(errorLabel.value);
+                        }
+                    },
+                    error: function () {
+                        notyf.error(errorLabel.value);
                     }
                 });
             } else {
-                $.post("/Supplier/Create", { supplier: data }, (data) => {
-                    if (data.isSuccess) {
-                        notyf.success('Thêm dữ liệu thành công.');
-                        dataTable.ajax.reload();
-                    } else {
-                        notyf.error('Có lỗi xảy ra.');
+                $.ajax({
+                    type: "POST",
+                    url: "/Supplier/Create",
+                    data: data,
+                    dataType: 'json',
+                    success: function (data) {
+                        if (data.isSuccess) {
+                            notyf.success(createSuccessLabel.value);
+                            dataTable.ajax.reload();
+                            offcanvasForm.hide();
+                        } else {
+                            notyf.error(errorLabel.value);
+                        }
+                    },
+                    error: function () {
+                        notyf.error(errorLabel.value);
                     }
                 });
             }
         }
 
         function handleDelete() {
+            var deleteSuccessLabel = @Json.Serialize(_localization.Getkey("common_notyf_delete_success"));
+            var errorLabel = @Json.Serialize(_localization.Getkey("common_notyf_error"));
             $.ajax({
                 type: "POST",
                 url: '@Url.Action("Delete","Supplier")/' + deleteItemId,
                 success: function (data) {
                     if (data.isSuccess) {
                         dataTable.ajax.reload();
-                        notyf.success('Xóa dữ liệu thành công.');
+                        notyf.success(deleteSuccessLabel.value);
                         $('#deleteModal').modal("hide");
                     } else {
-                        notyf.error('Có lỗi xảy ra.');
+                        notyf.error(errorLabel.value);
+                        $('#deleteModal').modal("hide");
                     }
+                },
+                error: function () {
+                    notyf.error(errorLabel.value);
+                    $('#deleteModal').modal("hide");
                 }
             });
         }

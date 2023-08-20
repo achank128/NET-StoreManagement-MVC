@@ -216,6 +216,21 @@
   <data name="common_note" xml:space="preserve">
     <value>Ghi chú</value>
   </data>
+  <data name="common_notyf_create_success" xml:space="preserve">
+    <value>Thêm dữ liệu thành công</value>
+  </data>
+  <data name="common_notyf_delete_success" xml:space="preserve">
+    <value>Xóa dữ liệu thành công</value>
+  </data>
+  <data name="common_notyf_error" xml:space="preserve">
+    <value>Có lỗi xảy ra</value>
+  </data>
+  <data name="common_notyf_please_enter_input" xml:space="preserve">
+    <value>Vui lòng nhập đầy đủ thông tin</value>
+  </data>
+  <data name="common_notyf_update_success" xml:space="preserve">
+    <value>Cập nhật dữ liệu thành công</value>
+  </data>
   <data name="common_password" xml:space="preserve">
     <value>Mật khẩu</value>
   </data>

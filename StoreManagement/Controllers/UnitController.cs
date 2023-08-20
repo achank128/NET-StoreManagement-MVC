@@ -63,9 +63,9 @@ namespace StoreManagement.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> Details([FromRoute] string id)
+        public async Task<IActionResult> Details([FromRoute] Guid id)
         {
-            var unit = _unitRepository.GetById<string>(id);
+            var unit = _unitRepository.GetById<Guid>(id);
             if (unit == null) return NotFound();
             return Json(new { data = unit });
 
@@ -81,22 +81,36 @@ namespace StoreManagement.Controllers
         [HttpPost]
         public async Task<IActionResult> Edit(Unit unit)
         {
-            var unitUpdate = _unitRepository.GetById<Guid>(unit.Id);
-            if (unitUpdate == null) return NotFound();
-
-            unitUpdate.UnitName = unit.UnitName;
-            unitUpdate.Description = unit.Description;
-            _unitRepository.Update(unitUpdate);
-            return Json(new { isSuccess = _unitRepository.Save() });
+            try
+            {
+                var unitUpdate = _unitRepository.GetById<Guid>(unit.Id);
+                if (unitUpdate == null) return NotFound();
+                unitUpdate.UnitCode = unit.UnitCode;
+                unitUpdate.UnitName = unit.UnitName;
+                unitUpdate.Description = unit.Description;
+                _unitRepository.Update(unitUpdate);
+                return Json(new { isSuccess = _unitRepository.Save() });
+            }
+            catch (Exception)
+            {
+                return BadRequest();
+            }
         }
 
         [HttpPost]
-        public async Task<IActionResult> Delete([FromRoute] string id)
+        public async Task<IActionResult> Delete([FromRoute] Guid id)
         {
-            var unit = _unitRepository.GetById<string>(id);
-            if (unit == null) return NotFound();
-            _unitRepository.Delete(unit);
-            return Json(new { isSuccess = _unitRepository.Save() });
+            try
+            {
+                var unit = _unitRepository.GetById<Guid>(id);
+                if (unit == null) return NotFound();
+                _unitRepository.Delete(unit);
+                return Json(new { isSuccess = _unitRepository.Save() });
+            }
+            catch (Exception)
+            {
+                return BadRequest();
+            }
         }
     }
 }

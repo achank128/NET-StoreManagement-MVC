@@ -239,7 +239,8 @@
                 event.preventDefault()
                 if (!form.checkValidity()) {
                     event.stopPropagation()
-                    notyf.error('Vui lòng nhập đầy đủ thông tin.');
+                    var validateLabel = @Html.Raw(Json.Serialize(_localization.Getkey("common_notyf_please_enter_input")));
+                    notyf.error(validateLabel.value);
                 } else {
                     handleSave()
                 }
@@ -291,7 +292,7 @@
 
         function openAddForm() {
             isEdit = false;
-            resetForm()
+            resetForm();
             $("#product-items").empty();
             $("#DiscountPercent").show();
             $("#ExporterId").val('@HttpContextAccessor.HttpContext.Session.GetString("idUser")');
@@ -305,6 +306,7 @@
 
         function openEditForm(id) {
             isEdit = true;
+            resetForm();
             $("#product-items").empty();
             $("#DiscountPercent").show();
             $("#ExporterId").val('@HttpContextAccessor.HttpContext.Session.GetString("idUser")');
@@ -327,11 +329,8 @@
         }
 
         function resetForm() {
-            $('#form')[0].reset();
-            var elems = document.querySelectorAll(".text-danger");
-            elems.forEach(itm => {
-                document.getElementById(itm.id).innerHTML = ''
-            })
+            form.reset();
+            $('#form').removeClass('was-validated');
         }
 
         function disableValueForm(disabled) {
@@ -378,22 +377,7 @@
             }).done(() => disableValueForm(!isEdit));
         }
 
-        function handleDelete() {
-            $.ajax({
-                type: "POST",
-                url: '@Url.Action("Delete","ExportStore")/' + deleteItemId,
-                success: function (data) {
-                    if (data.isSuccess) {
-                        dataTable.ajax.reload();
-                        notyf.success('Xóa dữ liệu thành công.');
-                        $('#deleteModal').modal("hide");
-                    } else {
-                        notyf.error('Có lỗi xảy ra.');
-                    }
-                }
-            });
-        }
-
+        
         function getProductItems() {
             $.ajax({
                 url: '/Product/GetAll',
@@ -401,30 +385,32 @@
             }).done(function (result) {
                 productsList = result.data;
             });
+            return productsList;
         }
 
         function addProductItem(productItem) {
             var newProductItemHtml = `
-                                                                                                        <tr class="product-item">
-                                                                                                            <td>
-                                                                                                                <select class="Product form-select" required>
-                                                                                                                    ${productsList.map((p) => (`<option value="${p.id}" ${productItem?.productId == p.id && 'selected'}>${p.productName}</option>`)).join('')}
-                                                                                                                </select>
-                                                                                                            </td>
-                                                                                                            <td><input value="${productItem?.importPrice}" type="number" class="ProductPrice form-control" readonly/></td>
-                                                                                                            <td><input value="${productItem?.number}" type="number" class="Number form-control" readonly/></td>
-                                                                                                            <td><input value="${productItem?.quantity}" type="number" class="Quantity form-control" min="0" required/></td>
-                                                                                                            <td><input value="${productItem?.exportPrice}" type="number" class="Price form-control" min="0" required/></td>
-                                                                                                            <td class="text-center align-middle">
-                                                                                                                <button class="btn btn-outline-danger btn-sm"><i class="bi bi-x"></i></button>
-                                                                                                            </td>
-                                                                                                        </tr>`
+                <tr class="product-item">
+                    <td>
+                        <select class="Product form-select" required>
+                            ${productsList.map((p) => (`<option value="${p.id}" ${productItem?.productId == p.id && 'selected'}>${p.productName}</option>`)).join('')}
+                        </select>
+                    </td>
+                    <td><input value="${productItem?.importPrice}" type="number" class="ProductPrice form-control" readonly/></td>
+                    <td><input value="${productItem?.number}" type="number" class="Number form-control" readonly/></td>
+                    <td><input value="${productItem?.quantity}" type="number" class="Quantity form-control" min="0" required/></td>
+                    <td><input value="${productItem?.exportPrice}" type="number" class="Price form-control" min="0" required/></td>
+                    <td class="text-center align-middle">
+                        <button class="btn btn-outline-danger btn-sm"><i class="bi bi-x"></i></button>
+                    </td>
+                </tr>`
             $("#product-items").append(newProductItemHtml);
             setProductItems();
         }
 
 
         function setProductItems() {
+            var productsList = getProductItems();
             $('.product-item').each((i, e) => {
                 var productId = $(e).find('.Product :selected').val();
                 var product = productsList.find(p => p.id == productId)
@@ -479,6 +465,10 @@
                 data.listProducts.push(item);
             });
 
+            var createSuccessLabel = @Json.Serialize(_localization.Getkey("common_notyf_create_success"));
+            var updateSuccessLabel = @Json.Serialize(_localization.Getkey("common_notyf_update_success"));
+            var errorLabel = @Json.Serialize(_localization.Getkey("common_notyf_error"));
+
             if (isEdit) {
                 $.ajax({
                     url: '/ExportStore/EditExportStore',
@@ -489,18 +479,18 @@
                         'Accept': 'application/json',
                         'Content-Type': 'application/json'
                     },
-                    error: (e) => {
-                        notyf.error('Lưu dữ liệu không thành công');
-                    },
-                    success: (data) => {
+                    success: function (data) {
                         if (data.isSuccess) {
-                            notyf.success('Cập nhật dữ liệu thành công.');
-                            offcanvasForm.hide();
+                            notyf.success(updateSuccessLabel.value);
                             dataTable.ajax.reload();
+                            offcanvasForm.hide();
                         } else {
-                            notyf.error('Có lỗi xảy ra.');
+                            notyf.error(errorLabel.value);
                         }
                     },
+                    error: function () {
+                        notyf.error(errorLabel.value);
+                    }
                 })
             } else {
                 $.ajax({
@@ -512,20 +502,45 @@
                         'Accept': 'application/json',
                         'Content-Type': 'application/json'
                     },
-                    error: (e) => {
-                        notyf.error('Lưu dữ liệu không thành công');
-                    },
-                    success: (data) => {
+                    success: function (data) {
                         if (data.isSuccess) {
-                            notyf.success('Thêm dữ liệu thành công.');
-                            offcanvasForm.hide();
+                            notyf.success(createSuccessLabel.value);
                             dataTable.ajax.reload();
+                            offcanvasForm.hide();
                         } else {
-                            notyf.error('Có lỗi xảy ra.');
+                            notyf.error(errorLabel.value);
                         }
                     },
+                    error: function () {
+                        notyf.error(errorLabel.value);
+                    }
                 })
             }
         }
+
+        function handleDelete() {
+            var deleteSuccessLabel = @Json.Serialize(_localization.Getkey("common_notyf_delete_success"));
+            var errorLabel = @Json.Serialize(_localization.Getkey("common_notyf_error"));
+            $.ajax({
+                type: "POST",
+                url: '@Url.Action("Delete","ExportStore")/' + deleteItemId,
+                success: function (data) {
+                    if (data.isSuccess) {
+                        dataTable.ajax.reload();
+                        notyf.success(deleteSuccessLabel.value);
+                        $('#deleteModal').modal("hide");
+                    } else {
+                        notyf.error(errorLabel.value);
+                        $('#deleteModal').modal("hide");
+                    }
+                },
+                error: function () {
+                    notyf.error(errorLabel.value);
+                    $('#deleteModal').modal("hide");
+                }
+            });
+        }
+
+
     </script>
 }

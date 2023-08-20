@@ -1,7 +1,5 @@
 ﻿@{
     ViewData["Title"] = "Products";
-    ViewData["AddNew"] = "Thêm mới";
-    ViewData["Details"] = _localization.Getkey("common_details");
 }
 
 <div class="row">
@@ -14,7 +12,7 @@
         </a>
     </div>
     <div class="col-md-12 text-end mb-3">
-        <button class="btn btn-info mr-2" onclick="openUpload()">
+        <button class="btn btn-info mr-2" data-bs-toggle="offcanvas" data-bs-target="#offcanvasUpload">
             <i class="bi bi-cloud-arrow-up"></i> @_localization.Getkey("common_import_excel")
         </button>
         <button id="ExportExcel" class="btn btn-outline-success mr-2">
@@ -63,7 +61,7 @@
                 </div>
                 <div class="col-md-6 mb-2">
                     <label class="control-label">@_localization.Getkey("unit")</label>
-                    <select id="Unit" class="form-control" asp-items="ViewBag.UnitsList" required></select>
+                    <select id="UnitId" class="form-control" asp-items="ViewBag.UnitsList" required></select>
                 </div>
                 <div class="col-md-12 mb-4">
                     <label class="control-label">@_localization.Getkey("product_quantity_in_stock")</label>
@@ -146,7 +144,6 @@
         var deleteItemId = "";
         var form = $('#form')[0];
         var offcanvasForm = new bootstrap.Offcanvas($('#offcanvasForm'));
-        var offcanvasUpload = new bootstrap.Offcanvas($('#offcanvasUpload'));
 
         $(document).ready(function () {
             dataTable = $("#Product-Table").DataTable({
@@ -225,7 +222,8 @@
                 event.preventDefault()
                 if (!form.checkValidity()) {
                     event.stopPropagation()
-                    notyf.error('Vui lòng nhập đầy đủ thông tin.');
+                    var validateLabel = @Html.Raw(Json.Serialize(_localization.Getkey("common_notyf_please_enter_input")));
+                    notyf.error(validateLabel.value);
                 } else {
                     handleSave()
                 }
@@ -277,8 +275,8 @@
 
 
         function openAddForm() {
-            resetForm()
             isEdit = false;
+            resetForm();
             var addLabel = @Html.Raw(Json.Serialize(_localization.Getkey("common_add")));
             var addNewLabel = @Html.Raw(Json.Serialize(_localization.Getkey("common_add_new")));
             $('#btnSubmit').show().text(addLabel.value);
@@ -287,13 +285,10 @@
             disableValueForm(false);
             offcanvasForm.show();
         }
-        
-        function openUpload() {
-            offcanvasUpload.show();
-        }
 
         function openEditForm(id) {
             isEdit = true;
+            resetForm();
             var updateLabel = @Html.Raw(Json.Serialize(_localization.Getkey("common_update")));
             $('#btnSubmit').show().text(updateLabel.value);
             disableValueForm(false);
@@ -312,11 +307,8 @@
         }
 
         function resetForm() {
-            $('#form')[0].reset();
-            var elems = document.querySelectorAll(".text-danger");
-            elems.forEach(itm => {
-                document.getElementById(itm.id).innerHTML = ''
-            })
+            form.reset();
+            $('#form').removeClass('was-validated');
         }
 
         function disableValueForm(disabled) {
@@ -325,7 +317,7 @@
             $('#Manufacturer').prop("disabled", disabled);
             $('#CategoryId').prop("disabled", disabled);
             $('#Description').prop("disabled", disabled);
-            $('#Unit').prop("disabled", disabled);
+            $('#UnitId').prop("disabled", disabled);
             $('#ImportPrice').prop("disabled", disabled);
             $('#Price').prop("disabled", disabled);
             $('#Number').prop("disabled", disabled);
@@ -371,48 +363,75 @@
                 Manufacturer: $('#Manufacturer').val(),
                 CategoryId: $('#CategoryId').val(),
                 Description: $('#Description').val(),
-                UnitId: $('#Unit').val(),
+                UnitId: $('#UnitId').val(),
                 ImportPrice: $('#ImportPrice').val(),
                 Price: $('#Price').val(),
                 Number: $('#Number').val(),
             };
 
+            var createSuccessLabel = @Json.Serialize(_localization.Getkey("common_notyf_create_success"));
+            var updateSuccessLabel = @Json.Serialize(_localization.Getkey("common_notyf_update_success"));
+            var errorLabel = @Json.Serialize(_localization.Getkey("common_notyf_error"));
             if (isEdit) {
-                $.post("/Product/Edit", { product: data }, (data) => {
-                    if (data.isSuccess) {
-                        notyf.success('Cập nhật dữ liệu thành công.');
-                        dataTable.ajax.reload();
-                        offcanvasForm.hide();
-                    } else {
-                        notyf.error('Có lỗi xảy ra.');
+                $.ajax({
+                    type: "POST",
+                    url: "/Product/Edit",
+                    data: data,
+                    dataType: 'json',
+                    success: function (data) {
+                        if (data.isSuccess) {
+                            notyf.success(updateSuccessLabel.value);
+                            dataTable.ajax.reload();
+                            offcanvasForm.hide();
+                        } else {
+                            notyf.error(errorLabel.value);
+                        }
+                    },
+                    error: function () {
+                        notyf.error(errorLabel.value);
                     }
                 });
             } else {
-                $.post("/Product/Create", { product: data }, (data) => {
-                    if (data.isSuccess) {
-                        notyf.success('Thêm dữ liệu thành công.');
-                        dataTable.ajax.reload();
-                        offcanvasForm.hide();
-                    } else {
-                        notyf.error('Có lỗi xảy ra.');
+                $.ajax({
+                    type: "POST",
+                    url: "/Product/Create",
+                    data: data,
+                    dataType: 'json',
+                    success: function (data) {
+                        if (data.isSuccess) {
+                            notyf.success(createSuccessLabel.value);
+                            dataTable.ajax.reload();
+                            offcanvasForm.hide();
+                        } else {
+                            notyf.error(errorLabel.value);
+                        }
+                    },
+                    error: function () {
+                        notyf.error(errorLabel.value);
                     }
                 });
             }
         }
 
         function handleDelete(status) {
+            var deleteSuccessLabel = @Json.Serialize(_localization.Getkey("common_notyf_delete_success"));
+            var errorLabel = @Json.Serialize(_localization.Getkey("common_notyf_error"));
             $.ajax({
                 type: "POST",
                 url: 'Product/Delete/' + deleteItemId + '?status=' + status,
                 success: function (data) {
                     if (data.isSuccess) {
                         dataTable.ajax.reload();
-                        notyf.success('Cập nhật trạng thái thành công.');
+                        notyf.success(deleteSuccessLabel.value);
                         $('#deleteModal').modal("hide");
-                        offcanvasForm.hide();
                     } else {
-                        notyf.error('Có lỗi xảy ra.');
+                        notyf.error(errorLabel.value);
+                        $('#deleteModal').modal("hide");
                     }
+                },
+                error: function () {
+                    notyf.error(errorLabel.value);
+                    $('#deleteModal').modal("hide");
                 }
             });
         }
