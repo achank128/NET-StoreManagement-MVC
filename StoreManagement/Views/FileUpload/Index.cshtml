@@ -1,11 +1,53 @@
-﻿<h2>Upload</h2>
-<form method="post" enctype="multipart/form-data" asp-controller="FileUpload" asp-action="Index">
-    <input type="file" name="files" multiple />
-    <input type="submit" value="Upload" />
+﻿<h2>Uploads multiple image</h2>
+<form asp-controller="FileUpload" asp-action="Uploads" method="post" enctype="multipart/form-data">
+    <input class="form-control mb-3" type="file" name="postedFiles" accept="image/*" multiple />
+    <input type="submit" value="Upload" class="btn btn-primary" />
 </form>
 
-<h2 class="mt-4">Import excel</h2>
+<h2 class="mt-4">Upload image</h2>
+<form asp-controller="FileUpload" asp-action="UploadImg" method="post" enctype="multipart/form-data">
+    <input class="form-control mb-3" type="file" name="postedFile" accept="image/*" />
+    <input type="submit" value="Upload" class="btn btn-primary" />
+</form>
+
+<h2 class="mt-4">Upload image ajax</h2>
+<div>
+    <input class="form-control mb-3" type="file" id="postedFile" name="postedFile" accept="image/*" />
+    <input type="submit" value="Upload" class="btn btn-primary" onclick="uploadFiles();" />
+</div>
+
+
+@section Scripts{
+    <script>
+        function uploadFiles() {
+            var files = $('#postedFile').prop('files');
+            var postedFile = new FormData();
+
+            for (var i = 0; i != files.length; i++) {
+                postedFile.append("postedFiles", files[i]);
+            }
+
+            console.log(postedFile);
+
+            $.ajax(
+                {
+                    url: "/FileUpload/Uploads",
+                    data: postedFile,
+                    processData: false,
+                    contentType: false,
+                    type: "POST", 
+                    success: function (data) {
+                        console.log(data);
+                        alert("Files Uploaded!");
+                    }
+                }
+            );
+        }
+    </script>
+ }
+
+@*<h2 class="mt-4">Import excel</h2>
 <form asp-controller="FileUpload" asp-action="Import" method="post" enctype="multipart/form-data">
     <input type="file" name="postedFile" />
     <input type="submit" value="Import" />
-</form>
+</form>*@

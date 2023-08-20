@@ -7,6 +7,11 @@ using StoreManagement.Repositories.ProductRepository;
 using StoreManagement.Repositories.UnitRepository;
 using AspNetCoreHero.ToastNotification.Abstractions;
 using StoreManagement.Services;
+using Microsoft.AspNetCore.Mvc.RazorPages;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Hosting;
+using System;
+using System.IO;
 
 namespace StoreManagement.Controllers
 {
@@ -44,27 +49,58 @@ namespace StoreManagement.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Index(List<IFormFile> files)
+        public async Task<IActionResult> Uploads(List<IFormFile> postedFiles)
         {
-            long size = files.Sum(f => f.Length);
+            long size = postedFiles.Sum(f => f.Length);
 
             var filePaths = new List<string>();
-            foreach (var formFile in files)
+            foreach (var file in postedFiles)
             {
-                if (formFile.Length > 0)
+                if (file.Length > 0)
                 {
-                    // full path to file in temp location
-                    var filePath = Path.GetTempFileName(); //we are using Temp file name just for the example. Add your own file path.
-                    filePaths.Add(filePath);
-                    using (var stream = new FileStream(filePath, FileMode.Create))
+                    string fileName = Path.GetFileNameWithoutExtension(file.FileName);
+                    string extension = Path.GetExtension(file.FileName);
+                    fileName = fileName + DateTime.Now.ToString("yymmssfff") + extension;
+
+                    string path = Path.Combine(this.Environment.WebRootPath, "Images");
+                    string filePath = Path.Combine(path, fileName);
+                    if (!Directory.Exists(path))
                     {
-                        await formFile.CopyToAsync(stream);
+                        Directory.CreateDirectory(path);
                     }
+                    using (FileStream fileStream = new FileStream(filePath, FileMode.Create))
+                    {
+                        file.CopyTo(fileStream);
+                    }
+                    filePaths.Add(filePath);
                 }
             }
-            // process uploaded files
-            // Don't rely on or trust the FileName property without validation.
-            return Ok(new { count = files.Count, size, filePaths });
+            return Ok(new { count = postedFiles.Count, size, filePaths });
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> UploadImg(IFormFile postedFile)
+        {
+            string fileName = Path.GetFileNameWithoutExtension(postedFile.FileName);
+            string extension = Path.GetExtension(postedFile.FileName);
+            fileName = fileName + DateTime.Now.ToString("yymmssfff") + extension;
+
+            string path = Path.Combine(this.Environment.WebRootPath, "Images");
+            string filePath = Path.Combine(path, fileName);
+            if (!Directory.Exists(path))
+            {
+                Directory.CreateDirectory(path);
+            }
+            using (FileStream fileStream = new FileStream(filePath, FileMode.Create))
+            {
+                postedFile.CopyTo(fileStream);
+            }
+
+            return Json(new
+            {
+                fileName,
+                filePath
+            });
         }
 
         [HttpPost]
