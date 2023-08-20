@@ -182,10 +182,11 @@
                             columns: ':not(:last-child)',
                         },
                         "filename": function () {
+                            var exportNameLabel = @Html.Raw(Json.Serialize(_localization.Getkey("import_list")));
                             var d = new Date();
                             var l = d.getFullYear() + '-' + (d.getMonth() + 1) + '-' + d.getDate();
                             var n = d.getHours() + "-" + d.getMinutes() + "-" + d.getSeconds();
-                            return 'ExportStore_' + l + ' ' + n;
+                            return exportNameLabel.value + '_' + l + ' ' + n;
                         },
                     },
                 ],
