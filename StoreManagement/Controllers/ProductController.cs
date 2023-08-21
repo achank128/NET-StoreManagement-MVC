@@ -74,9 +74,19 @@ namespace StoreManagement.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetAll()
+        public async Task<IActionResult> GetAll(string searchString)
         {
-            return Json(new { data = _productRepository.GetQueryable().Where(s => s.Status == true).ToList() });
+            IQueryable<Product> products = _productRepository.GetQueryable();
+
+            if (!String.IsNullOrEmpty(searchString))
+            {
+                products = products.Where(s =>
+                s.ProductName.Contains(searchString)
+                || s.ProductCode.Contains(searchString)
+                );
+            }
+
+            return Json(new { data = products.ToList() });
         }
 
         [HttpPost]

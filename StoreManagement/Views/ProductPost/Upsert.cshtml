@@ -14,8 +14,14 @@
                 <div class="col-md-12 mb-2">
                     <label class="control-label">@_localization.Getkey("product")</label>
                     <input id="ProductPostId" asp-for="Id" type="hidden" />
-                    <select id="ProductId" asp-for="ProductId" class="form-control" asp-items="ViewBag.ProductsList" required></select>
+                    <input id="ProductId" asp-for="ProductId" type="hidden" />
+                    <input id="Products" class="form-control">
                 </div>
+               @* <div class="col-md-12 mb-2">
+                    <label class="control-label">@_localization.Getkey("product")</label>
+                    <input id="ProductPostId" asp-for="Id" type="hidden" />
+                    <select id="ProductId" asp-for="ProductId" class="form-control" asp-items="ViewBag.ProductsList" required></select>
+                </div>*@
                 <div class="col-md-12 mb-2">
                     <label class="control-label">@_localization.Getkey("productpost_author")</label>
                     <select id="AuthorId" asp-for="AuthorId" class="form-control" asp-items="ViewBag.UsersList" required></select>
@@ -86,6 +92,40 @@
                 $('#btnSubmit').text(addLabel.value);
             }
 
+            $("#Products").autocomplete({
+                source: function (request, response) {
+                    $.ajax({
+                        url: '/Product/GetAll',
+                        type: 'GET',
+                        dataType: "json",
+                        data: {
+                            searchString: request.term
+                        },
+                        success: function (data) {
+                            response($.map(data.data, function (item) {
+                                return {
+                                    id: item.id,
+                                    label: item.productName,
+                                    value: item.productName
+                                };
+                            }));
+                        }
+                    });
+                },
+                minLength: 2,
+                maxLength: 6,
+                select: function (event, ui) {
+                    $('#ProductId').val(ui.item.id);
+                }
+            });
+
+            $.ajax({
+                type: "GET",
+                url: '/Product/Details/' + $('#ProductId').val(),
+            }).done(function (result) {
+                $("#Products").val(result.data.productName);
+            });
+        
 
             form.addEventListener('submit', event => {
                 event.preventDefault()
