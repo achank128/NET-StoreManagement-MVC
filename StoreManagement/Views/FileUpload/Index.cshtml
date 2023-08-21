@@ -12,13 +12,22 @@
 
 <h2 class="mt-4">Upload image ajax</h2>
 <div>
-    <input class="form-control mb-3" type="file" id="postedFile" name="postedFile" accept="image/*" />
+    <img id="loadImg" class="img-thumbnail" alt="Load img" />
+    <input class="form-control mb-3" type="file" id="postedFile" name="postedFile" accept="image/*" onchange="loadFile(event)" />
     <input type="submit" value="Upload" class="btn btn-primary" onclick="uploadFiles();" />
 </div>
 
 
 @section Scripts{
     <script>
+        function loadFile (event) {
+            var output = document.getElementById('loadImg');
+            output.src = URL.createObjectURL(event.target.files[0]);
+            output.onload = function () {
+                URL.revokeObjectURL(output.src)
+            }
+        };
+
         function uploadFiles() {
             var files = $('#postedFile').prop('files');
             var postedFile = new FormData();
@@ -35,7 +44,7 @@
                     data: postedFile,
                     processData: false,
                     contentType: false,
-                    type: "POST", 
+                    type: "POST",
                     success: function (data) {
                         console.log(data);
                         alert("Files Uploaded!");
