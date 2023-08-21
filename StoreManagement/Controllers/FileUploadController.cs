@@ -7,11 +7,12 @@ using StoreManagement.Repositories.ProductRepository;
 using StoreManagement.Repositories.UnitRepository;
 using AspNetCoreHero.ToastNotification.Abstractions;
 using StoreManagement.Services;
-using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Hosting;
 using System;
 using System.IO;
+using System.Drawing;
+
 
 namespace StoreManagement.Controllers
 {
@@ -101,6 +102,42 @@ namespace StoreManagement.Controllers
                 fileName,
                 filePath
             });
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Image(List<IFormFile> upload)
+        {
+            try
+            {
+                var fileNames = new List<string>();
+                foreach (var file in upload)
+                {
+                    if (file.Length > 0)
+                    {
+                        string fileName = Path.GetFileNameWithoutExtension(file.FileName);
+                        string extension = Path.GetExtension(file.FileName);
+                        fileName = fileName + DateTime.Now.ToString("yymmssfff") + extension;
+
+                        string path = Path.Combine(this.Environment.WebRootPath, "Images");
+                        string filePath = Path.Combine(path, fileName);
+                        if (!Directory.Exists(path))
+                        {
+                            Directory.CreateDirectory(path);
+                        }
+                        using (FileStream fileStream = new FileStream(filePath, FileMode.Create))
+                        {
+                            file.CopyTo(fileStream);
+                        }
+                        fileNames.Add(fileName);
+                    }
+                }
+                var baseUri = $"{Request.Scheme}://{Request.Host}/Images";
+                return Ok(new { url = Path.Combine(baseUri, fileNames.First()) });
+            }
+            catch (Exception exception)
+            {
+                return Ok(new { error = new { message = exception.Message }});
+            }
         }
 
         [HttpPost]

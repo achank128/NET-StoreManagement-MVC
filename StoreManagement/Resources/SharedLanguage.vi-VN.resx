@@ -165,6 +165,9 @@
   <data name="common_back" xml:space="preserve">
     <value>Quay lại</value>
   </data>
+  <data name="common_characters" xml:space="preserve">
+    <value>Ký tự</value>
+  </data>
   <data name="common_choose_discount" xml:space="preserve">
     <value>Chọn mức giảm</value>
   </data>
@@ -320,6 +323,24 @@
   </data>
   <data name="product" xml:space="preserve">
     <value>Sản phẩm</value>
+  </data>
+  <data name="productpost" xml:space="preserve">
+    <value>Bài viết sản phẩm</value>
+  </data>
+  <data name="productpost_author" xml:space="preserve">
+    <value>Người viết</value>
+  </data>
+  <data name="productpost_content" xml:space="preserve">
+    <value>Nội dung</value>
+  </data>
+  <data name="productpost_cover_img" xml:space="preserve">
+    <value>Ảnh bìa</value>
+  </data>
+  <data name="productpost_create" xml:space="preserve">
+    <value>Tạo bài viết</value>
+  </data>
+  <data name="productpost_update" xml:space="preserve">
+    <value>Sửa bài viết</value>
   </data>
   <data name="product_id" xml:space="preserve">
     <value>Mã sản phẩm</value>

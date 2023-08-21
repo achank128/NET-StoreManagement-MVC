@@ -1,0 +1,177 @@
+﻿@model ProductPost
+
+@{
+    ViewData["Title"] = @_localization.Getkey("productpost_create");
+}
+
+<div class="row text">
+    <div class="col-md-8 offset-2">
+        <div>
+            <h2 Id="Title">@_localization.Getkey("productpost_create")</h2>
+        </div>
+        <div>
+            <form id="form" class="row" novalidate>
+                <div class="col-md-12 mb-2">
+                    <label class="control-label">@_localization.Getkey("product")</label>
+                    <input id="ProductPostId" asp-for="Id" type="hidden" />
+                    <select id="ProductId" asp-for="ProductId" class="form-control" asp-items="ViewBag.ProductsList" required></select>
+                </div>
+                <div class="col-md-12 mb-2">
+                    <label class="control-label">@_localization.Getkey("productpost_author")</label>
+                    <select id="AuthorId" asp-for="AuthorId" class="form-control" asp-items="ViewBag.UsersList" required></select>
+                </div>
+
+                <div class="col-md-8 mb-2">
+                    <label class="control-label">@_localization.Getkey("productpost_cover_img")</label>
+                    <input id="CoverImg" asp-for="CoverImg" type="hidden" />
+                    <input id="UploadFiles" class="form-control mb-2" type="file" onchange="loadImage(event)"/>
+                    <img id="UploadImgPreview" class="img-thumbnail" style="max-width: 200px" />
+                </div>
+                <div class="col-md-12 mb-2">
+                    <label class="control-label">@_localization.Getkey("productpost_content")</label>
+                    <input id="Content" asp-for="Content" type="hidden" ></input>
+                    <div id="editor"></div>
+                </div>
+
+                <div class="form-group mt-2 d-flex justify-content-between">
+                    <a class="btn btn-outline-secondary" asp-action="Index">
+                        @_localization.Getkey("common_back")
+                    </a>
+                    <button id="btnSubmit" value="Create" class="btn btn-success float-right">
+                        @_localization.Getkey("common_add")
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@*<script src="https://cdn.ckeditor.com/ckeditor5/39.0.1/super-build/ckeditor.js"></script>*@
+<script src="~/lib/ckediter/build/ckeditor.js"></script>
+
+@section Scripts{
+    <script>
+        var form = $('#form')[0];
+        var editor;
+
+        ClassicEditor
+            .create(document.querySelector('#editor'), {
+                simpleUpload: {
+                    uploadUrl: 'https://localhost:7027/FileUpload/Image',
+                }
+            })
+            .then(newEditor => {
+                editor = newEditor;
+            })
+            .catch(error => {
+                console.error(error);
+            });
+         
+        $(document).ready(function () {
+            var CoverImgUrl = $('#CoverImg').val();
+            if (CoverImgUrl) {
+                $('#UploadImgPreview').attr('src', "/Images/" + $('#CoverImg').val());
+            }
+            editor.setData($('#Content').val());
+
+            if ($("#ProductPostId").val()) {
+                var updateLabel = @Html.Raw(Json.Serialize(_localization.Getkey("common_update")));
+                var updateTitleLabel = @Html.Raw(Json.Serialize(_localization.Getkey("productpost_update")));
+                $('#Title').text(updateTitleLabel.value);
+                $('#btnSubmit').text(updateLabel.value);
+            }else{
+                var addLabel = @Html.Raw(Json.Serialize(_localization.Getkey("common_add")));;
+                var addTitleLabel = @Html.Raw(Json.Serialize(_localization.Getkey("productpost_create")));
+                $('#Title').text(addTitleLabel.value);
+                $('#btnSubmit').text(addLabel.value);
+            }
+
+
+            form.addEventListener('submit', event => {
+                event.preventDefault()
+                if (!form.checkValidity()) {
+                    event.stopPropagation()
+                    var validateLabel = @Json.Serialize(_localization.Getkey("common_notyf_please_enter_input"));
+                    notyf.error(validateLabel.value);
+                } else {
+                    handleSave()
+                }
+                form.classList.add('was-validated')
+            }, false)
+        })
+
+        function loadImage (e) {
+            var output = document.getElementById('UploadImgPreview');
+            output.src = URL.createObjectURL(e.target.files[0]);
+            output.onload = function () {
+                URL.revokeObjectURL(output.src)
+            }
+        }
+
+        function handleSave() {
+            var files = $('#UploadFiles').prop('files');
+            var formData = new FormData();
+
+            for (var i = 0; i != files.length; i++) {
+                formData.append("UploadFiles", files[i]);
+            }
+
+            formData.append("Id", $("#ProductPostId").val());
+            formData.append("ProductId", $("#ProductId").val());
+            formData.append("AuthorId", $("#AuthorId").val());
+            formData.append("CoverImg", $("#CoverImg").val());
+            formData.append("Content", editor.getData())
+
+            var createSuccessLabel = @Json.Serialize(_localization.Getkey("common_notyf_create_success"));
+            var updateSuccessLabel = @Json.Serialize(_localization.Getkey("common_notyf_update_success"));
+            var errorLabel = @Json.Serialize(_localization.Getkey("common_notyf_error"));
+
+            if ($("#ProductPostId").val()) {
+                $.ajax(
+                    {
+                        url: "/ProductPost/Edit",
+                        data: formData,
+                        processData: false,
+                        contentType: false,
+                        type: "POST",
+                        success: function (data) {
+                            if (data.isSuccess) {
+                                notyf.success(createSuccessLabel.value);
+                                location.replace("Index");
+                            } else {
+                                notyf.error(errorLabel.value);
+                            }
+                        },
+                        error: function () {
+                            notyf.error(errorLabel.value);
+                        }
+                    }
+                );
+            } else {
+                $.ajax(
+                    {
+                        url: "/ProductPost/Create",
+                        data: formData,
+                        processData: false,
+                        contentType: false,
+                        type: "POST",
+                        success: function (data) {
+                            if (data.isSuccess) {
+                                notyf.success(createSuccessLabel.value);
+                                location.replace("Index");
+                            } else {
+                                notyf.error(errorLabel.value);
+                            }
+                        },
+                        error: function () {
+                            notyf.error(errorLabel.value);
+                        }
+                    }
+                );
+            }
+
+            
+        }
+
+    </script>
+}

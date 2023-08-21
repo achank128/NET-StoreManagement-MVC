@@ -1,10 +1,10 @@
 ﻿@{
-    ViewData["Title"] = "Products";
+    ViewData["Title"] = @_localization.Getkey("productpost");
 }
 
 <div class="row">
     <div class="col-md-8">
-        <h2>Bài viết sản phẩm</h2>
+        <h2>@_localization.Getkey("productpost")</h2>
     </div>
     <div class="col-md-4 text-end">
         <a class="btn" asp-action="Index">
@@ -12,39 +12,41 @@
         </a>
     </div>
     <div class="col-md-12 text-end mb-3">
-        <a class="btn btn-success" onclick="openAddForm()">
-            <i class="bi bi-plus-circle"></i> Thêm mới
+        <a class="btn btn-success" asp-action="Upsert">
+            <i class="bi bi-plus-circle"></i> @_localization.Getkey("common_add_new")
         </a>
     </div>
 
     <div class="offcanvas offcanvas-end" id="offcanvasForm" aria-labelledby="offcanvasFormLabel" style="width: 800px;">
         <div class="offcanvas-header">
-            <h5 class="offcanvas-title text-primary" id="offcanvasFormLabel">Thêm mới</h5>
+            <h5 class="offcanvas-title text-primary" id="offcanvasFormLabel"> @_localization.Getkey("common_details")</h5>
             <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
         </div>
         <div class="offcanvas-body">
             <form id="form" class="row" novalidate>
-                <div class="col-md-12 mb-2">
-                    <label class="control-label">Sản phẩm</label>
+                <div class="col-md-8 mb-2">
+                    <label class="control-label">@_localization.Getkey("product")</label>
                     <input id="ProductPostId" class="form-control" type="hidden" />
                     <select id="ProductId" class="form-control" asp-items="ViewBag.ProductsList" required></select>
                 </div>
-                <div class="col-md-6 mb-2">
-                    <label class="control-label">Người viết</label>
+                <div class="col-md-8 mb-2">
+                    <label class="control-label">@_localization.Getkey("productpost_author")</label>
                     <select id="AuthorId" class="form-control" asp-items="ViewBag.UsersList" required></select>
                 </div>
-                <div class="col-md-6 mb-2">
-                    <label class="control-label">Ảnh bìa</label>
-                    <input id="CoverImg" class="form-control" />
-
+                <div class="col-md-8 mb-2">
+                    <label class="control-label">@_localization.Getkey("productpost_cover_img")</label>
+                    <input id="CoverImgUrl" class="form-control mb-2" />
+                    <img id="CoverImg" class="img-thumbnail" style="max-width: 200px" />
                 </div>
                 <div class="col-md-12 mb-2">
-                    <label class="control-label">Nội dung</label>
-                    <textarea id="Content" class="form-control"></textarea>
+                    <label class="control-label">@_localization.Getkey("productpost_content")</label>
+                    <div class="card">
+                        <div class="card-body ck-content" id="Content"></div>
+                    </div>
                 </div>
                 
                 <div class="form-group">
-                    <button id="btnSubmit" class="btn btn-primary">Thêm</button>
+                    <button id="btnSubmit" class="btn btn-primary">@_localization.Getkey("common_save")</button>
                 </div>
             </form>
             <button id="btnActive" class="btn btn-warning" onclick="handleDelete(1)"><i class="bi bi-play-fill"></i> Ngưng xóa</button>
@@ -56,13 +58,12 @@
             <table id="Product-Table" class="table table-bordered">
                 <thead>
                     <tr>
-                        <th>Sản phẩm</th>
-                        <th>Người viết</th>
-                        <th>Ảnh</th>
-                        <th>Nội Dung</th>
-                        <th>Trạng thái</th>
-                        <th>Ngày viết</th>
-                        <th class="text-end">Thao tác</th>
+                        <th>@_localization.Getkey("product")</th>
+                        <th>@_localization.Getkey("productpost_author")</th>
+                        <th>@_localization.Getkey("productpost_cover_img")</th>
+                        <th>@_localization.Getkey("productpost_content")</th>
+                        <th>@_localization.Getkey("common_created_date")</th>
+                        <th class="text-end">@_localization.Getkey("common_actions")</th>
                     </tr>
                 </thead>
             </table>
@@ -73,17 +74,17 @@
         <div class="modal-dialog" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="deleteModalLabel">Xác nhận xóa</h5>
+                    <h5 class="modal-title" id="deleteModalLabel">@_localization.Getkey("common_confirm_delete")</h5>
                     <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>
                 </div>
                 <div class="modal-body">
-                    Bạn có chắc chắn muốn xóa?
+                    @_localization.Getkey("common_are_you_sure_delete")
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Quay lại</button>
-                    <button type="button" class="btn btn-danger" onclick="handleDelete(0)">Xác nhận</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">@_localization.Getkey("common_back")</button>
+                    <button type="button" class="btn btn-danger" onclick="handleDelete()">@_localization.Getkey("common_confirm")</button>
                 </div>
             </div>
         </div>
@@ -96,7 +97,6 @@
         var dataTable;
         var isEdit = false;
         var deleteItemId = "";
-        var form = $('#form')[0];
         var offcanvasForm = new bootstrap.Offcanvas($('#offcanvasForm'));
 
         $(document).ready(function () {
@@ -114,18 +114,32 @@
                 "columns": [
                     { "data": "product.productName" },
                     { "data": "author.fullName" },
-                    { "data": "coverImg" },
-                    { "data": "content" },
-                    { "data": "status", "render": (data) => data ? 'Sẵn sàng' : 'Xóa' },
+                    { "data": "coverImg", "render": (data) => {
+                        if (data) {
+                            return `
+                            <img class="img-thumbnail" src="${"/Images/" + data}" style="max-width: 160px"/>
+                            `
+                        }else{
+                            return "No Cover Image"
+                        }
+                    }},
+                    {
+                        "data": "content",
+                        "render": (data) => {
+                            var charactersLabel = @Json.Serialize(_localization.Getkey("common_characters"));
+                            return data.length + " " + charactersLabel.value
+                        }
+                    },
                     {
                         "data": "createdDate",
                         "render": (data) => new Date(data).toLocaleDateString('en-GB')
                     },
                     {
                         "render": (data, type, row, meta) => {
-                            return `<a class="btn btn-outline-info" onclick="openDetailForm('${row.id}')"><i class="bi bi-eye"></i></a>
-                                                    <a class="btn btn-primary" onclick="openEditForm('${row.id}')"><i class="bi bi-pencil-square"></i></a>
-                                                    <a class="btn btn-danger" onclick="openDeleteModal('${row.id}')" ><i class="bi bi-trash"></i></a>`
+                            return `
+                            <a class="btn btn-outline-info" onclick="openDetailForm('${row.id}')"><i class="bi bi-eye"></i></a>
+                            <a class="btn btn-primary" href="/ProductPost/Upsert?id=${row.id}"><i class="bi bi-pencil-square"></i></a>
+                            <a class="btn btn-danger" onclick="openDeleteModal('${row.id}')" ><i class="bi bi-trash"></i></a>`
                         },
                         "class": "text-end"
                     },
@@ -135,38 +149,7 @@
                     "emptyTable": "No data found"
                 },
             });
-
-
-            form.addEventListener('submit', event => {
-                event.preventDefault()
-                if (!form.checkValidity()) {
-                    event.stopPropagation()
-                    notyf.error('Vui lòng nhập đầy đủ thông tin.');
-                } else {
-                    handleSave()
-                }
-                form.classList.add('was-validated')
-            }, false)
         });
-
-
-        function openAddForm() {
-            resetForm()
-            isEdit = false;
-            $('#btnSubmit').show().text("Thêm");
-            $('#btnActive').hide();
-            disableValueForm(false);
-            offcanvasForm.show();
-        }
-
-        function openEditForm(id) {
-            isEdit = true;
-            $('#btnSubmit').show().text("Cập nhật");
-            disableValueForm(false);
-            getDetailValue(id)
-            offcanvasForm.show();
-            deleteItemId = id;
-        }
 
         function openDetailForm(id) {
             isEdit = false;
@@ -177,19 +160,10 @@
             offcanvasForm.show();
         }
 
-        function resetForm() {
-            $('#form')[0].reset();
-            var elems = document.querySelectorAll(".text-danger");
-            elems.forEach(itm => {
-                document.getElementById(itm.id).innerHTML = ''
-            })
-        }
-
         function disableValueForm(disabled) {
             $('#ProductId').prop("disabled", disabled);
             $('#AuthorId').prop("disabled", disabled);
-            $('#CoverImg').prop("disabled", disabled);
-            $('#Content').prop("disabled", disabled);
+            $('#CoverImgUrl').prop("disabled", disabled);
         }
 
         function openDeleteModal(id) {
@@ -202,12 +176,12 @@
                 type: "GET",
                 url: '@Url.Action("Details","ProductPost")/' + id,
                 success: function (data) {
-                    $('#offcanvasFormLabel').text("Chi tiết");
                     $('#ProductPostId').val(data.data.id);
                     $('#ProductId').val(data.data.productId);
                     $('#AuthorId').val(data.data.authorId);
-                    $('#CoverImg').val(data.data.coverImg);
-                    $('#Content').val(data.data.content);
+                    $('#CoverImgUrl').val(data.data.coverImg);
+                    $('#CoverImg').attr('src', "/Images/" + data.data.coverImg);
+                    $('#Content').html(data.data.content);
 
                     console.log(data);
                     if (!data.data.status && isEdit) {
@@ -219,51 +193,25 @@
             });
         }
 
-        function handleSave() {
-            var data = {
-                Id: $('#ProductPostId').val(),
-                ProductId: $('#ProductId').val(),
-                AuthorId: $('#AuthorId').val(),
-                CoverImg: $('#CoverImg').val(),
-                Content: $('#Content').val(),
-            };
-
-            if (isEdit) {
-                $.post("/ProductPost/Edit", { productPost: data }, (data) => {
-                    if (data.isSuccess) {
-                        notyf.success('Cập nhật dữ liệu thành công.');
-                        dataTable.ajax.reload();
-                        offcanvasForm.hide();
-                    } else {
-                        notyf.error('Có lỗi xảy ra.');
-                    }
-                });
-            } else {
-                $.post("/ProductPost/Create", { productPost: data }, (data) => {
-                    if (data.isSuccess) {
-                        notyf.success('Thêm dữ liệu thành công.');
-                        dataTable.ajax.reload();
-                        offcanvasForm.hide();
-                    } else {
-                        notyf.error('Có lỗi xảy ra.');
-                    }
-                });
-            }
-        }
-
         function handleDelete(status) {
+            var deleteSuccessLabel = @Json.Serialize(_localization.Getkey("common_notyf_delete_success"));
+            var errorLabel = @Json.Serialize(_localization.Getkey("common_notyf_error"));
             $.ajax({
                 type: "POST",
                 url: 'ProductPost/Delete/' + deleteItemId + '?status=' + status,
                 success: function (data) {
                     if (data.isSuccess) {
                         dataTable.ajax.reload();
-                        notyf.success('Cập nhật trạng thái thành công.');
+                        notyf.success(deleteSuccessLabel.value);
                         $('#deleteModal').modal("hide");
-                        offcanvasForm.hide();
                     } else {
-                        notyf.error('Có lỗi xảy ra.');
+                        notyf.error(errorLabel.value);
+                        $('#deleteModal').modal("hide");
                     }
+                },
+                error: function () {
+                    notyf.error(errorLabel.value);
+                    $('#deleteModal').modal("hide");
                 }
             });
         }

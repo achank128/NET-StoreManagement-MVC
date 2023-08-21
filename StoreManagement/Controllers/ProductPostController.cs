@@ -2,7 +2,6 @@
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using StoreManagement.Models;
-using StoreManagement.Repositories.CategoryRepository;
 using StoreManagement.Repositories.ProductPostRepository;
 using StoreManagement.Repositories.ProductRepository;
 using StoreManagement.Repositories.UserRepository;
@@ -11,12 +10,19 @@ namespace StoreManagement.Controllers
 {
     public class ProductPostController : Controller
     {
+        private IWebHostEnvironment Environment;
         private readonly IProductPostRepository _productPostRepository;
         private readonly IProductRepository _productRepository;
         private readonly IUserRepository _userRepository;
 
-        public ProductPostController(IProductPostRepository productPostRepository, IProductRepository productRepository, IUserRepository userRepository)
+        public ProductPostController(
+            IWebHostEnvironment environment,
+            IProductPostRepository productPostRepository,
+            IProductRepository productRepository,
+            IUserRepository userRepository
+            )
         {
+            Environment = environment;
             _productPostRepository = productPostRepository;
             _productRepository = productRepository;
             _userRepository = userRepository;
@@ -28,6 +34,29 @@ namespace StoreManagement.Controllers
             if (HttpContext.Session.GetString("idUser") != null)
             {
                 return View();
+            }
+            else
+            {
+                return RedirectToAction("Login", "Home");
+            }
+        }
+
+        public IActionResult Upsert(Guid? id)
+        {
+            ViewBag.ProductsList = new SelectList(_productRepository.GetAll().ToList(), "Id", "ProductName");
+            ViewBag.UsersList = new SelectList(_userRepository.GetAll().ToList(), "Id", "FullName");
+            if (HttpContext.Session.GetString("idUser") != null)
+            {
+                if (id == null)
+                {
+                    return View();
+                }
+                var productPost = _productPostRepository.GetById(id);
+                if (productPost == null)
+                {
+                    return NotFound();
+                }
+                return View(productPost);
             }
             else
             {
@@ -84,23 +113,91 @@ namespace StoreManagement.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Create(ProductPost productPost)
+        public async Task<IActionResult> Create(ProductPostRequest productPostRequest)
         {
-            productPost.Id = Guid.NewGuid();
+            var fileNames = new List<string>();
+            if (productPostRequest.UploadFiles != null)
+            {
+                foreach (var file in productPostRequest.UploadFiles)
+                {
+                    if (file.Length > 0)
+                    {
+                        string fileName = Path.GetFileNameWithoutExtension(file.FileName);
+                        string extension = Path.GetExtension(file.FileName);
+                        fileName = fileName + DateTime.Now.ToString("yymmssfff") + extension;
+
+                        string path = Path.Combine(this.Environment.WebRootPath, "Images");
+                        string filePath = Path.Combine(path, fileName);
+                        if (!Directory.Exists(path))
+                        {
+                            Directory.CreateDirectory(path);
+                        }
+                        using (FileStream fileStream = new FileStream(filePath, FileMode.Create))
+                        {
+                            file.CopyTo(fileStream);
+                        }
+
+                        //filePaths.Add(filePath);
+                        fileNames.Add(fileName);
+                    }
+                }
+            }
+
+            string CoverImg = fileNames.FirstOrDefault();
+
+            ProductPost productPost = new ProductPost
+            {
+                Id = Guid.NewGuid(),
+                ProductId = productPostRequest.ProductId,
+                AuthorId = productPostRequest.AuthorId,
+                CoverImg = CoverImg != null ? CoverImg : productPostRequest.CoverImg,
+                Content = productPostRequest.Content,
+            };
             _productPostRepository.Add(productPost);
-            return Json(new { isSuccess = _productPostRepository.Save() });
+            return Ok(new { isSuccess = _productPostRepository.Save() });
         }
 
         [HttpPost]
-        public async Task<IActionResult> Edit(ProductPost productPost)
+        public async Task<IActionResult> Edit(ProductPostRequest productPostRequest)
         {
-            var productPostUpdate = _productPostRepository.GetById<Guid>(productPost.Id);
+            var productPostUpdate = _productPostRepository.GetById<Guid>(productPostRequest.Id);
             if (productPostUpdate == null) return NotFound();
 
-            productPostUpdate.ProductId = productPost.ProductId;
-            productPostUpdate.AuthorId = productPost.AuthorId;
-            productPostUpdate.Content = productPost.Content;
-            productPostUpdate.CoverImg = productPost.CoverImg;
+            var fileNames = new List<string>();
+
+            if (productPostRequest.UploadFiles != null)
+            {
+                foreach (var file in productPostRequest.UploadFiles)
+                {
+                    if (file.Length > 0)
+                    {
+                        string fileName = Path.GetFileNameWithoutExtension(file.FileName);
+                        string extension = Path.GetExtension(file.FileName);
+                        fileName = fileName + DateTime.Now.ToString("yymmssfff") + extension;
+
+                        string path = Path.Combine(this.Environment.WebRootPath, "Images");
+                        string filePath = Path.Combine(path, fileName);
+                        if (!Directory.Exists(path))
+                        {
+                            Directory.CreateDirectory(path);
+                        }
+                        using (FileStream fileStream = new FileStream(filePath, FileMode.Create))
+                        {
+                            file.CopyTo(fileStream);
+                        }
+
+                        //filePaths.Add(filePath);
+                        fileNames.Add(fileName);
+                    }
+                }
+            }
+
+            string CoverImg = fileNames.FirstOrDefault();
+
+            productPostUpdate.ProductId = productPostRequest.ProductId;
+            productPostUpdate.AuthorId = productPostRequest.AuthorId;
+            productPostUpdate.Content = productPostRequest.Content;
+            productPostUpdate.CoverImg = CoverImg != null ? CoverImg : productPostRequest.CoverImg;
             _productPostRepository.Update(productPostUpdate);
             return Json(new { isSuccess = _productPostRepository.Save() });
         }

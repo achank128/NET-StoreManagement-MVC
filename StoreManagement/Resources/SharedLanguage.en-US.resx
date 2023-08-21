@@ -165,6 +165,9 @@
   <data name="common_back" xml:space="preserve">
     <value>Back</value>
   </data>
+  <data name="common_characters" xml:space="preserve">
+    <value>Characters</value>
+  </data>
   <data name="common_choose_discount" xml:space="preserve">
     <value>Choose discount</value>
   </data>
@@ -320,6 +323,24 @@
   </data>
   <data name="product" xml:space="preserve">
     <value>Product</value>
+  </data>
+  <data name="productpost" xml:space="preserve">
+    <value>Product post</value>
+  </data>
+  <data name="productpost_author" xml:space="preserve">
+    <value>Author</value>
+  </data>
+  <data name="productpost_content" xml:space="preserve">
+    <value>Content</value>
+  </data>
+  <data name="productpost_cover_img" xml:space="preserve">
+    <value>Cover Image</value>
+  </data>
+  <data name="productpost_create" xml:space="preserve">
+    <value>Create product post</value>
+  </data>
+  <data name="productpost_update" xml:space="preserve">
+    <value>Update product post</value>
   </data>
   <data name="product_id" xml:space="preserve">
     <value>Id</value>
