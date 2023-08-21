@@ -462,7 +462,7 @@
                     url: '/ImportStore/CreateImportStore',
                     type: 'POST',
                     dataType: 'json',
-                    data: data,
+                    data: JSON.stringify(data),
                     headers: {
                         'Accept': 'application/json',
                         'Content-Type': 'application/json'
