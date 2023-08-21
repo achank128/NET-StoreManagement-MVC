@@ -421,8 +421,11 @@
 
                 $(e).find('.Product').on('change', () => {
                     var productId = $(e).find('.Product :selected').val();
-                    var productPrice = productsList.find(p => p.id == productId).price
-                    $(e).find('.ProductPrice').val(productPrice);
+                    var product = productsList.find(p => p.id == productId)
+                    $(e).find('.ProductPrice').val(product.price);
+                    $(e).find('.Price').val(product.price);
+                    $(e).find('.Number').val(product.number);
+
                 })
                 $(e).find('.btn').on('click', () => {
                     $(e).remove();
