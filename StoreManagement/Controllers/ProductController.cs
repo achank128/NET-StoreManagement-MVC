@@ -80,9 +80,10 @@ namespace StoreManagement.Controllers
 
             if (!String.IsNullOrEmpty(searchString))
             {
-                products = products.Where(s =>
-                s.ProductName.Contains(searchString)
-                || s.ProductCode.Contains(searchString)
+                products = products.Where(s => 
+                s.Status == true 
+                && (s.ProductName.Contains(searchString)
+                || s.ProductCode.Contains(searchString))
                 );
             }
 

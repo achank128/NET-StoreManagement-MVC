@@ -3,7 +3,7 @@
 
 
 @{
-    ViewData["Title"] = "Export Store";
+    ViewData["Title"] = @_localization.Getkey("export_list");
 }
 
 <div class="row">
@@ -178,9 +178,10 @@
                     },
                     {
                         "render": (data, type, row, meta) => {
-                            return `<a class="btn btn-outline-info" onclick="openDetailForm('${row.id}')"><i class="bi bi-eye"></i></a>
-                                                                                                                    <a class="btn btn-primary" onclick="openEditForm('${row.id}')"><i class="bi bi-pencil-square"></i></a>
-                                                                                                                    <a class="btn btn-danger" onclick="openDeleteModal('${row.id}')" ><i class="bi bi-trash"></i></a>`
+                            return `
+                            <a class="btn btn-outline-info" onclick="openDetailForm('${row.id}')"><i class="bi bi-eye"></i></a>
+                            <a class="btn btn-primary" onclick="openEditForm('${row.id}')"><i class="bi bi-pencil-square"></i></a>
+                            <a class="btn btn-danger" onclick="openDeleteModal('${row.id}')" ><i class="bi bi-trash"></i></a>`
                         },
                         "class": "text-end"
                     },
@@ -211,9 +212,11 @@
                             var n = d.getHours() + "-" + d.getMinutes() + "-" + d.getSeconds();
                             return exportNameLabel.value + '_' + l + ' ' + n;
                         },
+                        //"customize": customizeExcelOptions
                     },
                 ],
             });
+
 
             $('#ProductItem-Table').on('change', '.Price', (e) => {
                 caculateTotal();
@@ -289,6 +292,83 @@
             dt.ajax.reload();
         };
 
+        function customizeExcelOptions (xlsx) {
+            var sheet = xlsx.xl.worksheets['sheet1.xml'];
+            var numrows = 3; //number row custom
+
+            // add styles for the column header, these row will be moved down
+            var clRow = $('row', sheet);
+
+            //update Row
+            clRow.each(function () {
+                var attr = $(this).attr('r');
+                var ind = parseInt(attr);
+                ind = ind + numrows;
+                $(this).attr("r", ind);
+            });
+
+            // Create row before data
+            $('row c ', sheet).each(function (index) {
+                var attr = $(this).attr('r');
+                var pre = attr.substring(0, 1);
+                var ind = parseInt(attr.substring(1, attr.length));
+                ind = ind + numrows;
+                $(this).attr("r", pre + ind);
+            });
+
+            function addRow(index, data) {
+                var row = sheet.createElement('row');
+
+                row.setAttribute("r", index);
+                for (i = 0; i < data.length; i++) {
+                    var key = data[i].k;
+                    var value = data[i].v;
+
+                    var c = sheet.createElement('c');
+                    c.setAttribute("t", "inlineStr");
+                    c.setAttribute("s", "2");
+                    c.setAttribute("r", key + index);
+
+                    var is = sheet.createElement('is');
+                    var t = sheet.createElement('t');
+                    var text = sheet.createTextNode(value)
+
+                    t.appendChild(text);
+                    is.appendChild(t);
+                    c.appendChild(is);
+
+                    row.appendChild(c);
+                }
+                return row;
+            }
+
+            var d = new Date();
+            var l = d.getDate() + '/' + (d.getMonth() + 1) + '/' + d.getFullYear()
+            var exporterLabel = @Html.Raw(Json.Serialize(_localization.Getkey("export_exporter")));
+            var exportDateLabel = @Html.Raw(Json.Serialize(_localization.Getkey("export_date")));
+            var fullnameLabel = @Html.Raw(Json.Serialize(HttpContextAccessor.HttpContext.Session.GetString("FullName").ToString()));
+
+            var r1 = addRow(2, [{
+                k: 'A',
+                v: exporterLabel.value
+            }, {
+                k: 'B',
+                v: fullnameLabel
+            }]);
+            var r2 = addRow(3, [{
+                k: 'A',
+                v: exportDateLabel.value
+            }, {
+                k: 'B',
+                v: l
+            }]);
+            
+            var sheetData = sheet.getElementsByTagName('sheetData')[0];
+            sheetData.insertBefore(r2, sheetData.childNodes[0]);
+            sheetData.insertBefore(r1, sheetData.childNodes[0]);
+
+        }
+
         function openAddForm() {
             isEdit = false;
             resetForm();
@@ -330,6 +410,7 @@
         function resetForm() {
             form.reset();
             $('#form').removeClass('was-validated');
+            document.getElementById('ExportDate').valueAsDate = new Date();
         }
 
         function disableValueForm(disabled) {
@@ -341,7 +422,7 @@
             $('#Note').prop("disabled", disabled);
             $('#Total').prop("disabled", disabled);
             $('.product-item').each((i, e) => {
-                $(e).find('.Product').prop("disabled", disabled);
+                $(e).find('.Products').prop("disabled", disabled);
                 $(e).find('.Quantity').prop("disabled", disabled);
                 $(e).find('.Price').prop("disabled", disabled);
                 $(e).find('.btn').prop("disabled", disabled);

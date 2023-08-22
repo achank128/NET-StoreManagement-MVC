@@ -71,7 +71,7 @@
                     <button id="btnSubmit" class="btn btn-primary">@_localization.Getkey("common_add")</button>
                 </div>
             </form>
-            <button id="btnActive" class="btn btn-warning" onclick="handleDelete(1)"><i class="bi bi-play-fill"></i> Ngưng xóa</button>
+            <button id="btnActive" class="btn btn-warning" onclick="handleDelete(1)"><i class="bi bi-play-fill"></i> @_localization.Getkey("common_active")</button>
         </div>
     </div>
 
@@ -173,7 +173,7 @@
                         "render": (data) => new Intl.NumberFormat('en-US').format(data)
                     },
                     { "data": "number" },
-                    { "data": "status", "render": (data) => data ? '@_localization.Getkey("common_active")' : '@_localization.Getkey("common_delete")' },
+                    { "data": "status", "render": (data) => data ? '@_localization.Getkey("common_active")' : '@_localization.Getkey("common_deactive")' },
                     {
                         "render": (data, type, row, meta) => {
                             return `
@@ -415,7 +415,7 @@
         }
 
         function handleDelete(status) {
-            var deleteSuccessLabel = @Json.Serialize(_localization.Getkey("common_notyf_delete_success"));
+            var deleteSuccessLabel = @Json.Serialize(_localization.Getkey("common_notyf_update_success"));
             var errorLabel = @Json.Serialize(_localization.Getkey("common_notyf_error"));
             $.ajax({
                 type: "POST",
@@ -425,6 +425,7 @@
                         dataTable.ajax.reload();
                         notyf.success(deleteSuccessLabel.value);
                         $('#deleteModal').modal("hide");
+                        offcanvasForm.hide();
                     } else {
                         notyf.error(errorLabel.value);
                         $('#deleteModal').modal("hide");

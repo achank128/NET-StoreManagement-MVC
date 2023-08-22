@@ -180,6 +180,9 @@
   <data name="common_created_date" xml:space="preserve">
     <value>Ngày tạo</value>
   </data>
+  <data name="common_deactive" xml:space="preserve">
+    <value>Ngừng</value>
+  </data>
   <data name="common_delete" xml:space="preserve">
     <value>Xóa</value>
   </data>
@@ -296,6 +299,9 @@
   </data>
   <data name="export_list" xml:space="preserve">
     <value>Phiếu xuất kho</value>
+  </data>
+  <data name="export_price" xml:space="preserve">
+    <value>Giá xuất</value>
   </data>
   <data name="import" xml:space="preserve">
     <value>Phiếu nhập</value>

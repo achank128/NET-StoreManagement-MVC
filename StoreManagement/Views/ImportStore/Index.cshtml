@@ -2,7 +2,7 @@
 @inject Microsoft.AspNetCore.Http.IHttpContextAccessor HttpContextAccessor
 
 @{
-    ViewData["Title"] = "Import Store";
+    ViewData["Title"] = @_localization.Getkey("import_list");
 }
 
 <div class="row">
@@ -304,6 +304,7 @@
         function resetForm() {
             form.reset();
             $('#form').removeClass('was-validated');
+            document.getElementById('ImportDate').valueAsDate = new Date();
         }
 
         function disableValueForm(disabled) {
@@ -313,7 +314,7 @@
             $('#Note').prop("disabled", disabled);
             $('#Total').prop("disabled", disabled);
             $('.product-item').each((i, e) => {
-                $(e).find('.Product').prop("disabled", disabled);
+                $(e).find('.Products').prop("disabled", disabled);
                 $(e).find('.Quantity').prop("disabled", disabled);
                 $(e).find('.Price').prop("disabled", disabled);
                 $(e).find('.btn').prop("disabled", disabled);
