@@ -198,6 +198,9 @@
   <data name="common_discount" xml:space="preserve">
     <value>Giảm giá</value>
   </data>
+  <data name="common_download_temp" xml:space="preserve">
+    <value>Tải Mẫu</value>
+  </data>
   <data name="common_email" xml:space="preserve">
     <value>Email</value>
   </data>

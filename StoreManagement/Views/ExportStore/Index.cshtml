@@ -60,7 +60,7 @@
                                 <th>@_localization.Getkey("product_quantity_in_stock")</th>
                                 <th>@_localization.Getkey("common_quantity")</th>
                                 <th>@_localization.Getkey("export_price")</th>
-                                <th class="text-center">
+                                <th class="text-center" style="width: 120px;">
                                     <button id="add-product-item" class="btn btn-success">
                                         <i class="bi bi-plus-square"></i> @_localization.Getkey("common_add")
                                     </button>
@@ -212,7 +212,7 @@
                             var n = d.getHours() + "-" + d.getMinutes() + "-" + d.getSeconds();
                             return exportNameLabel.value + '_' + l + ' ' + n;
                         },
-                        //"customize": customizeExcelOptions
+                        "customize": customizeExcelOptions
                     },
                 ],
             });
@@ -299,6 +299,8 @@
             // add styles for the column header, these row will be moved down
             var clRow = $('row', sheet);
 
+            $(sheet).find("row[r='1']").remove();
+
             //update Row
             clRow.each(function () {
                 var attr = $(this).attr('r');
@@ -323,10 +325,11 @@
                 for (i = 0; i < data.length; i++) {
                     var key = data[i].k;
                     var value = data[i].v;
+                    var attr = data[i].a;
 
                     var c = sheet.createElement('c');
                     c.setAttribute("t", "inlineStr");
-                    c.setAttribute("s", "2");
+                    c.setAttribute("s", attr);
                     c.setAttribute("r", key + index);
 
                     var is = sheet.createElement('is');
@@ -344,28 +347,40 @@
 
             var d = new Date();
             var l = d.getDate() + '/' + (d.getMonth() + 1) + '/' + d.getFullYear()
+            var exportListLabel = @Html.Raw(Json.Serialize(_localization.Getkey("export_list")));
             var exporterLabel = @Html.Raw(Json.Serialize(_localization.Getkey("export_exporter")));
             var exportDateLabel = @Html.Raw(Json.Serialize(_localization.Getkey("export_date")));
             var fullnameLabel = @Html.Raw(Json.Serialize(HttpContextAccessor.HttpContext.Session.GetString("FullName").ToString()));
 
-            var r1 = addRow(2, [{
+            var r1 = addRow(1, [{
                 k: 'A',
-                v: exporterLabel.value
-            }, {
-                k: 'B',
-                v: fullnameLabel
+                v: exportListLabel.value,
+                a: ['51'],
             }]);
-            var r2 = addRow(3, [{
+            var r2 = addRow(2, [{
                 k: 'A',
-                v: exportDateLabel.value
+                v: exporterLabel.value,
+                a: ['2'],
             }, {
                 k: 'B',
-                v: l
+                v: fullnameLabel,
+                a: [],
+            }]);
+            var r3 = addRow(3, [{
+                k: 'A',
+                v: exportDateLabel.value,
+                a: ['2'],
+            }, {
+                k: 'B',
+                v: l,
+                a: [],
             }]);
             
             var sheetData = sheet.getElementsByTagName('sheetData')[0];
+            sheetData.insertBefore(r3, sheetData.childNodes[0]);
             sheetData.insertBefore(r2, sheetData.childNodes[0]);
             sheetData.insertBefore(r1, sheetData.childNodes[0]);
+            console.log(sheetData);
 
         }
 

@@ -87,7 +87,8 @@
                     <input class="form-control" type="file" id="formFile" name="postedFile">
                 </div>
                 <div class="form-group">
-                    <button type="submit" class="btn btn-primary">@_localization.Getkey("common_upload")</button>
+                    <button type="submit" class="btn btn-primary mr-2">@_localization.Getkey("common_upload")</button>
+                    <a id="btnDownloadTemp" class="btn btn-outline-success" href="/Uploads/Products.xlsx" download>@_localization.Getkey("common_download_temp")</a>
                 </div>
             </form>
         </div>
@@ -274,6 +275,10 @@
             dt.ajax.reload();
         };
 
+        function handleDownloadTemp(e){
+            e.preventDefault();
+
+        }
 
         function openAddForm() {
             isEdit = false;
