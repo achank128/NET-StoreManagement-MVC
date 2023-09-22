@@ -6,43 +6,56 @@ using Microsoft.EntityFrameworkCore;
 
 namespace StoreManagement.Models;
 
+[Index("ProductCode", Name = "UQ__Products__2F4E024FEE43FB09", IsUnique = true)]
 public partial class Product
 {
     [Key]
     [Column("ID")]
     public Guid Id { get; set; }
 
+    [StringLength(50)]
+    public string ProductCode { get; set; } = null!;
 
-    [Display(Name = "Tên sản phẩm")]
-    [Required(ErrorMessage = "Tên sản phẩm là bắt buộc")]
     [StringLength(100)]
     public string ProductName { get; set; } = null!;
 
-
-    [Display(Name = "Hãng sản xuất")]
-    [Required(ErrorMessage = "Hãng sản xuất là bắt buộc")]
     [StringLength(100)]
     public string Manufacturer { get; set; } = null!;
 
+    public Guid CategoryId { get; set; }
 
-    [Display(Name = "Mô tả")]
+    public Guid UnitId { get; set; }
+
     [StringLength(255)]
     public string? Description { get; set; }
 
-
-    [Display(Name = "Đơn giá")]
-    [Required(ErrorMessage = "Đơn giá là bắt buộc")]
     [Column(TypeName = "money")]
-    public float? Price { get; set; }
+    public decimal? ImportPrice { get; set; }
 
+    [Column(TypeName = "money")]
+    public decimal Price { get; set; }
 
-    [Display(Name = "Số lượng tồn")]
-    [Required(ErrorMessage = "Số lượng tồn là bắt buộc")]
-    public int? Number { get; set; }
+    public int Number { get; set; }
+
+    public bool? Status { get; set; }
+
+    [Column(TypeName = "datetime")]
+    public DateTime CreatedDate { get; set; }
+
+    [ForeignKey("CategoryId")]
+    [InverseProperty("Products")]
+    public virtual Category Category { get; set; } = null!;
 
     [InverseProperty("Product")]
-    public virtual ICollection<ExportStore> ExportStores { get; set; } = new List<ExportStore>();
+    public virtual ICollection<ExportStoreDetail> ExportStoreDetails { get; set; } = new List<ExportStoreDetail>();
 
     [InverseProperty("Product")]
-    public virtual ICollection<ImportStore> ImportStores { get; set; } = new List<ImportStore>();
+    public virtual ICollection<ImportStoreDetail> ImportStoreDetails { get; set; } = new List<ImportStoreDetail>();
+
+    [InverseProperty("Product")]
+    public virtual ICollection<ProductPost> ProductPosts { get; set; } = new List<ProductPost>();
+
+    [ForeignKey("UnitId")]
+    [InverseProperty("Products")]
+    public virtual Unit Unit { get; set; } = null!;
 }

@@ -13,34 +13,36 @@ public partial class ExportStore
     [Column("ID")]
     public Guid Id { get; set; }
 
+    public Guid ExporterId { get; set; }
 
-    [Display(Name = "Người xuất")]
-    [Required(ErrorMessage = "Tên người xuất là bắt buộc")]
-    [StringLength(100)]
-    public string? ExporterName { get; set; }
+    public Guid CustomerId { get; set; }
 
-
-    [Display(Name = "Ngày xuất")]
-    [Required(ErrorMessage = "Ngày xuất là bắt buộc")]
     [Column(TypeName = "datetime")]
-    public DateTime ExporterDate { get; set; }
+    public DateTime ExportDate { get; set; }
 
-
-    [Display(Name = "Sản phẩm")]
-    [Required(ErrorMessage = "Sản phẩm là bắt buộc")]
-    public Guid ProductId { get; set; }
-
-
-    [Display(Name = "Số lượng")]
-    [Required(ErrorMessage = "Số lượng là bắt buộc")]
-    public int? Quantity { get; set; }
-
-
-    [Display(Name = "Tổng tiền")]
     [Column(TypeName = "money")]
-    public float? Total { get; set; }
+    public decimal? SubTotal { get; set; }
 
-    [ForeignKey("ProductId")]
+    [Column(TypeName = "money")]
+    public decimal? Discount { get; set; }
+
+    [StringLength(255)]
+    public string? Note { get; set; }
+
+    [Column(TypeName = "money")]
+    public decimal Total { get; set; }
+
+    [Column(TypeName = "datetime")]
+    public DateTime CreatedDate { get; set; }
+
+    [ForeignKey("CustomerId")]
     [InverseProperty("ExportStores")]
-    public virtual Product? Product { get; set; } = null!;
+    public virtual Customer Customer { get; set; } = null!;
+
+    [InverseProperty("ExportStore")]
+    public virtual ICollection<ExportStoreDetail> ExportStoreDetails { get; set; } = new List<ExportStoreDetail>();
+
+    [ForeignKey("ExporterId")]
+    [InverseProperty("ExportStores")]
+    public virtual User Exporter { get; set; } = null!;
 }

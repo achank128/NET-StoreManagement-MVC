@@ -1,0 +1,285 @@
+﻿@{
+    ViewData["Title"] = "Customers";
+}
+
+<div class="row">
+    <div class="col-md-8">
+        <h2>@_localization.Getkey("customer_list")</h2>
+    </div>
+    <div class="col-md-4 text-end">
+        <a class="btn" asp-action="Index">
+            <i class="bi bi-arrow-clockwise"></i>
+        </a>
+    </div>
+    <div class="col-md-12 text-end mb-3">
+        <button class="btn btn-success" onclick="openAddForm()">
+            <i class="bi bi-plus-circle"></i> @_localization.Getkey("common_add_new")
+        </button>
+    </div>
+
+    <div class="offcanvas offcanvas-end" id="offcanvasForm" aria-labelledby="offcanvasFormLabel">
+        <div class="offcanvas-header">
+            <h5 class="offcanvas-title text-primary" id="offcanvasFormLabel">@_localization.Getkey("common_add_new")</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+        </div>
+        <div class="offcanvas-body">
+            <form id="form" novalidate>
+                <div class="form-group mb-3">
+                    <label class="control-label">@_localization.Getkey("customer_name")</label>
+                    <input id="CustomerId" class="form-control" type="hidden" />
+                    <input id="CustomerName" class="form-control" required />
+                </div>
+                <div class="form-group mb-3">
+                    <label class="control-label">@_localization.Getkey("common_address")</label>
+                    <input id="Address" class="form-control" />
+                </div>
+                <div class="form-group mb-3">
+                    <label class="control-label">@_localization.Getkey("common_phone")</label>
+                    <input id="Phone" class="form-control" />
+                </div>
+                <div class="form-group mb-3">
+                    <label class="control-label">@_localization.Getkey("common_description")</label>
+                    <textarea id="Description" class="form-control"></textarea>
+                </div>
+                <div class="form-group">
+                    <button id="btnSubmit" class="btn btn-primary">@_localization.Getkey("common_add")</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+
+
+    <div class="col-md-12">
+        <div class="table-responsive" style="width: 100%">
+            <table id="Customer-Table" class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th>@_localization.Getkey("customer_id")</th>
+                        <th>@_localization.Getkey("customer_name")</th>
+                        <th>@_localization.Getkey("common_address")</th>
+                        <th>@_localization.Getkey("common_phone")</th>
+                        <th>@_localization.Getkey("common_description")</th>
+                        <th class="text-end">@_localization.Getkey("common_actions")</th>
+                    </tr>
+                </thead>
+            </table>
+        </div>
+    </div>
+
+    <div class="modal fade" id="deleteModal" tabindex="-1" role="dialog" aria-labelledby="deleteModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="deleteModalLabel">@_localization.Getkey("common_confirm_delete")</h5>
+                    <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    @_localization.Getkey("common_are_you_sure_delete")
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">@_localization.Getkey("common_back")</button>
+                    <button type="button" class="btn btn-danger" onclick="handleDelete()">@_localization.Getkey("common_confirm")</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        var dataTable;
+        var isEdit = false;
+        var deleteItemId = "";
+        var offcanvasForm = new bootstrap.Offcanvas($('#offcanvasForm'));
+        var form = $('#form')[0];
+
+        $(document).ready(function () {
+            dataTable = $("#Customer-Table").DataTable({
+                "processing": true,
+                "serverSide": true,
+                "filter": true,
+                "orderMulti": false,
+                "ordering": false,
+                "ajax": {
+                    "url": "/Customer/GetData",
+                    "type": "GET",
+                    "datatype": "json"
+                },
+                "columns": [
+                    { "data": "id" },
+                    { "data": "customerName" },
+                    { "data": "address" },
+                    { "data": "phone" },
+                    { "data": "description" },
+                    {
+                        "render": function (data, type, row, meta) {
+                            return `
+                                        <a class="btn btn-outline-info" onclick="openDetailForm('${row.id}')"><i class="bi bi-eye"></i></a>
+                                        <a class="btn btn-primary" onclick="openEditForm('${row.id}')"><i class="bi bi-pencil-square"></i></a>
+                                        <a class="btn btn-danger" onclick="openDeleteModal('${row.id}')" ><i class="bi bi-trash"></i></a>
+                                    `
+                        },
+                        "class": "text-end"
+                    },
+                ],
+
+                "language": {
+                    "emptyTable": "No data found"
+                },
+            });
+
+            form.addEventListener('submit', event => {
+                event.preventDefault()
+                if (!form.checkValidity()) {
+                    event.stopPropagation()
+                    var validateLabel = @Html.Raw(Json.Serialize(_localization.Getkey("common_notyf_please_enter_input")));
+                    notyf.error(validateLabel.value);
+                } else {
+                    handleSave()
+                }
+                form.classList.add('was-validated')
+            }, false)
+        });
+
+        function openAddForm() {
+            isEdit = false;
+            resetForm();
+            var addLabel = @Html.Raw(Json.Serialize(_localization.Getkey("common_add")));
+            var addNewLabel = @Html.Raw(Json.Serialize(_localization.Getkey("common_add_new")));
+            $('#btnSubmit').show().text(addLabel.value);
+            $('#offcanvasFormLabel').text(addNewLabel.value);
+            disableValueForm(false);
+            offcanvasForm.show();
+        }
+
+        function openEditForm(id) {
+            isEdit = true;
+            resetForm();
+            var updateLabel = @Html.Raw(Json.Serialize(_localization.Getkey("common_update")));
+            $('#btnSubmit').show().text(updateLabel.value);
+            disableValueForm(false);
+            getDetailValue(id);
+            offcanvasForm.show();
+        }
+
+        function openDetailForm(id) {
+            $('#btnSubmit').hide();
+            disableValueForm(true);
+            getDetailValue(id);
+            offcanvasForm.show();
+        }
+
+        function openDeleteModal(id) {
+            $('#deleteModal').modal("show");
+            deleteItemId = id;
+        }
+
+        function disableValueForm(disabled) {
+            $('#CustomerName').prop("disabled", disabled);
+            $('#Address').prop("disabled", disabled);
+            $('#Phone').prop("disabled", disabled);
+            $('#Description').prop("disabled", disabled);
+        }
+
+        function resetForm() {
+            form.reset();
+            $('#form').removeClass('was-validated');
+        }
+
+        function getDetailValue(id) {
+            $.ajax({
+                type: "GET",
+                url: '@Url.Action("Details","Customer")/' + id,
+                success: function (data) {
+                    var detailsLabel = @Json.Serialize(_localization.Getkey("common_details"));
+                    $('#offcanvasFormLabel').text(detailsLabel.value);
+                    $('#CustomerId').val(data.data.id);
+                    $('#CustomerName').val(data.data.customerName);
+                    $('#Address').val(data.data.address);
+                    $('#Phone').val(data.data.phone);
+                    $('#Description').val(data.data.description);
+                }
+            });
+        }
+
+        function handleSave() {
+            var data = {
+                Id: $('#CustomerId').val(),
+                CustomerName: $('#CustomerName').val(),
+                Address: $('#Address').val(),
+                Phone: $('#Phone').val(),
+                Description: $('#Description').val(),
+            };
+
+            var createSuccessLabel = @Json.Serialize(_localization.Getkey("common_notyf_create_success"));
+            var updateSuccessLabel = @Json.Serialize(_localization.Getkey("common_notyf_update_success"));
+            var errorLabel = @Json.Serialize(_localization.Getkey("common_notyf_error"));
+            if (isEdit) {
+                $.ajax({
+                    type: "POST",
+                    url: "/Customer/Edit",
+                    data: data,
+                    dataType: 'json',
+                    success: function (data) {
+                        if (data.isSuccess) {
+                            notyf.success(updateSuccessLabel.value);
+                            dataTable.ajax.reload();
+                            offcanvasForm.hide();
+                        } else {
+                            notyf.error(errorLabel.value);
+                        }
+                    },
+                    error: function () {
+                        notyf.error(errorLabel.value);
+                    }
+                });
+            } else {
+                $.ajax({
+                    type: "POST",
+                    url: "/Customer/Create",
+                    data: data,
+                    dataType: 'json',
+                    success: function (data) {
+                        if (data.isSuccess) {
+                            notyf.success(createSuccessLabel.value);
+                            dataTable.ajax.reload();
+                            offcanvasForm.hide();
+                        } else {
+                            notyf.error(errorLabel.value);
+                        }
+                    },
+                    error: function () {
+                        notyf.error(errorLabel.value);
+                    }
+                });
+            }
+        }
+
+        function handleDelete() {
+            var deleteSuccessLabel = @Json.Serialize(_localization.Getkey("common_notyf_delete_success"));
+            var errorLabel = @Json.Serialize(_localization.Getkey("common_notyf_error"));
+            $.ajax({
+                type: "POST",
+                url: '@Url.Action("Delete","Customer")/' + deleteItemId,
+                success: function (data) {
+                    if (data.isSuccess) {
+                        dataTable.ajax.reload();
+                        notyf.success(deleteSuccessLabel.value);
+                        $('#deleteModal').modal("hide");
+                    } else {
+                        notyf.error(errorLabel.value);
+                        $('#deleteModal').modal("hide");
+                    }
+                },
+                error: function () {
+                    notyf.error(errorLabel.value);
+                    $('#deleteModal').modal("hide");
+                }
+            });
+        }
+
+    </script>
+}

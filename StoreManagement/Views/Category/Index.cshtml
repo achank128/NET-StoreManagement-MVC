@@ -1,0 +1,293 @@
+﻿@{
+    ViewData["Title"] = "Categories";
+}
+
+<div class="row">
+    <div class="col-md-8">
+        <h2>@_localization.Getkey("category_list")</h2>
+    </div>
+    <div class="col-md-4 text-end">
+        <a class="btn" asp-action="Index">
+            <i class="bi bi-arrow-clockwise"></i>
+        </a>
+    </div>
+    <div class="col-md-12 text-end mb-3">
+        <button class="btn btn-info mr-2" data-bs-toggle="offcanvas" data-bs-target="#offcanvasUpload">
+            <i class="bi bi-cloud-arrow-up"></i> @_localization.Getkey("common_import_excel")
+        </button>
+        <button class="btn btn-success" onclick="openAddForm()">
+            <i class="bi bi-plus-circle"></i> @_localization.Getkey("common_add_new")
+        </button>
+    </div>
+
+    <div class="offcanvas offcanvas-end" id="offcanvasForm" aria-labelledby="offcanvasFormLabel" style="max-width: 800px;">
+        <div class="offcanvas-header">
+            <h5 class="offcanvas-title text-primary" id="offcanvasFormLabel">@_localization.Getkey("common_add_new")</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+        </div>
+        <div class="offcanvas-body">
+            <form id="form" novalidate>
+                <div class="form-group mb-3">
+                    <label class="control-label">@_localization.Getkey("category_id")</label>
+                    <input id="CategoryId" type="hidden" />
+                    <input id="CategoryCode" class="form-control" required />
+                </div>
+                <div class="form-group mb-3">
+                    <label class="control-label">@_localization.Getkey("category_name")</label>
+                    <input id="CategoryName" class="form-control" required />
+                </div>
+                <div class="form-group mb-3">
+                    <label class="control-label">@_localization.Getkey("common_description")</label>
+                    <textarea id="Description" class="form-control"></textarea>
+                </div>
+                <div class="form-group">
+                    <button id="btnSubmit" class="btn btn-primary" data-bs-dismiss="offcanvas">@_localization.Getkey("common_add")</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="offcanvas offcanvas-end" id="offcanvasUpload">
+        <div class="offcanvas-header">
+            <h5 class="offcanvas-title text-primary">@_localization.Getkey("common_import_excel")</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+        </div>
+        <div class="offcanvas-body">
+            <form asp-controller="FileUpload" asp-action="ImportCategory" method="post" enctype="multipart/form-data">
+                <div class="mb-3">
+                    <label for="formFile" class="form-label">@_localization.Getkey("common_import_excel")</label>
+                    <input class="form-control" type="file" id="formFile" name="postedFile">
+                </div>
+                <div class="form-group">
+                    <button type="submit" class="btn btn-primary">@_localization.Getkey("common_upload")</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="col-md-12">
+        <div class="table-responsive" style="width: 100%">
+            <table id="Category-Table" class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th>@_localization.Getkey("category_id")</th>
+                        <th>@_localization.Getkey("category_name")</th>
+                        <th>@_localization.Getkey("common_description")</th>
+                        <th class="text-end">@_localization.Getkey("common_actions")</th>
+                    </tr>
+                </thead>
+            </table>
+        </div>
+    </div>
+
+    <div class="modal fade" id="deleteModal" tabindex="-1" role="dialog" aria-labelledby="deleteModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="deleteModalLabel">@_localization.Getkey("common_confirm_delete")</h5>
+                    <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    @_localization.Getkey("common_are_you_sure_delete")
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">@_localization.Getkey("common_back")</button>
+                    <button type="button" class="btn btn-danger" onclick="handleDelete()">@_localization.Getkey("common_confirm")</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+
+        var Popup, dataTable;
+        var isEdit = false;
+        var deleteItemId = "";
+        var offcanvasForm = new bootstrap.Offcanvas($('#offcanvasForm'));
+        var form = $('#form')[0];
+
+        $(document).ready(function () {
+            dataTable = $("#Category-Table").DataTable({
+                "processing": true,
+                "serverSide": true,
+                "filter": true,
+                "orderMulti": false,
+                "ordering": false,
+                "ajax": {
+                    "url": "/Category/GetData",
+                    "type": "GET",
+                    "datatype": "json"
+                },
+                "columns": [
+                    { "data": "categoryCode" },
+                    { "data": "categoryName" },
+                    { "data": "description" },
+                    {
+                        "render": function (data, type, row, meta) {
+                            return `
+                                        <a class="btn btn-outline-info" onclick="openDetailForm('${row.id}')"><i class="bi bi-eye"></i></a>
+                                        <a class="btn btn-primary" onclick="openEditForm('${row.id}')"><i class="bi bi-pencil-square"></i></a>
+                                        <a class="btn btn-danger" onclick="openDeleteModal('${row.id}')" ><i class="bi bi-trash"></i></a>
+                                    `;
+                        },
+                        "class": "text-end"
+                    },
+                ],
+
+                "language": {
+                    "emptyTable": "No data found"
+                },
+            });
+
+
+            form.addEventListener('submit', event => {
+                event.preventDefault()
+                if (!form.checkValidity()) {
+                    event.stopPropagation();
+                    var validateLabel = @Html.Raw(Json.Serialize(_localization.Getkey("common_notyf_please_enter_input")));
+                    notyf.error(validateLabel.value);
+                } else {
+                    handleSave()
+                }
+                form.classList.add('was-validated')
+            }, false)
+        });
+
+        function openAddForm() {
+            isEdit = false;
+            resetForm();
+            var addLabel = @Html.Raw(Json.Serialize(_localization.Getkey("common_add")));
+            var addNewLabel = @Html.Raw(Json.Serialize(_localization.Getkey("common_add_new")));
+            $('#btnSubmit').show().text(addLabel.value);
+            $('#offcanvasFormLabel').text(addNewLabel.value);
+            disableValueForm(false);
+            offcanvasForm.show();
+        }
+
+        function openEditForm(id) {
+            isEdit = true;
+            resetForm();
+            var updateLabel = @Html.Raw(Json.Serialize(_localization.Getkey("common_update")));
+            $('#btnSubmit').show().text(updateLabel.value);
+            disableValueForm(false);
+            getDetailValue(id);
+            offcanvasForm.show();
+        }
+
+        function openDetailForm(id) {
+            $('#btnSubmit').hide();
+            disableValueForm(true);
+            getDetailValue(id);
+            offcanvasForm.show();
+        }
+
+        function disableValueForm(disabled) {
+            $('#CategoryCode').prop("disabled", disabled);
+            $('#CategoryName').prop("disabled", disabled);
+            $('#Description').prop("disabled", disabled);
+        }
+
+        function resetForm() {
+            form.reset();
+            $('#form').removeClass('was-validated');
+        }
+
+        function openDeleteModal(id) {
+            $('#deleteModal').modal("show");
+            deleteItemId = id;
+        }
+
+        function getDetailValue(id) {
+            $.ajax({
+                type: "GET",
+                url: '@Url.Action("Details","Category")/' + id,
+                success: function (data) {
+                    var detailsLabel = @Json.Serialize(_localization.Getkey("common_details"));
+                    $('#offcanvasFormLabel').text(detailsLabel.value);
+                    $('#CategoryId').val(data.data.id);
+                    $('#CategoryCode').val(data.data.categoryCode);
+                    $('#CategoryName').val(data.data.categoryName);
+                    $('#Description').val(data.data.description);
+                }
+            });
+        }
+
+        function handleSave() {
+            var data = {
+                Id: $('#CategoryId').val(),
+                CategoryCode: $('#CategoryCode').val(),
+                CategoryName: $('#CategoryName').val(),
+                Description: $('#Description').val(),
+            };
+
+            var createSuccessLabel = @Json.Serialize(_localization.Getkey("common_notyf_create_success"));
+            var updateSuccessLabel = @Json.Serialize(_localization.Getkey("common_notyf_update_success"));
+            var errorLabel = @Json.Serialize(_localization.Getkey("common_notyf_error"));
+            if (isEdit) {
+                $.ajax({
+                    type: "POST",
+                    url: "/Category/Edit",
+                    data: data,
+                    dataType: 'json',
+                    success: function (data) {
+                        if (data.isSuccess) {
+                            notyf.success(updateSuccessLabel.value);
+                            dataTable.ajax.reload();
+                        } else {
+                            notyf.error(errorLabel.value);
+                        }
+                    },
+                    error: function () {
+                        notyf.error(errorLabel.value);
+                    }
+                });
+            } else {
+                $.ajax({
+                    type: "POST",
+                    url: "/Category/Create",
+                    data: data,
+                    dataType: 'json',
+                    success: function (data) {
+                        if (data.isSuccess) {
+                            notyf.success(createSuccessLabel.value);
+                            dataTable.ajax.reload();
+                        } else {
+                            notyf.error(errorLabel.value);
+                        }
+                    },
+                    error: function () {
+                        notyf.error(errorLabel.value);
+                    }
+                });
+            }
+        }
+
+        function handleDelete() {
+            var deleteSuccessLabel = @Json.Serialize(_localization.Getkey("common_notyf_delete_success"));
+            var errorLabel = @Json.Serialize(_localization.Getkey("common_notyf_error"));
+            $.ajax({
+                type: "POST",
+                url: '@Url.Action("Delete","Category")/' + deleteItemId,
+                success: function (data) {
+                    if (data.isSuccess) {
+                        dataTable.ajax.reload();
+                        notyf.success(deleteSuccessLabel.value);
+                        $('#deleteModal').modal("hide");
+                    } else {
+                        notyf.error(errorLabel.value);
+                        $('#deleteModal').modal("hide");
+                    }
+                },
+                error: function () {
+                    notyf.error(errorLabel.value);
+                    $('#deleteModal').modal("hide");
+                }
+            });
+        }
+
+    </script>
+}

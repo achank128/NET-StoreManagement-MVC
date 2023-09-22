@@ -16,3 +16,15 @@ html {
 body {
   margin-bottom: 60px;
 }
+
+.dt-buttons{
+    display: none;
+}
+
+.ui-autocomplete {
+    z-index: 10000 !important;
+}
+
+.ui-autocomplete-input {
+    z-index: 1100 !important;
+}

@@ -1,63 +1,447 @@
-﻿@*Model*@
-@model IEnumerable<Product>
-
-@{
-    ViewData["Title"] = "Products";
+﻿@{
+    ViewData["Title"] = @_localization.Getkey("product_list");
 }
 
-@*View*@
 <div class="row">
     <div class="col-md-8">
-        <h2>Danh sách sản phẩm</h2>
+        <h2>@_localization.Getkey("product_list")</h2>
     </div>
     <div class="col-md-4 text-end">
-        <a class="btn btn-success" asp-controller="Product" asp-action="Create">
-            <i class="bi bi-plus-circle"></i> Thêm mới
+        <a class="btn" asp-action="Index">
+            <i class="bi bi-arrow-clockwise"></i>
         </a>
     </div>
+    <div class="col-md-12 text-end mb-3">
+        <button class="btn btn-info mr-2" data-bs-toggle="offcanvas" data-bs-target="#offcanvasUpload">
+            <i class="bi bi-cloud-arrow-up"></i> @_localization.Getkey("common_import_excel")
+        </button>
+        <button id="ExportExcel" class="btn btn-outline-success mr-2">
+            <i class="bi bi-file-earmark-excel"></i> @_localization.Getkey("common_export_excel")
+        </button>
+        <button class="btn btn-success" onclick="openAddForm()">
+            <i class="bi bi-plus-circle"></i> @_localization.Getkey("common_add_new")
+        </button>
+    </div>
+
+    <div class="offcanvas offcanvas-end" id="offcanvasForm" aria-labelledby="offcanvasFormLabel" style="width: 800px;">
+        <div class="offcanvas-header">
+            <h5 class="offcanvas-title text-primary" id="offcanvasFormLabel">@_localization.Getkey("common_add_new")</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+        </div>
+        <div class="offcanvas-body">
+            <form id="form" class="row" novalidate>
+                <div class="col-md-6 mb-2">
+                    <label class="control-label">@_localization.Getkey("product_id")</label>
+                    <input id="ProductId" class="form-control" type="hidden" />
+                    <input id="ProductCode" name="ProductCode" class="form-control" required />
+                </div>
+                <div class="col-md-12 mb-2">
+                    <label class="control-label">@_localization.Getkey("product_name")</label>
+                    <input id="ProductName" name="ProductName" class="form-control" required />
+                </div>
+                <div class="col-md-6 mb-2">
+                    <label class="control-label">@_localization.Getkey("product_manufacturer")</label>
+                    <input id="Manufacturer" name="Manufacturer" class="form-control" required />
+                </div>
+                <div class="col-md-6 mb-2">
+                    <label class="control-label">@_localization.Getkey("category")</label>
+                    <select id="CategoryId" class="form-control" asp-items="ViewBag.CategoriesList" required></select>
+                </div>
+                <div class="col-md-12 mb-2">
+                    <label class="control-label">@_localization.Getkey("common_description")</label>
+                    <textarea id="Description" class="form-control"></textarea>
+                </div>
+                <div class="col-md-6 mb-2">
+                    <label class="control-label">@_localization.Getkey("product_import_price")</label>
+                    <input id="ImportPrice" class="form-control" type="number" min="0" required />
+                </div>
+                <div class="col-md-6 mb-2">
+                    <label class="control-label">@_localization.Getkey("product_price")</label>
+                    <input id="Price" class="form-control" type="number" min="0" required />
+                </div>
+                <div class="col-md-6 mb-2">
+                    <label class="control-label">@_localization.Getkey("unit")</label>
+                    <select id="UnitId" class="form-control" asp-items="ViewBag.UnitsList" required></select>
+                </div>
+                <div class="col-md-12 mb-4">
+                    <label class="control-label">@_localization.Getkey("product_quantity_in_stock")</label>
+                    <input id="Number" class="form-control" type="number" min="0" required />
+                </div>
+                <div class="form-group">
+                    <button id="btnSubmit" class="btn btn-primary">@_localization.Getkey("common_add")</button>
+                </div>
+            </form>
+            <button id="btnActive" class="btn btn-warning" onclick="handleDelete(1)"><i class="bi bi-play-fill"></i> @_localization.Getkey("common_active")</button>
+        </div>
+    </div>
+
+    <div class="offcanvas offcanvas-end" id="offcanvasUpload">
+        <div class="offcanvas-header">
+            <h5 class="offcanvas-title text-primary">@_localization.Getkey("common_import_excel")</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+        </div>
+        <div class="offcanvas-body">
+            <form asp-controller="FileUpload" asp-action="ImportProduct" method="post" enctype="multipart/form-data">
+                <div class="mb-3">
+                    <label for="formFile" class="form-label">@_localization.Getkey("common_import_excel")</label>
+                    <input class="form-control" type="file" id="formFile" name="postedFile">
+                </div>
+                <div class="form-group">
+                    <button type="submit" class="btn btn-primary mr-2">@_localization.Getkey("common_upload")</button>
+                    <a id="btnDownloadTemp" class="btn btn-outline-success" href="/Uploads/Products.xlsx" download>@_localization.Getkey("common_download_temp")</a>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <div class="col-md-12">
-        <table class="table table-bordered">
-            <thead>
-                <tr>
-                    <th>@Html.DisplayNameFor(m => m.Id)</th>
-                    <th>@Html.DisplayNameFor(m => m.ProductName)</th>
-                    <th>@Html.DisplayNameFor(m => m.Manufacturer)</th>
-                    <th>@Html.DisplayNameFor(m => m.Description)</th>
-                    <th>@Html.DisplayNameFor(m => m.Price)</th>
-                    <th>@Html.DisplayNameFor(m => m.Number)</th>
-                    <th class="text-end">Thao tác</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach (var item in Model)
-                {
+        <div class="table-responsive" style="width: 100%">
+            <table id="Product-Table" class="table table-bordered">
+                <thead>
                     <tr>
-                        <td class="align-middle">
-                            @Html.DisplayFor(modelItem => item.Id)
-                        </td>
-                        <td class="align-middle">
-                            @Html.DisplayFor(modelItem => item.ProductName)
-                        </td>
-                        <td class="align-middle">
-                            @Html.DisplayFor(modelItem => item.Manufacturer)
-                        </td> 
-                        <td class="align-middle">
-                            @Html.DisplayFor(modelItem => item.Description)
-                        </td> 
-                        <td class="align-middle">
-                            @Html.DisplayFor(modelItem => item.Price)
-                        </td>
-                         <td class="align-middle">
-                            @Html.DisplayFor(modelItem => item.Number)
-                        </td>
-                        <td class="align-middle text-end">
-                            <a class="btn btn-outline-info" asp-action="Details" asp-route-id="@item.Id"><i class="bi bi-eye"></i> Chi tiết</a>
-                            <a class="btn btn-primary" asp-action="Edit" asp-route-id="@item.Id"><i class="bi bi-pencil-square"></i> Sửa</a>
-                            <a class="btn btn-danger" asp-action="Delete" asp-route-id="@item.Id"><i class="bi bi-trash"></i> Xóa</a>
-                        </td>
+                        <th>@_localization.Getkey("product_id")</th>
+                        <th>@_localization.Getkey("product_name")</th>
+                        <th>@_localization.Getkey("product_manufacturer")</th>
+                        <th>@_localization.Getkey("category")</th>
+                        <th>@_localization.Getkey("common_description")</th>
+                        <th>@_localization.Getkey("unit")</th>
+                        <th>@_localization.Getkey("product_import_price")</th>
+                        <th>@_localization.Getkey("product_price")</th>
+                        <th>@_localization.Getkey("product_quantity_in_stock")</th>
+                        <th>@_localization.Getkey("common_status")</th>
+                        <th class="text-end">@_localization.Getkey("common_actions")</th>
                     </tr>
-                }
-            </tbody>
-        </table>
+                </thead>
+            </table>
+        </div>
+    </div>
+
+    <div class="modal fade" id="deleteModal" tabindex="-1" role="dialog" aria-labelledby="deleteModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="deleteModalLabel">@_localization.Getkey("common_confirm_delete")</h5>
+                    <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    @_localization.Getkey("common_are_you_sure_delete")
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">@_localization.Getkey("common_back")</button>
+                    <button type="button" class="btn btn-danger" onclick="handleDelete(0)">@_localization.Getkey("common_confirm")</button>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
+
+@section Scripts {
+    <script>
+
+        var dataTable;
+        var isEdit = false;
+        var deleteItemId = "";
+        var form = $('#form')[0];
+        var offcanvasForm = new bootstrap.Offcanvas($('#offcanvasForm'));
+
+        $(document).ready(function () {
+            dataTable = $("#Product-Table").DataTable({
+                "processing": true,
+                "serverSide": true,
+                "filter": true,
+                "orderMulti": false,
+                "ordering": false,
+                "ajax": {
+                    "url": "/Product/GetData",
+                    "type": "GET",
+                    "datatype": "json"
+                },
+                "columns": [
+                    { "data": "productCode" },
+                    { "data": "productName" },
+                    { "data": "manufacturer" },
+                    { "data": "category.categoryName" },
+                    { "data": "description" },
+                    { "data": "unit.unitName" },
+                    {
+                        "data": "importPrice",
+                        "render": (data) => new Intl.NumberFormat('en-US').format(data)
+                    },
+                    {
+                        "data": "price",
+                        "render": (data) => new Intl.NumberFormat('en-US').format(data)
+                    },
+                    { "data": "number" },
+                    { "data": "status", "render": (data) => data ? '@_localization.Getkey("common_active")' : '@_localization.Getkey("common_deactive")' },
+                    {
+                        "render": (data, type, row, meta) => {
+                            return `
+                                    <a class="btn btn-outline-info" onclick="openDetailForm('${row.id}')"><i class="bi bi-eye"></i></a>
+                                    <a class="btn btn-primary" onclick="openEditForm('${row.id}')"><i class="bi bi-pencil-square"></i></a>
+                                    <a class="btn btn-danger" onclick="openDeleteModal('${row.id}')" ><i class="bi bi-trash"></i></a>
+                                    `
+                        },
+                        "class": "text-end"
+                    },
+                ],
+                "responsive": true,
+                "language": {
+                    "emptyTable": "No data found"
+                },
+                "dom": 'Bfrtip',
+                "buttons": [
+                    {
+
+                        "extend": 'excel',
+                        "text": 'Export',
+                        "titleAttr": 'Excel',
+                        "action": newexportaction,
+                        "exportOptions": {
+                            columns: ':not(:last-child)',
+                            modifer: {
+                                page: 'all',
+                                search: 'none'    
+                            }
+                        },
+                        "filename": function () {
+                            var exportNameLabel = @Html.Raw(Json.Serialize(_localization.Getkey("product_list")));
+                            var d = new Date();
+                            var l = d.getFullYear() + '-' + (d.getMonth() + 1) + '-' + d.getDate();
+                            var n = d.getHours() + "-" + d.getMinutes() + "-" + d.getSeconds();
+                            return exportNameLabel.value + '_' + l + ' ' + n;
+                        },
+                    },
+                ],
+            });
+
+            $('#ExportExcel').click(() => {
+                $('.buttons-excel').click();
+            })
+
+            form.addEventListener('submit', event => {
+                event.preventDefault()
+                if (!form.checkValidity()) {
+                    event.stopPropagation()
+                    var validateLabel = @Html.Raw(Json.Serialize(_localization.Getkey("common_notyf_please_enter_input")));
+                    notyf.error(validateLabel.value);
+                } else {
+                    handleSave()
+                }
+                form.classList.add('was-validated')
+            }, false)
+        });
+
+        function newexportaction(e, dt, button, config) {
+            var self = this;
+            var oldStart = dt.settings()[0]._iDisplayStart;
+            dt.one('preXhr', function (e, s, data) {
+                // Just this once, load all data from the server...
+                data.start = 0;
+                data.length = 2147483647;
+                dt.one('preDraw', function (e, settings) {
+                    // Call the original action function
+                    if (button[0].className.indexOf('buttons-copy') >= 0) {
+                        $.fn.dataTable.ext.buttons.copyHtml5.action.call(self, e, dt, button, config);
+                    } else if (button[0].className.indexOf('buttons-excel') >= 0) {
+                        $.fn.dataTable.ext.buttons.excelHtml5.available(dt, config) ?
+                            $.fn.dataTable.ext.buttons.excelHtml5.action.call(self, e, dt, button, config) :
+                            $.fn.dataTable.ext.buttons.excelFlash.action.call(self, e, dt, button, config);
+                    } else if (button[0].className.indexOf('buttons-csv') >= 0) {
+                        $.fn.dataTable.ext.buttons.csvHtml5.available(dt, config) ?
+                            $.fn.dataTable.ext.buttons.csvHtml5.action.call(self, e, dt, button, config) :
+                            $.fn.dataTable.ext.buttons.csvFlash.action.call(self, e, dt, button, config);
+                    } else if (button[0].className.indexOf('buttons-pdf') >= 0) {
+                        $.fn.dataTable.ext.buttons.pdfHtml5.available(dt, config) ?
+                            $.fn.dataTable.ext.buttons.pdfHtml5.action.call(self, e, dt, button, config) :
+                            $.fn.dataTable.ext.buttons.pdfFlash.action.call(self, e, dt, button, config);
+                    } else if (button[0].className.indexOf('buttons-print') >= 0) {
+                        $.fn.dataTable.ext.buttons.print.action(e, dt, button, config);
+                    }
+                    dt.one('preXhr', function (e, s, data) {
+                        // DataTables thinks the first item displayed is index 0, but we're not drawing that.
+                        // Set the property to what it was before exporting.
+                        settings._iDisplayStart = oldStart;
+                        data.start = oldStart;
+                    });
+                    // Reload the grid with the original page. Otherwise, API functions like table.cell(this) don't work properly.
+                    setTimeout(dt.ajax.reload, 0);
+                    // Prevent rendering of the full data to the DOM
+                    return false;
+                });
+            });
+            // Requery the server with the new one-time export settings
+            dt.ajax.reload();
+        };
+
+        function handleDownloadTemp(e){
+            e.preventDefault();
+
+        }
+
+        function openAddForm() {
+            isEdit = false;
+            resetForm();
+            var addLabel = @Html.Raw(Json.Serialize(_localization.Getkey("common_add")));
+            var addNewLabel = @Html.Raw(Json.Serialize(_localization.Getkey("common_add_new")));
+            $('#btnSubmit').show().text(addLabel.value);
+            $('#offcanvasFormLabel').text(addNewLabel.value);
+            $('#btnActive').hide();
+            disableValueForm(false);
+            offcanvasForm.show();
+        }
+
+        function openEditForm(id) {
+            isEdit = true;
+            resetForm();
+            var updateLabel = @Html.Raw(Json.Serialize(_localization.Getkey("common_update")));
+            $('#btnSubmit').show().text(updateLabel.value);
+            disableValueForm(false);
+            getDetailValue(id)
+            offcanvasForm.show();
+            deleteItemId = id;
+        }
+
+        function openDetailForm(id) {
+            isEdit = false;
+            $('#btnSubmit').hide();
+            $('#btnActive').hide();
+            disableValueForm(true);
+            getDetailValue(id)
+            offcanvasForm.show();
+        }
+
+        function resetForm() {
+            form.reset();
+            $('#form').removeClass('was-validated');
+        }
+
+        function disableValueForm(disabled) {
+            $('#ProductCode').prop("disabled", disabled);
+            $('#ProductName').prop("disabled", disabled);
+            $('#Manufacturer').prop("disabled", disabled);
+            $('#CategoryId').prop("disabled", disabled);
+            $('#Description').prop("disabled", disabled);
+            $('#UnitId').prop("disabled", disabled);
+            $('#ImportPrice').prop("disabled", disabled);
+            $('#Price').prop("disabled", disabled);
+            $('#Number').prop("disabled", disabled);
+        }
+
+        function openDeleteModal(id) {
+            $('#deleteModal').modal("show");
+            deleteItemId = id;
+        }
+
+        function getDetailValue(id) {
+            $.ajax({
+                type: "GET",
+                url: '@Url.Action("Details","Product")/' + id,
+                success: function (data) {
+                    var detailsLabel = @Json.Serialize(_localization.Getkey("common_details"));
+                    $('#offcanvasFormLabel').text(detailsLabel.value);
+                    $('#ProductId').val(data.data.id);
+                    $('#ProductCode').val(data.data.productCode);
+                    $('#ProductName').val(data.data.productName);
+                    $('#Manufacturer').val(data.data.manufacturer);
+                    $('#CategoryId').val(data.data.categoryId);
+                    $('#Description').val(data.data.description);
+                    $('#UnitId').val(data.data.unitId);
+                    $('#ImportPrice').val(data.data.importPrice);
+                    $('#Price').val(data.data.price);
+                    $('#Number').val(data.data.number);
+
+                    if (!data.data.status && isEdit) {
+                        $('#btnActive').show();
+                    } else {
+                        $('#btnActive').hide();
+                    }
+                }
+            });
+        }
+
+        function handleSave() {
+            var data = {
+                Id: $('#ProductId').val(),
+                ProductName: $('#ProductName').val(),
+                ProductCode: $('#ProductCode').val(),
+                Manufacturer: $('#Manufacturer').val(),
+                CategoryId: $('#CategoryId').val(),
+                Description: $('#Description').val(),
+                UnitId: $('#UnitId').val(),
+                ImportPrice: $('#ImportPrice').val(),
+                Price: $('#Price').val(),
+                Number: $('#Number').val(),
+            };
+
+            var createSuccessLabel = @Json.Serialize(_localization.Getkey("common_notyf_create_success"));
+            var updateSuccessLabel = @Json.Serialize(_localization.Getkey("common_notyf_update_success"));
+            var errorLabel = @Json.Serialize(_localization.Getkey("common_notyf_error"));
+            if (isEdit) {
+                $.ajax({
+                    type: "POST",
+                    url: "/Product/Edit",
+                    data: data,
+                    dataType: 'json',
+                    success: function (data) {
+                        if (data.isSuccess) {
+                            notyf.success(updateSuccessLabel.value);
+                            dataTable.ajax.reload();
+                            offcanvasForm.hide();
+                        } else {
+                            notyf.error(errorLabel.value);
+                        }
+                    },
+                    error: function () {
+                        notyf.error(errorLabel.value);
+                    }
+                });
+            } else {
+                $.ajax({
+                    type: "POST",
+                    url: "/Product/Create",
+                    data: data,
+                    dataType: 'json',
+                    success: function (data) {
+                        if (data.isSuccess) {
+                            notyf.success(createSuccessLabel.value);
+                            dataTable.ajax.reload();
+                            offcanvasForm.hide();
+                        } else {
+                            notyf.error(errorLabel.value);
+                        }
+                    },
+                    error: function () {
+                        notyf.error(errorLabel.value);
+                    }
+                });
+            }
+        }
+
+        function handleDelete(status) {
+            var deleteSuccessLabel = @Json.Serialize(_localization.Getkey("common_notyf_update_success"));
+            var errorLabel = @Json.Serialize(_localization.Getkey("common_notyf_error"));
+            $.ajax({
+                type: "POST",
+                url: 'Product/Delete/' + deleteItemId + '?status=' + status,
+                success: function (data) {
+                    if (data.isSuccess) {
+                        dataTable.ajax.reload();
+                        notyf.success(deleteSuccessLabel.value);
+                        $('#deleteModal').modal("hide");
+                        offcanvasForm.hide();
+                    } else {
+                        notyf.error(errorLabel.value);
+                        $('#deleteModal').modal("hide");
+                    }
+                },
+                error: function () {
+                    notyf.error(errorLabel.value);
+                    $('#deleteModal').modal("hide");
+                }
+            });
+        }
+
+    </script>
+}

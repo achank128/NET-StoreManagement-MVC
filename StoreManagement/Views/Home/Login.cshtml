@@ -1,0 +1,34 @@
+﻿@model User
+
+@{
+    ViewBag.Title = "Login";
+}
+<div class="row justify-content-md-center">
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header text-center">
+                <h3>@_localization.Getkey("auth_login")</h3>
+            </div>
+            <div class="card-body">
+                @using (Html.BeginForm("Login", "Home", FormMethod.Post))
+                {
+                    @Html.AntiForgeryToken()
+                    <div class="form-group">
+                        <label>@_localization.Getkey("common_email")</label>
+                        @Html.TextBoxFor(m => m.Email, "", new { @class = "form-control", @placeholder = _localization.Getkey("common_email") })
+                    </div>
+                    <div class="form-group">
+                        <label>@_localization.Getkey("common_password")</label>
+                        @Html.PasswordFor(m => m.Password, new { @class = "form-control", @placeholder = _localization.Getkey("common_password") })
+                    </div>
+                    <div class="form-group">
+                        <button type="submit" name="submit" class="btn btn-primary">
+                            @_localization.Getkey("auth_login")
+                        </button>
+                    </div>
+                }
+                <span>@_localization.Getkey("auth_not_have_account") <a class="link" asp-action="Register">@_localization.Getkey("auth_register")</a></span>
+            </div>
+        </div>
+    </div>
+</div>

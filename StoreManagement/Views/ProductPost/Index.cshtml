@@ -1,0 +1,220 @@
+﻿@{
+    ViewData["Title"] = @_localization.Getkey("productpost");
+}
+
+<div class="row">
+    <div class="col-md-8">
+        <h2>@_localization.Getkey("productpost")</h2>
+    </div>
+    <div class="col-md-4 text-end">
+        <a class="btn" asp-action="Index">
+            <i class="bi bi-arrow-clockwise"></i>
+        </a>
+    </div>
+    <div class="col-md-12 text-end mb-3">
+        <a class="btn btn-success" asp-action="Upsert">
+            <i class="bi bi-plus-circle"></i> @_localization.Getkey("common_add_new")
+        </a>
+    </div>
+
+    <div class="offcanvas offcanvas-end" id="offcanvasForm" aria-labelledby="offcanvasFormLabel" style="width: 800px;">
+        <div class="offcanvas-header">
+            <h5 class="offcanvas-title text-primary" id="offcanvasFormLabel"> @_localization.Getkey("common_details")</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+        </div>
+        <div class="offcanvas-body">
+            <form id="form" class="row" novalidate>
+                <div class="col-md-8 mb-2">
+                    <label class="control-label">@_localization.Getkey("product")</label>
+                    <input id="ProductPostId" class="form-control" type="hidden" />
+                    <select id="ProductId" class="form-control" asp-items="ViewBag.ProductsList" required></select>
+                </div>
+                <div class="col-md-8 mb-2">
+                    <label class="control-label">@_localization.Getkey("productpost_author")</label>
+                    <select id="AuthorId" class="form-control" asp-items="ViewBag.UsersList" required></select>
+                </div>
+                <div class="col-md-8 mb-2">
+                    <label class="control-label">@_localization.Getkey("productpost_cover_img")</label>
+                    <input id="CoverImgUrl" class="form-control mb-2" />
+                    <img id="CoverImg" class="img-thumbnail" style="max-width: 200px" />
+                </div>
+                <div class="col-md-12 mb-2">
+                    <label class="control-label">@_localization.Getkey("productpost_content")</label>
+                    <div class="card">
+                        <div class="card-body ck-content" id="Content"></div>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <button id="btnSubmit" class="btn btn-primary">@_localization.Getkey("common_save")</button>
+                </div>
+            </form>
+            <button id="btnActive" class="btn btn-warning" onclick="handleDelete(1)"><i class="bi bi-play-fill"></i> Ngưng xóa</button>
+        </div>
+    </div>
+
+    <div class="col-md-12">
+        <div class="table-responsive" style="width: 100%">
+            <table id="Product-Table" class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th>@_localization.Getkey("product")</th>
+                        <th>@_localization.Getkey("productpost_author")</th>
+                        <th>@_localization.Getkey("productpost_cover_img")</th>
+                        <th>@_localization.Getkey("productpost_content")</th>
+                        <th>@_localization.Getkey("common_created_date")</th>
+                        <th class="text-end">@_localization.Getkey("common_actions")</th>
+                    </tr>
+                </thead>
+            </table>
+        </div>
+    </div>
+
+    <div class="modal fade" id="deleteModal" tabindex="-1" role="dialog" aria-labelledby="deleteModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="deleteModalLabel">@_localization.Getkey("common_confirm_delete")</h5>
+                    <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    @_localization.Getkey("common_are_you_sure_delete")
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">@_localization.Getkey("common_back")</button>
+                    <button type="button" class="btn btn-danger" onclick="handleDelete()">@_localization.Getkey("common_confirm")</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+
+        var dataTable;
+        var isEdit = false;
+        var deleteItemId = "";
+        var offcanvasForm = new bootstrap.Offcanvas($('#offcanvasForm'));
+
+        $(document).ready(function () {
+            dataTable = $("#Product-Table").DataTable({
+                "processing": true,
+                "serverSide": true,
+                "filter": true,
+                "orderMulti": false,
+                "ordering": false,
+                "ajax": {
+                    "url": "/ProductPost/GetData",
+                    "type": "GET",
+                    "datatype": "json"
+                },
+                "columns": [
+                    { "data": "product.productName" },
+                    { "data": "author.fullName" },
+                    { "data": "coverImg", "render": (data) => {
+                        if (data) {
+                            return `
+                            <img class="img-thumbnail" src="${"/Images/" + data}" style="max-width: 160px"/>
+                            `
+                        }else{
+                            return "No Cover Image"
+                        }
+                    }},
+                    {
+                        "data": "content",
+                        "render": (data) => {
+                            var charactersLabel = @Json.Serialize(_localization.Getkey("common_characters"));
+                            return data.length + " " + charactersLabel.value
+                        }
+                    },
+                    {
+                        "data": "createdDate",
+                        "render": (data) => new Date(data).toLocaleDateString('en-GB')
+                    },
+                    {
+                        "render": (data, type, row, meta) => {
+                            return `
+                            <a class="btn btn-outline-info" onclick="openDetailForm('${row.id}')"><i class="bi bi-eye"></i></a>
+                            <a class="btn btn-primary" href="/ProductPost/Upsert?id=${row.id}"><i class="bi bi-pencil-square"></i></a>
+                            <a class="btn btn-danger" onclick="openDeleteModal('${row.id}')" ><i class="bi bi-trash"></i></a>`
+                        },
+                        "class": "text-end"
+                    },
+                ],
+                "responsive": true,
+                "language": {
+                    "emptyTable": "No data found"
+                },
+            });
+        });
+
+        function openDetailForm(id) {
+            isEdit = false;
+            $('#btnSubmit').hide();
+            $('#btnActive').hide();
+            disableValueForm(true);
+            getDetailValue(id)
+            offcanvasForm.show();
+        }
+
+        function disableValueForm(disabled) {
+            $('#ProductId').prop("disabled", disabled);
+            $('#AuthorId').prop("disabled", disabled);
+            $('#CoverImgUrl').prop("disabled", disabled);
+        }
+
+        function openDeleteModal(id) {
+            $('#deleteModal').modal("show");
+            deleteItemId = id;
+        }
+
+        function getDetailValue(id) {
+            $.ajax({
+                type: "GET",
+                url: '@Url.Action("Details","ProductPost")/' + id,
+                success: function (data) {
+                    $('#ProductPostId').val(data.data.id);
+                    $('#ProductId').val(data.data.productId);
+                    $('#AuthorId').val(data.data.authorId);
+                    $('#CoverImgUrl').val(data.data.coverImg);
+                    $('#CoverImg').attr('src', "/Images/" + data.data.coverImg);
+                    $('#Content').html(data.data.content);
+
+                    console.log(data);
+                    if (!data.data.status && isEdit) {
+                        $('#btnActive').show();
+                    } else {
+                        $('#btnActive').hide();
+                    }
+                }
+            });
+        }
+
+        function handleDelete(status) {
+            var deleteSuccessLabel = @Json.Serialize(_localization.Getkey("common_notyf_delete_success"));
+            var errorLabel = @Json.Serialize(_localization.Getkey("common_notyf_error"));
+            $.ajax({
+                type: "POST",
+                url: 'ProductPost/Delete/' + deleteItemId + '?status=' + status,
+                success: function (data) {
+                    if (data.isSuccess) {
+                        dataTable.ajax.reload();
+                        notyf.success(deleteSuccessLabel.value);
+                        $('#deleteModal').modal("hide");
+                    } else {
+                        notyf.error(errorLabel.value);
+                        $('#deleteModal').modal("hide");
+                    }
+                },
+                error: function () {
+                    notyf.error(errorLabel.value);
+                    $('#deleteModal').modal("hide");
+                }
+            });
+        }
+
+    </script>
+}

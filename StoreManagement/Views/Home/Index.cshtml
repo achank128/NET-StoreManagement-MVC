@@ -3,6 +3,13 @@
 }
 
 <div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://docs.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+    <h1 class="display-4">@_localization.Getkey("common_welcome")</h1>
+    <div class="card-body">
+        @if (@HttpContextAccessor.HttpContext.Session.GetString("FullName") != null)
+        {
+            <p>Name: @HttpContextAccessor.HttpContext.Session.GetString("FullName").ToString()</p>
+            <p>Email: @HttpContextAccessor.HttpContext.Session.GetString("Email").ToString()</p>
+            <a class="btn btn-outline-danger" href="@Url.Action("Logout","Home")">Logout</a>
+        }
+    </div>
 </div>

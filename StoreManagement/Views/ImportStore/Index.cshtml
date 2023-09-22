@@ -1,67 +1,538 @@
-﻿@*Model*@
-@model IEnumerable<ImportStore>
+﻿@using Microsoft.AspNetCore.Http
+@inject Microsoft.AspNetCore.Http.IHttpContextAccessor HttpContextAccessor
 
 @{
-    ViewData["Title"] = "Import Store";
+    ViewData["Title"] = @_localization.Getkey("import_list");
 }
 
-@*View*@
 <div class="row">
     <div class="col-md-8">
-        <h2>Phiếu nhập kho</h2>
+        <h2>@_localization.Getkey("import_list")</h2>
     </div>
     <div class="col-md-4 text-end">
-        <a class="btn btn-success" asp-controller="ImportStore" asp-action="Create">
-            <i class="bi bi-plus-circle"></i> Thêm mới
+        <a class="btn" asp-action="Index">
+            <i class="bi bi-arrow-clockwise"></i>
         </a>
     </div>
+    <div class="col-md-12 text-end  mb-3">
+        <button id="ExportExcel" class="btn btn-outline-success mr-2">
+            <i class="bi bi-file-earmark-excel"></i> @_localization.Getkey("common_export_excel")
+        </button>
+        <button class="btn btn-success" onclick="openAddForm()">
+            <i class="bi bi-plus-circle"></i> @_localization.Getkey("common_add_new")
+        </button>
+    </div>
+
+
+    <div class="offcanvas offcanvas-end" id="offcanvasForm" aria-labelledby="offcanvasFormLabel" style="width: 800px;">
+        <div class="offcanvas-header">
+            <h5 class="offcanvas-title text-primary" id="offcanvasFormLabel">@_localization.Getkey("common_add_new")</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+        </div>
+        <div class="offcanvas-body">
+            <form id="form" class="row" novalidate>
+                <div class="col-md-6 mb-2">
+                    <label class="control-label">@_localization.Getkey("import_importer")</label>
+                    <input id="ImportStoreId" name="ImportStoreId" type="hidden" />
+                    <select id="ImporterId" class="form-control" asp-items="ViewBag.UsersList" required></select>
+                </div>
+                <div class="col-md-6 mb-2">
+                    <label class="control-label">@_localization.Getkey("supplier")</label>
+                    <select id="SupplierId" class="form-control" asp-items="ViewBag.SuppliersList" required></select>
+
+                </div>
+                <div class="col-md-6 mb-2">
+                    <label class="control-label">@_localization.Getkey("import_date")</label>
+                    <input id="ImportDate" name="ImportDate" class="form-control" type="date" required />
+                </div>
+                <div class="col-md-12 mb-2">
+                    <label class="control-label">@_localization.Getkey("common_note")</label>
+                    <textarea id="Note" class="form-control"></textarea>
+                </div>
+                
+                <div class="col-md-12 my-4">
+                    <p class="mb-0">@_localization.Getkey("product_list"):</p>
+                    <table id="ProductItem-Table" class="table table-bordered">
+                        <thead>
+                            <tr>
+                                <th style="width: 160px;">@_localization.Getkey("product")</th>
+                                <th>@_localization.Getkey("product_quantity_in_stock")</th>
+                                <th>@_localization.Getkey("common_quantity")</th>
+                                <th>@_localization.Getkey("import_price")</th>
+                                <th class="text-center" style="width: 120px;">
+                                    <button id="add-product-item" class="btn btn-success">
+                                        <i class="bi bi-plus-square"></i> @_localization.Getkey("common_add")
+                                    </button>
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody id="product-items">
+                        </tbody>
+                    </table>
+                </div>
+                <div class="col-md-6 mb-4">
+                    <label class="control-label">@_localization.Getkey("common_total")</label>
+                    <input id="Total" class="form-control" type="number" readonly />
+                </div>
+                <div class="form-group">
+                    <button id="btnSubmit" class="btn btn-primary">@_localization.Getkey("common_add")</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <div class="col-md-12">
-        <table class="table table-bordered">
-            <thead>
-                <tr>
-                    <th>@Html.DisplayNameFor(m => m.Id)</th>
-                    <th>@Html.DisplayNameFor(m => m.ImporterName)</th>
-                    <th>@Html.DisplayNameFor(m => m.ImportDate)</th>
-                    <th>@Html.DisplayNameFor(m => m.Product.ProductName)</th>
-                    <th>@Html.DisplayNameFor(m => m.Product.Price)</th>
-                    <th>@Html.DisplayNameFor(m => m.Quantity)</th>
-                    <th>@Html.DisplayNameFor(m => m.Total)</th>
-                    <th class="text-end">Thao tác</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach (var item in Model)
-                {
+        <div class="table-responsive" style="width: 100%">
+            <table id="ImportStore-Table" class="table table-bordered">
+                <thead>
                     <tr>
-                        <td class="align-middle">
-                            @Html.DisplayFor(modelItem => item.Id)
-                        </td>
-                        <td class="align-middle">
-                            @Html.DisplayFor(modelItem => item.ImporterName)
-                        </td>
-                        <td class="align-middle">
-                            @Html.DisplayFor(modelItem => item.ImportDate, "{dd/MM/yyyy}")
-                        </td>
-                        <td class="align-middle">
-                            @Html.DisplayFor(modelItem => item.Product.ProductName)
-                        </td> 
-                        <td class="align-middle">
-                            @Html.DisplayFor(modelItem => item.Product.Price)
-                        </td>
-                        <td class="align-middle">
-                            @Html.DisplayFor(modelItem => item.Quantity)
-                        </td>
-                        <td class="align-middle">
-                            @Html.DisplayFor(modelItem => item.Total)
-                        </td>
-                        <td class="align-middle text-end">
-                            <a class="btn btn-outline-info" asp-action="Details" asp-route-id="@item.Id"><i class="bi bi-eye"></i> Chi tiết</a>
-                            <a class="btn btn-primary" asp-action="Edit" asp-route-id="@item.Id"><i class="bi bi-pencil-square"></i> Sửa</a>
-                            <a class="btn btn-danger" asp-action="Delete" asp-route-id="@item.Id"><i class="bi bi-trash"></i> Xóa</a>
-                        </td>
+                        <th>@_localization.Getkey("import_id")</th>
+                        <th>@_localization.Getkey("import_importer")</th>
+                        <th>@_localization.Getkey("supplier")</th>
+                        <th>@_localization.Getkey("import_date")</th>
+                        <th>@_localization.Getkey("common_created_date")</th>
+                        <th>@_localization.Getkey("common_total")</th>
+                        <th class="text-end">@_localization.Getkey("common_actions")</th>
                     </tr>
-                }
-            </tbody>
-        </table>
+                </thead>
+            </table>
+        </div>
+    </div>
+
+    <div class="modal fade" id="deleteModal" tabindex="-1" role="dialog" aria-labelledby="deleteModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="deleteModalLabel">@_localization.Getkey("common_confirm_delete")</h5>
+                    <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    @_localization.Getkey("common_are_you_sure_delete")
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">@_localization.Getkey("common_back")</button>
+                    <button type="button" class="btn btn-danger" onclick="handleDelete()">@_localization.Getkey("common_confirm")</button>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
+
+
+@section Scripts {
+    <script>
+        var dataTable;
+        var isEdit = false;
+        var deleteItemId = "";
+        var form = $('#form')[0];
+        var offcanvasForm = new bootstrap.Offcanvas($('#offcanvasForm'));
+
+        $(document).ready(function () {
+            dataTable = $("#ImportStore-Table").DataTable({
+                "processing": true,
+                "serverSide": true,
+                "filter": true,
+                "orderMulti": false,
+                "ordering": false,
+                "ajax": {
+                    "url": "/ImportStore/GetData",
+                    "type": "GET",
+                    "datatype": "json"
+                },
+                "columns": [
+                    { "data": "id" },
+                    { "data": "importer.fullName" },
+                    { "data": "supplier.supplierName" },
+                    {
+                        "data": "importDate",
+                        "render": (data) => new Date(data).toLocaleDateString('en-GB')
+                    },
+                    {
+                        "data": "createdDate",
+                        "render": (data) => new Date(data).toLocaleDateString('en-GB')
+                    },
+                    {
+                        "data": "total",
+                        "render": (data) => new Intl.NumberFormat('en-US').format(data)
+                    },
+                    {
+                        "render": (data, type, row, meta) => {
+                            return `<a class="btn btn-outline-info" onclick="openDetailForm('${row.id}')"><i class="bi bi-eye"></i></a>
+                                    <a class="btn btn-primary" onclick="openEditForm('${row.id}')"><i class="bi bi-pencil-square"></i></a>
+                                    <a class="btn btn-danger" onclick="openDeleteModal('${row.id}')" ><i class="bi bi-trash"></i></a>`
+                        },
+                        "class": "text-end"
+                    },
+                ],
+                "responsive": true,
+                "language": {
+                    "emptyTable": "No data found"
+                },
+                "dom": 'Bfrtip',
+                "buttons": [
+                    {
+
+                        "extend": 'excel',
+                        "text": '<button class="btn btn-outline-success"><i class="fa fa-file-excel-o" style="color: green;"></i> Export</button>',
+                        "titleAttr": 'Excel',
+                        "action": newexportaction,
+                        "exportOptions": {
+                            columns: ':not(:last-child)',
+                        },
+                        "filename": function () {
+                            var exportNameLabel = @Html.Raw(Json.Serialize(_localization.Getkey("import_list")));
+                            var d = new Date();
+                            var l = d.getFullYear() + '-' + (d.getMonth() + 1) + '-' + d.getDate();
+                            var n = d.getHours() + "-" + d.getMinutes() + "-" + d.getSeconds();
+                            return exportNameLabel.value + '_' + l + ' ' + n;
+                        },
+                    },
+                ],
+            });
+
+            $('#ProductItem-Table').on('change', '.Price', (e) => {
+                caculateTotal()
+            });
+
+            $('#ProductItem-Table').on('change', '.Quantity', (e) => {
+                caculateTotal()
+            })
+
+            $("#add-product-item").click((e) => {
+                e.preventDefault();
+                addProductItem();
+            })
+
+            $('#ExportExcel').click(() => {
+                $('.buttons-excel').click();
+            })
+
+            form.addEventListener('submit', event => {
+                event.preventDefault()
+                if (!form.checkValidity()) {
+                    event.stopPropagation()
+                    var validateLabel = @Html.Raw(Json.Serialize(_localization.Getkey("common_notyf_please_enter_input")));
+                    notyf.error(validateLabel.value);
+                } else {
+                    handleSave()
+                }
+                form.classList.add('was-validated')
+            }, false)
+        });
+
+
+
+        function newexportaction(e, dt, button, config) {
+            var self = this;
+            var oldStart = dt.settings()[0]._iDisplayStart;
+            dt.one('preXhr', function (e, s, data) {
+                // Just this once, load all data from the server...
+                data.start = 0;
+                data.length = 2147483647;
+                dt.one('preDraw', function (e, settings) {
+                    // Call the original action function
+                    if (button[0].className.indexOf('buttons-copy') >= 0) {
+                        $.fn.dataTable.ext.buttons.copyHtml5.action.call(self, e, dt, button, config);
+                    } else if (button[0].className.indexOf('buttons-excel') >= 0) {
+                        $.fn.dataTable.ext.buttons.excelHtml5.available(dt, config) ?
+                            $.fn.dataTable.ext.buttons.excelHtml5.action.call(self, e, dt, button, config) :
+                            $.fn.dataTable.ext.buttons.excelFlash.action.call(self, e, dt, button, config);
+                    } else if (button[0].className.indexOf('buttons-csv') >= 0) {
+                        $.fn.dataTable.ext.buttons.csvHtml5.available(dt, config) ?
+                            $.fn.dataTable.ext.buttons.csvHtml5.action.call(self, e, dt, button, config) :
+                            $.fn.dataTable.ext.buttons.csvFlash.action.call(self, e, dt, button, config);
+                    } else if (button[0].className.indexOf('buttons-pdf') >= 0) {
+                        $.fn.dataTable.ext.buttons.pdfHtml5.available(dt, config) ?
+                            $.fn.dataTable.ext.buttons.pdfHtml5.action.call(self, e, dt, button, config) :
+                            $.fn.dataTable.ext.buttons.pdfFlash.action.call(self, e, dt, button, config);
+                    } else if (button[0].className.indexOf('buttons-print') >= 0) {
+                        $.fn.dataTable.ext.buttons.print.action(e, dt, button, config);
+                    }
+                    dt.one('preXhr', function (e, s, data) {
+                        // DataTables thinks the first item displayed is index 0, but we're not drawing that.
+                        // Set the property to what it was before exporting.
+                        settings._iDisplayStart = oldStart;
+                        data.start = oldStart;
+                    });
+                    // Reload the grid with the original page. Otherwise, API functions like table.cell(this) don't work properly.
+                    setTimeout(dt.ajax.reload, 0);
+                    // Prevent rendering of the full data to the DOM
+                    return false;
+                });
+            });
+            // Requery the server with the new one-time export settings
+            dt.ajax.reload();
+        };
+
+        function openAddForm() {
+            isEdit = false;
+            resetForm();
+            $("#product-items").empty();
+            $("#ImporterId").val('@HttpContextAccessor.HttpContext.Session.GetString("idUser")');
+            var addLabel = @Html.Raw(Json.Serialize(_localization.Getkey("common_add")));
+            var addNewLabel = @Html.Raw(Json.Serialize(_localization.Getkey("common_add_new")));
+            $('#btnSubmit').show().text(addLabel.value);
+            $('#offcanvasFormLabel').text(addNewLabel.value);
+            disableValueForm(false);
+            offcanvasForm.show();
+        }
+
+        function openEditForm(id) {
+            isEdit = true;
+            resetForm();
+            var updateLabel = @Html.Raw(Json.Serialize(_localization.Getkey("common_update")));
+            $('#btnSubmit').show().text(updateLabel.value);
+            $("#ImporterId").val('@HttpContextAccessor.HttpContext.Session.GetString("idUser")');
+            $("#product-items").empty();
+            disableValueForm(false);
+            getDetailValue(id)
+            offcanvasForm.show();
+        }
+
+
+        function openDetailForm(id) {
+            isEdit = false;
+            $('#btnSubmit').hide();
+            $("#product-items").empty();
+            disableValueForm(true);
+            getDetailValue(id);
+            offcanvasForm.show();
+        }
+
+        function resetForm() {
+            form.reset();
+            $('#form').removeClass('was-validated');
+            document.getElementById('ImportDate').valueAsDate = new Date();
+        }
+
+        function disableValueForm(disabled) {
+            $('#ImporterId').prop("disabled", disabled);
+            $('#SupplierId').prop("disabled", disabled);
+            $('#ImportDate').prop("disabled", disabled);
+            $('#Note').prop("disabled", disabled);
+            $('#Total').prop("disabled", disabled);
+            $('.product-item').each((i, e) => {
+                $(e).find('.Products').prop("disabled", disabled);
+                $(e).find('.Quantity').prop("disabled", disabled);
+                $(e).find('.Price').prop("disabled", disabled);
+                $(e).find('.btn').prop("disabled", disabled);
+            });
+            $("#add-product-item").prop("disabled", disabled);
+        }
+
+        function openDeleteModal(id) {
+            $('#deleteModal').modal("show");
+            deleteItemId = id;
+        }
+
+        function getDetailValue(id) {
+            $.ajax({
+                type: "POST",
+                url: '@Url.Action("Details","ImportStore")/' + id,
+                success: function (data) {
+                    var detailsLabel = @Json.Serialize(_localization.Getkey("common_details"));
+                    $('#offcanvasFormLabel').text(detailsLabel.value);
+                    $('#ImportStoreId').val(data.data.id);
+                    $('#ImporterId').val(data.data.importerId);
+                    $('#SupplierId').val(data.data.supplierId);
+                    $('#ImportDate').val(new Date(data.data.importDate).toISOString().split('T')[0]);
+                    $('#Note').val(data.data.note);
+                    $('#Total').val(data.data.total);
+                    data.data.importStoreDetails.forEach((detail) => {
+                        addProductItem(detail);
+                    })
+                }
+            }).done(() => disableValueForm(!isEdit));
+        }
+
+        function addProductItem(productItem) {
+            var newProductItemHtml = "";
+            if(productItem) {
+                newProductItemHtml = `
+                        <tr class="product-item">
+                            <td>
+                                <input value="${productItem?.product.productName}" class="Products form-control">
+                                <input value="${productItem?.product.id}" class="ProductId" type="hidden" />
+                            </td>
+                            <td><input value="${productItem?.product.number}" type="number" class="Number form-control" readonly/></td>
+                            <td><input value="${productItem?.quantity}" type="number" class="Quantity form-control" min="0" required/></td>
+                            <td><input value="${productItem?.importPrice}" type="number" class="Price form-control" min="0" required/></td>
+                            <td class="text-center align-middle">
+                                <button class="btn btn-outline-danger btn-sm"><i class="bi bi-x"></i></button>
+                            </td>
+                        </tr>`
+            } else {
+                newProductItemHtml = `
+                        <tr class="product-item">
+                            <td>
+                                <input class="Products form-control">
+                                <input class="ProductId" type="hidden" />
+                            </td>
+                            <td><input type="number" class="Number form-control" readonly/></td>
+                            <td><input type="number" class="Quantity form-control" min="0" required/></td>
+                            <td><input type="number" class="Price form-control" min="0" required/></td>
+                            <td class="text-center align-middle">
+                                <button class="btn btn-outline-danger btn-sm"><i class="bi bi-x"></i></button>
+                            </td>
+                        </tr>`
+            }
+            
+            $("#product-items").append(newProductItemHtml);
+            setProductItems();
+        }
+
+
+        function setProductItems () {
+            $('.product-item').each((i, e) => {
+                $(e).find(".Products").autocomplete({
+                    source: function (request, response) {
+                        $.ajax({
+                            url: '/Product/GetAll',
+                            type: 'GET',
+                            dataType: "json",
+                            data: {
+                                searchString: request.term
+                            },
+                            success: function (data) {
+                                response($.map(data.data, function (item) {
+                                    return {
+                                        id: item.id,
+                                        label: item.productName,
+                                        value: item.productName,
+                                        price: item.price,
+                                        importPrice: item.importPrice,
+                                        number: item.number,
+                                    };
+                                }));
+                            }
+                        });
+                    },
+                    minLength: 2,
+                    maxLength: 6,
+                    select: function (event, ui) {
+                        $(e).find('.ProductId').val(ui.item.id);
+                        $(e).find('.Price').val(ui.item.importPrice);
+                        $(e).find('.Number').val(ui.item.number);
+                    }
+                });
+
+                $(e).find('.btn').on('click', () => {
+                    $(e).remove();
+                })
+            })
+        }
+
+        function caculateTotal() {
+            var total = 0;
+            $('.product-item').each((i, e) => {
+                var item = {
+                    quantity: $(e).find('.Quantity').val(),
+                    price: $(e).find('.Price').val(),
+                }
+                total += Number(item.quantity) * Number(item.price);
+            });
+            $("#Total").val(total)
+        }
+
+        function handleSave() {
+            var data = {
+                id: $("#ImportStoreId").val(),
+                importerId: $("#ImporterId").val(),
+                supplierId: $("#SupplierId").val(),
+                importDate: $("#ImportDate").val(),
+                note: $("#Note").val(),
+                total: $("#Total").val(),
+                listProducts: []
+            };
+
+            $('.product-item').each((i, e) => {
+                var item = {
+                    productId: $(e).find('.ProductId').val(),
+                    quantity: $(e).find('.Quantity').val(),
+                    price: $(e).find('.Price').val(),
+                }
+                data.listProducts.push(item);
+            });
+
+            var createSuccessLabel = @Json.Serialize(_localization.Getkey("common_notyf_create_success"));
+            var updateSuccessLabel = @Json.Serialize(_localization.Getkey("common_notyf_update_success"));
+            var errorLabel = @Json.Serialize(_localization.Getkey("common_notyf_error"));
+
+            if (isEdit) {
+                $.ajax({
+                    url: '/ImportStore/EditImportStore',
+                    type: 'POST',
+                    dataType: 'json',
+                    data: JSON.stringify(data),
+                    headers: {
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json'
+                    },
+                    success: function (data) {
+                        if (data.isSuccess) {
+                            notyf.success(updateSuccessLabel.value);
+                            dataTable.ajax.reload();
+                            offcanvasForm.hide();
+                        } else {
+                            notyf.error(errorLabel.value);
+                        }
+                    },
+                    error: function () {
+                        notyf.error(errorLabel.value);
+                    }
+                })
+            } else {
+                $.ajax({
+                    url: '/ImportStore/CreateImportStore',
+                    type: 'POST',
+                    dataType: 'json',
+                    data: JSON.stringify(data),
+                    headers: {
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json'
+                    },
+                    success: function (data) {
+                        if (data.isSuccess) {
+                            notyf.success(createSuccessLabel.value);
+                            dataTable.ajax.reload();
+                            offcanvasForm.hide();
+                        } else {
+                            notyf.error(errorLabel.value);
+                        }
+                    },
+                    error: function () {
+                        notyf.error(errorLabel.value);
+                    }
+                })
+            }
+
+        }
+
+        function handleDelete() {
+            var deleteSuccessLabel = @Json.Serialize(_localization.Getkey("common_notyf_delete_success"));
+            var errorLabel = @Json.Serialize(_localization.Getkey("common_notyf_error"));
+            $.ajax({
+                type: "POST",
+                url: '@Url.Action("Delete","ImportStore")/' + deleteItemId,
+                success: function (data) {
+                    if (data.isSuccess) {
+                        dataTable.ajax.reload();
+                        notyf.success(deleteSuccessLabel.value);
+                        $('#deleteModal').modal("hide");
+                    } else {
+                        notyf.error(errorLabel.value);
+                        $('#deleteModal').modal("hide");
+                    }
+                },
+                error: function () {
+                    notyf.error(errorLabel.value);
+                    $('#deleteModal').modal("hide");
+                }
+            });
+        }
+
+
+    </script>
+}
